@@ -9,18 +9,18 @@ type PageHeaderProps = {
 };
 
 export default function Page({ children }: { children: React.ReactNode }) {
-  return <div className="px-4 py-6 md:p-3">{children}</div>;
+  return <div className="px-2 py-6 md:p-3">{children}</div>;
 }
 
 export function PageHeader({ title, children }: PageHeaderProps) {
   const { isMobile } = useSidebar();
 
   return (
-    <div className="sticky top-0 z-30 bg-background ">
-      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between py-2">
+    <div className="sticky top-0 z-30 bg-background border-b ">
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between py-4">
         <div className="flex items-center gap-2">
           {!isMobile && <SidebarTrigger className="-ml-1" />}
-          <h1 className="text-xl">{title}</h1>
+          <h1 className="text-xl font-semibold">{title}</h1>
         </div>
 
         <div className="flex gap-3">
