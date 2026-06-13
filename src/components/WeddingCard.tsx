@@ -38,7 +38,7 @@ export default function WeddingCard() {
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="pt-0 pb-5 px-4 ">
+      <CardFooter className="pt-0 pb-5 px-4 border-t-0 bg-transparent">
         <ProgressBar value={94} />
       </CardFooter>
     </Card>

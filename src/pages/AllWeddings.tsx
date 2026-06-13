@@ -1,11 +1,10 @@
 import Page, { PageHeader } from "@/components/Page";
-import PaginationWithResult from "@/components/TablePagination";
 import SearchBar from "@/components/SerachBar";
+import TablePagination from "@/components/TablePagination";
 import ToolBar from "@/components/ToolBar";
 import { Button } from "@/components/ui/button";
 import WeddingCard from "@/components/WeddingCard";
 import { MenuIcon, PlusIcon } from "lucide-react";
-import TablePagination from "@/components/TablePagination";
 import { useState } from "react";
 
 export default function AllWeddings() {
@@ -22,7 +21,7 @@ export default function AllWeddings() {
           <span>New Wedding</span>
         </Button>
       </PageHeader>
-      <div className="mt-auto space-y-4 ">
+      <div className="mt-auto space-y-4">
         <ToolBar>
           <div className="flex flex-wrap gap-3 items-center w-full">
             <div className="flex-1 min-w-60">
