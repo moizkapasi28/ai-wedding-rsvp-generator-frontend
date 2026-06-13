@@ -8,18 +8,22 @@
  */
 import {
   BookOpenIcon,
+  CalendarIcon,
   ChartPieIcon,
   CopyCheckIcon,
   CopyIcon,
-  FolderKanbanIcon,
-  HomeIcon,
+  EyeIcon,
   LayoutDashboardIcon,
+  LayoutGridIcon,
   LifeBuoyIcon,
   LogOutIcon,
   PencilIcon,
+  Settings2Icon,
   SettingsIcon,
+  SunIcon,
   TrashIcon,
   UserIcon,
+  Users2Icon,
   UsersIcon,
 } from "lucide-react";
 
@@ -48,34 +52,46 @@ export const VENDOR_MONITORED = [{ year: "2025", monitored: 240, limit: 60 }];
 export const APP_SIDEBAR = {
   primaryNav: [
     {
-      title: "Home",
+      title: "All Weddings",
+      path: "/all-weddings",
       url: "#",
-      Icon: HomeIcon,
+      Icon: LayoutGridIcon,
     },
     {
       title: "Dashboard",
+      path: "/",
       url: "#",
       Icon: LayoutDashboardIcon,
     },
     {
-      title: "Project",
+      title: "Guests",
       url: "#",
-      Icon: FolderKanbanIcon,
+      path: "/guests",
+      Icon: Users2Icon,
     },
     {
-      title: "Tasks",
+      title: "Events",
       url: "#",
-      Icon: CopyCheckIcon,
+      path: "/events",
+      Icon: CalendarIcon,
     },
     {
-      title: "Reporting",
+      title: "Page Settings",
       url: "#",
-      Icon: ChartPieIcon,
+      path: "/page-settings",
+      Icon: SettingsIcon,
     },
     {
-      title: "Users",
+      title: "AI Invite Card",
       url: "#",
-      Icon: UsersIcon,
+      path: "/ai-invite-card",
+      Icon: SunIcon,
+    },
+    {
+      title: "Guest Preview",
+      url: "#",
+      path: "/guest-preview",
+      Icon: EyeIcon,
     },
   ],
   secondaryNav: [

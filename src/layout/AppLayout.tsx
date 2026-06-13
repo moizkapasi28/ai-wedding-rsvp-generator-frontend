@@ -1,25 +1,18 @@
 import AppSidebar from "@/components/AppSidebar";
-import Page, { PageHeader } from "@/components/Page";
+import Header from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import Header from "./components/Header";
+import { Outlet } from "react-router-dom";
 
-export default function App() {
+export default function AppLayout() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <SidebarProvider open={false}>
+      <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
           <Header />
           <main>
-            <Page>
-              <PageHeader />
-              {/* <DashboardCard
-                title="Hello"
-                description="World"
-                buttonText="ABC"
-              ></DashboardCard> */}
-            </Page>
+            <Outlet />
           </main>
         </SidebarInset>
       </SidebarProvider>
