@@ -57,7 +57,7 @@ export default function RsvpPhonePreview() {
                   beginning!
                 </p>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-foreground">
                     Dietary preference
                   </label>
@@ -76,11 +76,11 @@ export default function RsvpPhonePreview() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-foreground">
                     Plus-ones
                   </label>
-                  <div className="flex h-10 items-center justify-between rounded-md border px-3 py-2">
+                  <div className="flex h-10 items-center justify-between rounded-md border px-3 py-3">
                     <button
                       type="button"
                       onClick={() => setPlusOnes((n) => Math.max(0, n - 1))}
@@ -103,7 +103,7 @@ export default function RsvpPhonePreview() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-foreground">
                     Song request (optional)
                   </label>

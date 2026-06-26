@@ -70,37 +70,10 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className={cn(isMobile && "border-t")}>
+      <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem className={cn(isMobile && "p-2")}>
-            {isMobile ? (
-              <div className="flex justify-between items-start gap-2">
-                <div className="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-2">
-                  <div className="relative">
-                    <Avtar
-                      name="John Doe"
-                      size="36px"
-                      round={true}
-                      src={APP_SIDEBAR.curProfile.src}
-                    />
-                    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 dark:bg-green-400 ring-sidebar ring-1"></div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">
-                      {APP_SIDEBAR.curProfile.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {APP_SIDEBAR.curProfile.email}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon-sm">
-                  <LogOutIcon />
-                </Button>
-              </div>
-            ) : (
-              <UserMenu />
-            )}
+          <SidebarMenuItem>
+            <UserMenu />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

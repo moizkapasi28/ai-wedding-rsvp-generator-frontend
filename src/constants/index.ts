@@ -9,8 +9,6 @@
 import {
   BookOpenIcon,
   CalendarIcon,
-  ChartPieIcon,
-  CopyCheckIcon,
   CopyIcon,
   EyeIcon,
   LayoutDashboardIcon,
@@ -18,13 +16,11 @@ import {
   LifeBuoyIcon,
   LogOutIcon,
   PencilIcon,
-  Settings2Icon,
   SettingsIcon,
   SunIcon,
   TrashIcon,
   UserIcon,
   Users2Icon,
-  UsersIcon,
 } from "lucide-react";
 
 /**
