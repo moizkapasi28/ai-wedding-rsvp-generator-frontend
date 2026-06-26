@@ -53,7 +53,8 @@ export default function RsvpPhonePreview() {
               {/* Body */}
               <div className="space-y-5 px-5 py-5 sm:space-y-6 sm:px-6 sm:py-6">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Join us for dinner and dancing as we celebrate our new beginning!
+                  Join us for dinner and dancing as we celebrate our new
+                  beginning!
                 </p>
 
                 <div className="space-y-2">
@@ -66,7 +67,9 @@ export default function RsvpPhonePreview() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                      <SelectItem value="non-vegetarian">Non-vegetarian</SelectItem>
+                      <SelectItem value="non-vegetarian">
+                        Non-vegetarian
+                      </SelectItem>
                       <SelectItem value="jain">Jain</SelectItem>
                       <SelectItem value="gluten-free">Gluten-free</SelectItem>
                     </SelectContent>
@@ -106,15 +109,12 @@ export default function RsvpPhonePreview() {
                   </label>
                   <Textarea
                     placeholder="Any song you'd love to dance to?"
-                    className="min-h-[80px] resize-none text-sm"
+                    className="min-h-20 resize-none text-sm"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                  >
+                  <Button variant="outline" className="w-full">
                     Can't make it
                   </Button>
                   <Button
