@@ -76,7 +76,7 @@ export const APP_SIDEBAR = {
       Icon: CalendarIcon,
     },
     {
-      title: "Page Settings",
+      title: "RSVP Page Settings",
       url: "#",
       path: "/page-settings",
       Icon: SettingsIcon,

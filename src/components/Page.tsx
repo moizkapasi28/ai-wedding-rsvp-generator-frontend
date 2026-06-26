@@ -1,7 +1,5 @@
-import ThemeToggle from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { SearchIcon } from "lucide-react";
+import { useLayoutEffect } from "react";
+import { useHeader } from "@/contexts/HeaderContext";
 
 type PageHeaderProps = {
   title: string;
@@ -13,27 +11,20 @@ export default function Page({ children }: { children: React.ReactNode }) {
 }
 
 export function PageHeader({ title, children }: PageHeaderProps) {
-  const { isMobile } = useSidebar();
+  const { setTitle } = useHeader();
+
+  useLayoutEffect(() => {
+    setTitle(title);
+    return () => {
+      setTitle("");
+    };
+  }, [title, setTitle]);
+
+  if (!children) return null;
 
   return (
-    <div className="sticky top-0 z-30 bg-background border-b ">
-      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between py-4">
-        <div className="flex items-center gap-2">
-          {!isMobile && <SidebarTrigger className="-ml-1" />}
-          <h1 className="text-xl font-semibold">{title}</h1>
-        </div>
-
-        <div className="flex gap-3">
-          <div className="flex max-lg:hidden">
-            <ThemeToggle />
-            <Button variant="ghost" size="icon" aria-label="Search">
-              <SearchIcon />
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-3">{children}</div>
-        </div>
-      </div>
+    <div className="flex flex-wrap items-center gap-3 mb-4 justify-end w-full">
+      {children}
     </div>
   );
 }

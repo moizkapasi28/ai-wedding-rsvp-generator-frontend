@@ -3,23 +3,12 @@ import DietaryBreakDownCard from "@/components/DietaryBreakDownCard";
 import Page, { PageHeader } from "@/components/Page";
 import ResponseStatsCard from "@/components/ResponseStatsCard";
 import RsvpProgressCard from "@/components/RsvpProgressCard";
-import { Button } from "@/components/ui/button";
-import { Link, PlusIcon } from "lucide-react";
 
 export default function Dashboard() {
   return (
     <Page>
-      <PageHeader title="Dashboard">
-        <Button variant="outline">
-          <Link />
-          <span>Share RSVP Link</span>
-        </Button>
-        <Button variant="default">
-          <PlusIcon />
-          <span>Add Guest</span>
-        </Button>
-      </PageHeader>
-      <div className="mt-3 space-y-4">
+      <PageHeader title="Dashboard" />
+      <div className="mt-auto space-y-4">
         {/* Stats Cards */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <DashboardStatsCard />
