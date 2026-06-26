@@ -17,7 +17,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function RsvpPhonePreview() {
+export default function RsvpPhonePreview({
+  heroImage,
+}: {
+  heroImage?: string | null;
+} = {}) {
   const [plusOnes, setPlusOnes] = useState(1);
 
   return (
@@ -34,11 +38,16 @@ export default function RsvpPhonePreview() {
             <div className="overflow-hidden rounded-2xl border bg-background shadow-xl sm:rounded-[28px]">
               {/* Hero */}
               <div
-                className="px-5 py-6 text-white sm:px-6 sm:py-7"
+                className="relative px-5 py-6 text-white sm:px-6 sm:py-7 flex flex-col items-center justify-center text-center"
                 style={{
                   background: "linear-gradient(150deg, #2E5C4D, #1C0B2E 130%)",
                 }}
               >
+                {heroImage && (
+                  <div className="mb-4 overflow-hidden rounded-full border-2 border-white/80 shadow-lg w-28 h-28 shrink-0">
+                    <img src={heroImage} alt="Couple Illustration" className="w-full h-full object-cover" />
+                  </div>
+                )}
                 <div className="text-[10.5px] uppercase tracking-[0.12em] text-white/65 sm:text-[11px]">
                   Reception · 15 Dec 2026
                 </div>
