@@ -4,20 +4,77 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MapPin, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { useWedding } from "./WeddingProvider";
 
 export default function WeddingCard() {
+  const { setOpen } = useWedding();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Button/badge are visible when: card is hovered OR menu is open
+  // We drive hover via CSS group, but lock the state open via menuOpen
+  const menuActive = menuOpen;
+
   return (
-    <Card className="overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1">
+    <Card className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1">
       {/* Header (Hero section) */}
       <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative p-5">
-        <Badge className="absolute right-3 top-3 bg-white/20 text-white hover:bg-white/20">
+        {/* Badge — hidden on hover OR while menu is open */}
+        <Badge
+          className={`absolute right-3 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${
+            menuActive ? "opacity-0" : "group-hover:opacity-0"
+          }`}
+        >
           This Week
         </Badge>
 
-        <h3 className="text-lg font-semibold">Tanvi & Aditya</h3>
+        {/* Options button — visible on hover OR while menu is open */}
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              id="wedding-card-options-btn"
+              variant="ghost"
+              size="icon"
+              className={`absolute right-2 top-2 h-7 w-7 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${
+                menuActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+              aria-label="Wedding options"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem
+              id="wedding-card-edit-btn"
+              className="cursor-pointer"
+              onClick={() => setOpen("edit")}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              id="wedding-card-delete-btn"
+              className="cursor-pointer text-destructive focus:text-destructive"
+              onClick={() => setOpen("delete")}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
+        <h3 className="text-lg font-semibold">Tanvi & Aditya</h3>
         <p className="text-sm text-white/80">16 Jun 2026 · Mumbai</p>
       </CardHeader>
 
