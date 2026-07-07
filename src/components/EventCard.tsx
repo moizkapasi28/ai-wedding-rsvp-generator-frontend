@@ -4,20 +4,76 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { MapPin, SettingsIcon, UsersIcon } from "lucide-react";
+import {
+  MapPin,
+  MoreVertical,
+  Pencil,
+  SettingsIcon,
+  Trash2,
+  UsersIcon,
+} from "lucide-react";
+import { useState } from "react";
 import { MultiProgressBar } from "./custom/MultiProgressBar";
 import { Button } from "./ui/button";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useEvent } from "./EventProvider";
+
 export default function EventCard() {
+  const { setOpen } = useEvent();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuActive = menuOpen;
+
   return (
-    <Card className="overflow-hidden gap-0 py-0 transition-all hover:-translate-y-1 hover:shadow-lg">
+    <Card className="group overflow-hidden gap-0 py-0 transition-all hover:-translate-y-1 hover:shadow-lg">
       {/* Hero Section */}
       <CardHeader className="relative bg-linear-to-r from-orange-500 to-pink-600 p-5 text-white">
-        <div className="absolute right-4 top-4 flex flex-col items-end text-right">
+        <div
+          className={`absolute right-4 top-4 flex flex-col items-end text-right pointer-events-none transition-opacity duration-200 ${menuActive ? "opacity-0" : "group-hover:opacity-0"}`}
+        >
           <span className="text-xs font-medium uppercase">Sat</span>
           <span className="text-sm">16 Dec 2026</span>
         </div>
-
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              id="wedding-card-options-btn"
+              variant="ghost"
+              size="icon"
+              className={`absolute right-2 top-2 h-7 w-7 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${
+                menuActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+              aria-label="Wedding options"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem
+              id="wedding-card-edit-btn"
+              className="cursor-pointer"
+              onClick={() => setOpen("edit")}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              id="wedding-card-delete-btn"
+              className="cursor-pointer text-destructive focus:text-destructive"
+              onClick={() => setOpen("delete")}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div>
           <h3 className="text-xl font-semibold">Sangeet</h3>
         </div>

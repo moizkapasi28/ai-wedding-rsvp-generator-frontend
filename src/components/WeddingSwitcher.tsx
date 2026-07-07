@@ -132,7 +132,7 @@ export default function WeddingSwitcher() {
         {/* Avatar/Badge */}
         <div
           className={cn(
-            "flex items-center justify-center shrink-0 rounded-md font-bold text-white shadow-sm transition-transform duration-200 bg-gradient-to-br",
+            "flex items-center justify-center shrink-0 rounded-md font-bold text-white shadow-sm transition-transform duration-200 bg-linear-to-br",
             activeWedding.color,
             isCollapsed ? "h-7 w-7 text-xs" : "h-9 w-9 text-sm",
           )}
@@ -202,7 +202,7 @@ export default function WeddingSwitcher() {
                   {/* Badge */}
                   <div
                     className={cn(
-                      "flex items-center justify-center h-7 w-7 rounded-md font-bold text-[11px] text-white shadow-xs shrink-0 bg-gradient-to-br",
+                      "flex items-center justify-center h-7 w-7 rounded-md font-bold text-[11px] text-white shadow-xs shrink-0 bg-linear-to-br",
                       w.color,
                     )}
                   >

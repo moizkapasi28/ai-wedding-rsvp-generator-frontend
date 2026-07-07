@@ -16,6 +16,7 @@ import {
   Sparkles,
   Upload,
   Loader2,
+  SendIcon,
 } from "lucide-react";
 import {
   Select,
@@ -75,6 +76,10 @@ export default function PageSettings() {
           <Button variant="default">
             <CheckIcon />
             <span>Save Changes</span>
+          </Button>
+          <Button variant="default">
+            <SendIcon />
+            <span>Send RSVP</span>
           </Button>
         </div>
       </div>
@@ -248,10 +253,11 @@ export default function PageSettings() {
                 <div className="flex items-center space-x-2">
                   <Utensils />
                   <div className="mx-auto">
-                    <h4 className="text-sm font-semibold">Question 1</h4>
+                    <h4 className="text-sm font-semibold">
+                      Dietary preference
+                    </h4>
                     <p className="text-xs text-muted-foreground">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quia, hic
+                      Home catering — not needed for this function
                     </p>
                   </div>
                 </div>
@@ -263,10 +269,9 @@ export default function PageSettings() {
                 <div className="flex items-center space-x-2">
                   <UsersIcon />
                   <div className="mx-auto">
-                    <h4 className="text-sm font-semibold">Question 1</h4>
+                    <h4 className="text-sm font-semibold">Plus ones</h4>
                     <p className="text-xs text-muted-foreground">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quia, hic
+                      Let guests bring extra people
                     </p>
                   </div>
                 </div>
@@ -278,10 +283,9 @@ export default function PageSettings() {
                 <div className="flex items-center space-x-2">
                   <Music />
                   <div className="mx-auto">
-                    <h4 className="text-sm font-semibold">Question 1</h4>
+                    <h4 className="text-sm font-semibold">Song request</h4>
                     <p className="text-xs text-muted-foreground">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quia, hic
+                      Let guests add their favorite song
                     </p>
                   </div>
                 </div>
@@ -293,10 +297,11 @@ export default function PageSettings() {
                 <div className="flex items-center space-x-2">
                   <MessageSquare />
                   <div className="mx-auto">
-                    <h4 className="text-sm font-semibold">Question 1</h4>
+                    <h4 className="text-sm font-semibold">
+                      Message to the couple
+                    </h4>
                     <p className="text-xs text-muted-foreground">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quia, hic
+                      Optional free-text note
                     </p>
                   </div>
                 </div>
@@ -316,10 +321,9 @@ export default function PageSettings() {
                 <div className="flex items-center space-x-2">
                   <UsersIcon />
                   <div className="mx-auto">
-                    <h4 className="text-sm font-semibold">Question 1</h4>
+                    <h4 className="text-sm font-semibold">70 guests invited</h4>
                     <p className="text-xs text-muted-foreground">
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Quia, hic
+                      58 confirmed · 4 declined · 8 awaiting
                     </p>
                   </div>
                 </div>

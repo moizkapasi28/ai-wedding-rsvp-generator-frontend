@@ -1,10 +1,9 @@
 import { MenuIcon, PlusIcon } from "lucide-react";
+import { useEvent } from "./EventProvider";
 import { Button } from "./ui/button";
-import { useWedding } from "./WeddingProvider";
 
-export default function WeddingPrimaryButtons() {
-  const { setOpen } = useWedding();
-
+export default function EventPrimaryButtons() {
+  const { setOpen } = useEvent();
   return (
     <div className="flex items-center gap-2 shrink-0">
       <Button variant="outline">
@@ -13,7 +12,7 @@ export default function WeddingPrimaryButtons() {
       </Button>
       <Button variant="default" onClick={() => setOpen("add")}>
         <PlusIcon />
-        <span>New Wedding</span>
+        <span>New Event</span>
       </Button>
     </div>
   );
