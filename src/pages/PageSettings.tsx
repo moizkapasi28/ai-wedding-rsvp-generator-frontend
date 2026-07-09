@@ -2,22 +2,6 @@ import Page, { PageHeader } from "@/components/Page";
 import RsvpPageSettingToggleRow from "@/components/RsvpPageSettingToggleRow";
 import RsvpPhonePreview from "@/components/RsvpPreviewCard";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { useState, useRef } from "react";
-import {
-  BellRingIcon,
-  CheckIcon,
-  ChevronRight,
-  MessageSquare,
-  Music,
-  UsersIcon,
-  Utensils,
-  ImageIcon,
-  Sparkles,
-  Upload,
-  Loader2,
-  SendIcon,
-} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,6 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import {
+  BellRingIcon,
+  CheckIcon,
+  ChevronRight,
+  ImageIcon,
+  Loader2,
+  MessageSquare,
+  Music,
+  Sparkles,
+  Upload,
+  UsersIcon,
+  Utensils,
+} from "lucide-react";
+import { useRef, useState } from "react";
 
 export default function PageSettings() {
   const [coupleImage, setCoupleImage] = useState<string | null>(null);
@@ -76,10 +75,6 @@ export default function PageSettings() {
           <Button variant="default">
             <CheckIcon />
             <span>Save Changes</span>
-          </Button>
-          <Button variant="default">
-            <SendIcon />
-            <span>Send RSVP</span>
           </Button>
         </div>
       </div>
