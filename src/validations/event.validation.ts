@@ -1,5 +1,15 @@
 import z from "zod";
 
+export const EventSide = {
+  BRIDE: "BRIDE",
+  GROOM: "GROOM",
+  BOTH: "BOTH",
+} as const;
+
+export type EventSide = (typeof EventSide)[keyof typeof EventSide];
+
+export const EventSideSchema = z.enum([EventSide.BRIDE, EventSide.GROOM, EventSide.BOTH] as const);
+
 export const eventFormSchema = z.object({
   weddingId: z.uuid().describe("Wedding ID is required"),
   title: z.string().min(1, "Title is required").max(100),
@@ -33,6 +43,7 @@ export const eventFormSchema = z.object({
     .min(1, "City is required")
     .max(50)
     .describe("Example: New York"),
+  eventSide: EventSideSchema.describe("Event side is required (BRIDE, GROOM or BOTH)"),
 });
 
 export type EventFormValues = z.infer<typeof eventFormSchema>;

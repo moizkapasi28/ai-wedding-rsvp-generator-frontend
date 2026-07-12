@@ -1,13 +1,13 @@
-import LoginForm from "@/components/LoginForm";
+import SignUpForm from "@/components/SignUpForm";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Lock } from "lucide-react";
+import { User } from "lucide-react";
 
-export default function Login() {
+export default function Signup() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 relative overflow-hidden">
       {/* Premium Background Orbs */}
@@ -22,19 +22,19 @@ export default function Login() {
         />
       </div>
 
-      <Card className="w-full max-w-md z-10 shadow-2xl shadow-zinc-200/50 dark:shadow-black/50 border-white/60 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl">
+      <Card className="w-full max-w-lg z-10 shadow-2xl shadow-zinc-200/50 dark:shadow-black/50 border-white/60 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl">
         <CardHeader className="space-y-2 text-center pb-4 pt-6">
           <div className="mx-auto bg-linear-to-br from-primary/20 to-primary/5 w-12 h-12 rounded-2xl flex items-center justify-center mb-1 shadow-inner border border-primary/10">
-            <Lock className="w-7 h-7 text-primary drop-shadow-sm" />
+            <User className="w-7 h-7 text-primary drop-shadow-sm" />
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Welcome back
+            Create an account
           </CardTitle>
           <CardDescription className="text-base text-zinc-500 dark:text-zinc-400">
-            Enter your credentials to access your dashboard
+            Enter your details to get started
           </CardDescription>
         </CardHeader>
-        <LoginForm />
+        <SignUpForm />
       </Card>
     </div>
   );

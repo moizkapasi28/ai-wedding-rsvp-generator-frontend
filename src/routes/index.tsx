@@ -9,6 +9,7 @@ import PageSettings from "@/pages/PageSettings";
 import AIInviteCard from "@/pages/AIInviteCard";
 import GuestPreview from "@/pages/GuestPreview";
 import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 const RootLayout = () => {
@@ -24,8 +25,12 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       {
-        path: "/login",
+        path: "/signin",
         element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <Signup />,
       },
       {
         path: "/",

@@ -15,6 +15,9 @@ import {
 import { useState } from "react";
 import { MultiProgressBar } from "./custom/MultiProgressBar";
 import { Button } from "./ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { EventSide } from "@/validations/event.validation";
 
 import {
   DropdownMenu,
@@ -25,7 +28,70 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEvent } from "./EventProvider";
 
-export default function EventCard() {
+export type EventCardData = {
+  id: string;
+  title: string;
+  date: string;
+  day: string;
+  venue: string;
+  eventSide: EventSide;
+  stats: {
+    invited: string | number;
+    attending: string | number;
+    declined: string | number;
+    pending: string | number;
+  };
+  completion: number;
+  progressBar: {
+    confirmed: number;
+    maybe: number;
+    declined: number;
+  };
+};
+
+const DEFAULT_EVENT: EventCardData = {
+  id: "sangeet-id",
+  title: "Sangeet",
+  date: "16 Dec 2026",
+  day: "Sat",
+  venue: "Taj Lands End, Mumbai",
+  eventSide: "BOTH",
+  stats: {
+    invited: "186",
+    attending: "90",
+    declined: "17",
+    pending: "3",
+  },
+  completion: 65,
+  progressBar: {
+    confirmed: 50,
+    maybe: 10,
+    declined: 5,
+  },
+};
+
+type EventCardProps = {
+  event?: EventCardData;
+};
+
+const getSideBadgeStyles = (side: EventSide) => {
+  switch (side) {
+    case "BRIDE":
+      return "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-900/50";
+    case "GROOM":
+      return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/30 dark:text-sky-300 dark:border-sky-900/50";
+    case "BOTH":
+    default:
+      return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900/50";
+  }
+};
+
+const formatSide = (side: EventSide) => {
+  if (side === "BOTH") return "Bride & Groom";
+  return side.charAt(0) + side.slice(1).toLowerCase();
+};
+
+export default function EventCard({ event = DEFAULT_EVENT }: EventCardProps) {
   const { setOpen } = useEvent();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuActive = menuOpen;
@@ -37,8 +103,8 @@ export default function EventCard() {
         <div
           className={`absolute right-4 top-4 flex flex-col items-end text-right pointer-events-none transition-opacity duration-200 ${menuActive ? "opacity-0" : "group-hover:opacity-0"}`}
         >
-          <span className="text-xs font-medium uppercase">Sat</span>
-          <span className="text-sm">16 Dec 2026</span>
+          <span className="text-xs font-medium uppercase">{event.day}</span>
+          <span className="text-sm">{event.date}</span>
         </div>
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
@@ -75,24 +141,35 @@ export default function EventCard() {
           </DropdownMenuContent>
         </DropdownMenu>
         <div>
-          <h3 className="text-xl font-semibold">Sangeet</h3>
+          <h3 className="text-xl font-semibold">{event.title}</h3>
         </div>
       </CardHeader>
 
       {/* Body */}
       <CardContent className="space-y-5 p-5">
-        {/* Venue */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 shrink-0" />
-          <span>Taj Lands End, Mumbai</span>
+        {/* Venue & Side Badge */}
+        <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 shrink-0" />
+            <span>{event.venue}</span>
+          </div>
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full border transition-colors shrink-0",
+              getSideBadgeStyles(event.eventSide),
+            )}
+          >
+            {formatSide(event.eventSide)}
+          </Badge>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat value="186" label="Invited" />
-          <Stat value="90" label="Attending" />
-          <Stat value="17" label="Declined" />
-          <Stat value="3" label="Pending" />
+          <Stat value={String(event.stats.invited)} label="Invited" />
+          <Stat value={String(event.stats.attending)} label="Attending" />
+          <Stat value={String(event.stats.declined)} label="Declined" />
+          <Stat value={String(event.stats.pending)} label="Pending" />
         </div>
 
         {/* RSVP Progress */}
@@ -100,10 +177,14 @@ export default function EventCard() {
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">RSVP Completion</span>
 
-            <span className="font-medium">65%</span>
+            <span className="font-medium">{event.completion}%</span>
           </div>
 
-          <MultiProgressBar confirmed={50} maybe={10} declined={5} />
+          <MultiProgressBar
+            confirmed={event.progressBar.confirmed}
+            maybe={event.progressBar.maybe}
+            declined={event.progressBar.declined}
+          />
         </div>
       </CardContent>
 

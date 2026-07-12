@@ -14,16 +14,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select";
+import {
+  MultiSelect,
+  type MultiSelectOption,
+} from "@/components/ui/multi-select";
 import {
   guestFormSchema,
   Side,
   type GuestFormValues,
-} from "@/schemas/guest.schema";
+} from "@/validations/guest.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "./ui/input";
+
+import { PhoneInput } from "./custom/PhoneInput";
+import { User, Mail, Users, Calendar } from "lucide-react";
 
 type GuestActionDialogMode = "add" | "edit";
 
@@ -80,7 +94,7 @@ export function GuestActionDialogue({
       name: isEdit ? STATIC_GUEST_EDIT.name : "",
       mobile_number: isEdit ? STATIC_GUEST_EDIT.mobile_number : "",
       email: isEdit ? STATIC_GUEST_EDIT.email : "",
-      side: isEdit ? STATIC_GUEST_EDIT.side : undefined,
+      side: isEdit ? STATIC_GUEST_EDIT.side : "BRIDE",
     },
   });
 
@@ -104,151 +118,150 @@ export function GuestActionDialogue({
       }}
     >
       <DialogContent className="w-full sm:max-w-2xl">
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogHeader className="text-start">
-            <DialogTitle>
-              {isEdit ? "Edit Guest" : "Add New Guest"}
-            </DialogTitle>
-            <DialogDescription>
-              {isEdit
-                ? "Update the guest details and manage their event invitations below"
-                : "Add a new guest and select which events they are invited to"}
-            </DialogDescription>
-          </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader className="text-start">
+              <DialogTitle>
+                {isEdit ? "Edit Guest" : "Add New Guest"}
+              </DialogTitle>
+              <DialogDescription>
+                {isEdit
+                  ? "Update the guest details and manage their event invitations below"
+                  : "Add a new guest and select which events they are invited to"}
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* ── Event invitations (full-width) ── */}
-          <div className="grid grid-cols-1 gap-y-3 py-2">
-            <Controller
-              name="eventIds"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-guest-events">
-                    {isEdit ? "Event Invitations" : "Events"}
-                  </FieldLabel>
-                  <MultiSelect
-                    id="form-guest-events"
-                    options={eventOptions}
-                    value={field.value ?? []}
-                    onValueChange={field.onChange}
-                    placeholder="Select events to invite this guest to"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {isEdit && (
-                    <FieldDescription>
-                      Unchecking an event will remove this guest's invitation
-                      from that event.
-                    </FieldDescription>
-                  )}
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+            {/* ── Event invitations (full-width) ── */}
+            <div className="grid grid-cols-1 gap-y-3 py-2">
+              <FormField
+                control={form.control}
+                name="eventIds"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>
+                      {isEdit ? "Event Invitations" : "Events"}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
+                        <MultiSelect
+                          options={eventOptions}
+                          value={field.value ?? []}
+                          onValueChange={field.onChange}
+                          placeholder="Select events to invite this guest to"
+                          className="pl-11 min-h-10 !h-auto rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                        />
+                      </div>
+                    </FormControl>
+                    {isEdit && (
+                      <FormDescription>
+                        Unchecking an event will remove this guest's invitation
+                        from that event.
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          {/* ── Guest profile (2-column grid) ── */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 pb-2">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-guest-name">Name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-guest-name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter guest's full name"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="mobile_number"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-guest-mobile">
-                    Mobile Number
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-guest-mobile"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter mobile number"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-guest-email">Email</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-guest-email"
-                    type="email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter email address"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="side"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-guest-side">Side</FieldLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger
-                      id="form-guest-side"
-                      className="w-full"
-                      aria-invalid={fieldState.invalid}
-                    >
-                      <SelectValue placeholder="Select side" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={Side.BRIDE}>Bride</SelectItem>
-                      <SelectItem value={Side.GROOM}>Groom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+            {/* ── Guest profile (2-column grid) ── */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 pb-2">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter guest's full name"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mobile_number"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Mobile Number</FormLabel>
+                    <FormControl>
+                      <PhoneInput {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          type="email"
+                          placeholder="Enter email address"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="side"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Side</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full pl-11 !h-10 rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
+                            <SelectValue placeholder="Select side" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={Side.BRIDE}>Bride</SelectItem>
+                            <SelectItem value={Side.GROOM}>Groom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <DialogFooter className="bg-transparent border-t-0">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {isEdit ? "Save Changes" : "Add Guest"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="bg-transparent border-t-0">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {isEdit ? "Save Changes" : "Add Guest"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

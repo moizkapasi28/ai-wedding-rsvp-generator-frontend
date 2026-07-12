@@ -10,10 +10,18 @@ import {
 import {
   weddingFormSchema,
   type WeddingFormValues,
-} from "@/schemas/wedding.schema";
+} from "@/validations/wedding.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { Field, FieldDescription, FieldError, FieldLabel } from "./ui/field";
+import { useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "./ui/input";
 import {
   InputGroup,
@@ -21,6 +29,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "./ui/input-group";
+import { Type, Calendar, User, MapPin, Building } from "lucide-react";
 
 type WeddingActionDialogMode = "add" | "edit";
 
@@ -70,182 +79,188 @@ export function WeddingActionDialogue({
       }}
     >
       <DialogContent className="w-full sm:max-w-2xl">
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogHeader className="text-start">
-            <DialogTitle>
-              {isEdit ? "Edit Wedding" : "Add New Wedding"}
-            </DialogTitle>
-            <DialogDescription>
-              {isEdit
-                ? "Update the wedding details below"
-                : "Add a new wedding to the list"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 py-2">
-            <Controller
-              name="title"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-title">Title</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-title"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter the wedding title"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="date"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-date">Date</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-date"
-                    type="date"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Select date"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="bride_name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-bride-name">
-                    Bride Name
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-bride-name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter bride name"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="groom_name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-groom-name">
-                    Groom Name
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-groom-name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter groom name"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="venue"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-venue">Venue</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-venue"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter the venue"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="city"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-city">City</FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-rhf-demo-city"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter the city"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </div>
-          <div>
-            <Controller
-              name="message"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-message">
-                    Message
-                  </FieldLabel>
-                  <InputGroup>
-                    <InputGroupTextarea
-                      {...field}
-                      id="form-rhf-demo-message"
-                      placeholder="Enter the message for the wedding"
-                      rows={6}
-                      className="min-h-24 resize-none"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <InputGroupAddon align="block-end">
-                      <InputGroupText className="tabular-nums">
-                        {(field.value ?? "").length}/250 characters
-                      </InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <FieldDescription>
-                    Please enter a proper message as it will be displayed on the
-                    wedding card and RSVP page.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </div>
-          <DialogFooter className="bg-transparent border-t-0">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {isEdit ? "Save Changes" : "Add Wedding"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader className="text-start">
+              <DialogTitle>
+                {isEdit ? "Edit Wedding" : "Add New Wedding"}
+              </DialogTitle>
+              <DialogDescription>
+                {isEdit
+                  ? "Update the wedding details below"
+                  : "Add a new wedding to the list"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 py-2">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Type className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter the wedding title"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          type="date"
+                          placeholder="Select date"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="bride_name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Bride Name</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter bride name"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="groom_name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Groom Name</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter groom name"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="venue"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Venue</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter the venue"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <Input
+                          placeholder="Enter the city"
+                          autoComplete="off"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="pb-2">
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Message</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <InputGroupTextarea
+                          placeholder="Enter the message for the wedding"
+                          rows={6}
+                          className="min-h-24 resize-none bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                        <InputGroupAddon align="block-end">
+                          <InputGroupText className="tabular-nums">
+                            {(field.value ?? "").length}/250 characters
+                          </InputGroupText>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormDescription>
+                      Please enter a proper message as it will be displayed on
+                      the wedding card and RSVP page.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter className="bg-transparent border-t-0">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit">
+                {isEdit ? "Save Changes" : "Add Wedding"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
