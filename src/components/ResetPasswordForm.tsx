@@ -38,7 +38,7 @@ export default function ResetPasswordForm({
   const form = useForm<ResetPasswordRequest>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      token: "",
+      token,
       newPassword: "",
       confirmPassword: "",
     },
@@ -53,7 +53,11 @@ export default function ResetPasswordForm({
     },
     onError: (error) => {
       const msg = error.message?.toLowerCase() || "";
-      if (msg.includes("token") || msg.includes("expire") || msg.includes("link")) {
+      if (
+        msg.includes("token") ||
+        msg.includes("expire") ||
+        msg.includes("link")
+      ) {
         props.setIsError(true);
       } else {
         toast.error(error.message || "Something went wrong. Please try again.");
