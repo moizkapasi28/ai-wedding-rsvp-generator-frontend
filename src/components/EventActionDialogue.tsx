@@ -37,7 +37,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Type, Users, Calendar, Clock, MapPin, Building } from "lucide-react";
+import {
+  Type,
+  Users,
+  Calendar,
+  Clock,
+  MapPin,
+  Building,
+  LandmarkIcon,
+} from "lucide-react";
 
 type EventActionDialogMode = "add" | "edit";
 
@@ -140,8 +148,12 @@ export function EventActionDialogue({
                             <SelectValue placeholder="Select side" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={EventSide.BRIDE}>Bride</SelectItem>
-                            <SelectItem value={EventSide.GROOM}>Groom</SelectItem>
+                            <SelectItem value={EventSide.BRIDE}>
+                              Bride
+                            </SelectItem>
+                            <SelectItem value={EventSide.GROOM}>
+                              Groom
+                            </SelectItem>
                             <SelectItem value={EventSide.BOTH}>Both</SelectItem>
                           </SelectContent>
                         </Select>
@@ -202,7 +214,7 @@ export function EventActionDialogue({
                     <FormLabel>Venue</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <LandmarkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
                         <Input
                           placeholder="Enter the venue of the event"
                           autoComplete="off"

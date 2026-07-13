@@ -133,3 +133,9 @@
     @apply font-sans;
   }
 }
+
+/* Fix Google Maps Autocomplete dropdown pointer events when inside Radix Dialog */
+.pac-container {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+}

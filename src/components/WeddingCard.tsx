@@ -16,20 +16,17 @@ import { useState } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { useWedding } from "./WeddingProvider";
+import type { Wedding } from "@/models/wedding.model";
 
-export default function WeddingCard() {
+export default function WeddingCard({ wedding }: { wedding: Wedding }) {
   const { setOpen } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Button/badge are visible when: card is hovered OR menu is open
-  // We drive hover via CSS group, but lock the state open via menuOpen
   const menuActive = menuOpen;
 
   return (
     <Card className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1">
-      {/* Header (Hero section) */}
       <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative p-5">
-        {/* Badge — hidden on hover OR while menu is open */}
         <Badge
           className={`absolute right-3 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${
             menuActive ? "opacity-0" : "group-hover:opacity-0"
@@ -74,8 +71,19 @@ export default function WeddingCard() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <h3 className="text-lg font-semibold">Tanvi & Aditya</h3>
-        <p className="text-sm text-white/80">16 Jun 2026 · Mumbai</p>
+        <div className="w-[calc(100%-6rem)]">
+          <h3 className="text-lg font-semibold truncate">
+            {wedding.bride_name} & {wedding.groom_name}
+          </h3>
+          <p className="text-sm text-white/80 truncate mt-1">
+            {new Date(wedding.date).toLocaleDateString("en-US", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}{" "}
+            · {wedding.city}
+          </p>
+        </div>
       </CardHeader>
 
       {/* Content */}
@@ -83,20 +91,23 @@ export default function WeddingCard() {
         {/* Venue */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span>Taj Lands End</span>
+          <span>{wedding.venue}</span>
         </div>
 
         {/* Stats (grid is unavoidable in CSS) */}
         <div className="grid grid-cols-3 text-left">
-          <Stat value="186" label="Guests" />
-          <Stat value="3" label="Events" />
-          <Stat value="94%" label="Confirmed" />
+          <Stat value={String(wedding.totalGuests) || "0"} label="Guests" />
+          <Stat value={String(wedding.totalEvents) || "0"} label="Events" />
+          <Stat
+            value={`${String(wedding.confirmationRate) || "0"}%`}
+            label="Confirmed"
+          />
         </div>
       </CardContent>
 
       {/* Footer */}
       <CardFooter className="pt-0 pb-5 px-4 border-t-0 bg-transparent">
-        <ProgressBar value={94} />
+        <ProgressBar value={wedding.confirmationRate ?? 0} />
       </CardFooter>
     </Card>
   );

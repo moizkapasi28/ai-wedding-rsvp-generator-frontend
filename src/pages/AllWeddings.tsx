@@ -1,16 +1,12 @@
 import Page, { PageHeader } from "@/components/Page";
-import TablePagination from "@/components/TablePagination";
 import ToolBar from "@/components/ToolBar";
-import WeddingCard from "@/components/WeddingCard";
 import WeddingDialogues from "@/components/WeddingDialogues";
+import WeddingList from "@/components/WeddingList";
 import WeddingPrimaryButtons from "@/components/WeddingPrimaryButtons";
 import WeddingProvider from "@/components/WeddingProvider";
 import WeddingToolbar from "@/components/WeddingToolbar";
-import { useState } from "react";
 
 export default function AllWeddings() {
-  const [page, setPage] = useState(1);
-
   return (
     <WeddingProvider>
       <Page>
@@ -24,28 +20,8 @@ export default function AllWeddings() {
 
             <WeddingPrimaryButtons />
           </div>
-          <div className="mt-auto grid gap-5 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-            <WeddingCard />
-          </div>
 
-          <TablePagination
-            page={page}
-            totalPages={4}
-            totalItems={24}
-            pageSize={6}
-            onPageChange={setPage}
-          />
+          <WeddingList />
         </div>
         <WeddingDialogues />
       </Page>

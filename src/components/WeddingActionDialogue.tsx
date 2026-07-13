@@ -8,12 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  weddingFormSchema,
-  type WeddingFormValues,
-} from "@/validations/wedding.validation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -22,6 +16,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  weddingFormSchema,
+  type WeddingFormValues,
+} from "@/validations/wedding.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Building, Calendar, LandmarkIcon, Type, User } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { AddressAutocomplete } from "./custom/AddressAutocomplete";
 import { Input } from "./ui/input";
 import {
   InputGroup,
@@ -29,7 +31,7 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "./ui/input-group";
-import { Type, Calendar, User, MapPin, Building } from "lucide-react";
+import { useCreateWedding } from "@/hooks/use-wedding";
 
 type WeddingActionDialogMode = "add" | "edit";
 
@@ -59,15 +61,57 @@ export function WeddingActionDialogue({
     },
   });
 
+  const createWedding = useCreateWedding();
+
+  const isPending = createWedding.isPending;
+
   const handleClose = () => {
+    if (isPending) return; // don't allow closing mid-submit
     form.reset();
     onOpenChange(false);
   };
 
   const onSubmit = (values: WeddingFormValues) => {
-    console.log(values);
-    form.reset();
-    onOpenChange(false);
+    if (isEdit) {
+      console.log("Edit feature is pending to implement");
+      // if (!weddingId) {
+      //   toast.error("Missing wedding id for edit");
+      //   return;
+      // }
+      // updateWedding.mutate(
+      //   { id: weddingId, payload: values },
+      //   {
+      //     onSuccess: () => {
+      //       form.reset();
+      //       onOpenChange(false);
+      //     },
+      //   }
+      // );
+    } else {
+      createWedding.mutateAsync(values, {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      });
+    }
+  };
+
+  const handlePlaceSelected = (place: google.maps.places.PlaceResult) => {
+    if (place.formatted_address) {
+      form.setValue("address", place.formatted_address);
+    }
+
+    // Extract city from address_components
+    const cityComponent = place.address_components?.find(
+      (component) =>
+        component.types.includes("locality") ||
+        component.types.includes("administrative_area_level_2"),
+    );
+
+    if (cityComponent) {
+      form.setValue("city", cityComponent.long_name);
+    }
   };
 
   return (
@@ -78,7 +122,15 @@ export function WeddingActionDialogue({
         onOpenChange(state);
       }}
     >
-      <DialogContent className="w-full sm:max-w-2xl">
+      <DialogContent
+        className="w-full sm:max-w-2xl"
+        onInteractOutside={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest(".pac-container")) {
+            e.preventDefault();
+          }
+        }}
+      >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader className="text-start">
@@ -185,7 +237,7 @@ export function WeddingActionDialogue({
                     <FormLabel>Venue</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                        <LandmarkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
                         <Input
                           placeholder="Enter the venue"
                           autoComplete="off"
@@ -211,6 +263,27 @@ export function WeddingActionDialogue({
                           placeholder="Enter the city"
                           autoComplete="off"
                           className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="pb-2">
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex flex-col">
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <AddressAutocomplete
+                          placeholder="Enter the address"
+                          onPlaceSelected={handlePlaceSelected}
                           {...field}
                         />
                       </div>

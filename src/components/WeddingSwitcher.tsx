@@ -1,71 +1,45 @@
+import { useGetWeddings } from "@/hooks/use-wedding";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { activeWeddingIdAtom } from "@/store/store";
+import { useAtom } from "jotai";
 import {
   Calendar,
   Check,
   ChevronsUpDown,
   Heart,
+  Loader2,
   Plus,
   Search,
 } from "lucide-react";
 import * as React from "react";
 
-export interface Wedding {
-  id: string;
-  name: string;
-  date: string;
-  role: string;
-  location?: string;
-  initials: string;
-  color: string;
-}
-
-const INITIAL_WEDDINGS: Wedding[] = [
-  {
-    id: "wedding-1",
-    name: "Moiz & Sarah's Wedding",
-    date: "Dec 18, 2026",
-    role: "Administrator",
-    location: "Mumbai, India",
-    initials: "MS",
-    color: "from-pink-500 via-rose-500 to-red-500",
-  },
-  {
-    id: "wedding-2",
-    name: "John & Emily's Nuptials",
-    date: "Oct 12, 2026",
-    role: "Editor",
-    location: "New York, USA",
-    initials: "JE",
-    color: "from-purple-500 to-indigo-500",
-  },
-  {
-    id: "wedding-3",
-    name: "Aarav & Ishani's Wedding",
-    date: "Feb 28, 2027",
-    role: "Viewer",
-    location: "Goa, India",
-    initials: "AI",
-    color: "from-teal-400 to-emerald-600",
-  },
-  {
-    id: "wedding-4",
-    name: "Michael & Jessica's Gala",
-    date: "Jun 05, 2027",
-    role: "Administrator",
-    location: "London, UK",
-    initials: "MJ",
-    color: "from-amber-400 to-orange-600",
-  },
+const GRADIENTS = [
+  "from-pink-500 via-rose-500 to-red-500",
+  "from-purple-500 to-indigo-500",
+  "from-teal-400 to-emerald-600",
+  "from-amber-400 to-orange-600",
+  "from-blue-400 to-cyan-600",
 ];
+
+const getWeddingColor = (id: string) => {
+  if (!id) return GRADIENTS[0];
+  const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return GRADIENTS[hash % GRADIENTS.length];
+};
+
+const getInitials = (bride: string, groom: string) => {
+  return `${bride?.charAt(0) || ""}${groom?.charAt(0) || ""}`.toUpperCase() || "W";
+};
 
 export default function WeddingSwitcher() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  const [weddings] = React.useState<Wedding[]>(INITIAL_WEDDINGS);
-  const [activeWeddingId, setActiveWeddingId] =
-    React.useState<string>("wedding-1");
+  const { data, isLoading } = useGetWeddings(1, 100);
+  const weddings = data?.data?.weddings || [];
+
+  const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
@@ -104,9 +78,9 @@ export default function WeddingSwitcher() {
   const filteredWeddings = React.useMemo(() => {
     return weddings.filter(
       (w) =>
-        w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (w.location &&
-          w.location.toLowerCase().includes(searchQuery.toLowerCase())),
+        w.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        w.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        w.venue?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [weddings, searchQuery]);
 
@@ -115,6 +89,26 @@ export default function WeddingSwitcher() {
     setIsOpen(false);
     setSearchQuery("");
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!activeWedding && weddings.length === 0) {
+    return (
+      <div className="relative w-full px-1 py-1.5">
+        <div className="flex items-center gap-2 rounded-lg text-left p-2 border border-sidebar-border/30 bg-sidebar/50 shadow-xs w-full justify-center text-xs text-muted-foreground">
+          No weddings found
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeWedding) return null;
 
   return (
     <div className="relative w-full px-1 py-1.5" ref={containerRef}>
@@ -133,22 +127,22 @@ export default function WeddingSwitcher() {
         <div
           className={cn(
             "flex items-center justify-center shrink-0 rounded-md font-bold text-white shadow-sm transition-transform duration-200 bg-linear-to-br",
-            activeWedding.color,
+            getWeddingColor(activeWedding.id),
             isCollapsed ? "h-7 w-7 text-xs" : "h-9 w-9 text-sm",
           )}
         >
-          {activeWedding.initials}
+          {getInitials(activeWedding.bride_name, activeWedding.groom_name)}
         </div>
 
         {/* Text Details (Hidden when collapsed) */}
         {!isCollapsed && (
           <div className="flex flex-col flex-1 min-w-0 pr-1 select-none">
             <span className="text-xs font-semibold truncate leading-tight text-sidebar-foreground">
-              {activeWedding.name}
+              {activeWedding.title}
             </span>
             <span className="text-xs text-muted-foreground truncate mt-0.5 flex items-center gap-1 font-medium">
               <Calendar className="h-2.5 w-2.5 shrink-0" />
-              {activeWedding.date}
+              {activeWedding.date ? new Date(activeWedding.date).toLocaleDateString() : "No Date"}
             </span>
           </div>
         )}
@@ -203,22 +197,22 @@ export default function WeddingSwitcher() {
                   <div
                     className={cn(
                       "flex items-center justify-center h-7 w-7 rounded-md font-bold text-[11px] text-white shadow-xs shrink-0 bg-linear-to-br",
-                      w.color,
+                      getWeddingColor(w.id),
                     )}
                   >
-                    {w.initials}
+                    {getInitials(w.bride_name, w.groom_name)}
                   </div>
 
                   {/* Text */}
                   <div className="flex flex-col flex-1 min-w-0">
                     <span className="text-xs font-semibold text-sidebar-foreground truncate flex items-center gap-1">
-                      {w.name}
+                      {w.title}
                       {w.id === activeWeddingId && (
                         <Heart className="h-2.5 w-2.5 text-pink-500 fill-pink-500 shrink-0 inline" />
                       )}
                     </span>
                     <span className="text-[10px] text-muted-foreground truncate font-medium">
-                      {w.date} {w.location ? `• ${w.location}` : ""}
+                      {w.date ? new Date(w.date).toLocaleDateString() : ""} {w.city ? `• ${w.city}` : ""}
                     </span>
                   </div>
 

@@ -8,3 +8,7 @@ export const refreshTokenAtom = atomWithStorage<string | null>(
   "refreshToken",
   null,
 );
+export const activeWeddingIdAtom = atomWithStorage<string | null>(
+  "activeWeddingId",
+  null,
+);

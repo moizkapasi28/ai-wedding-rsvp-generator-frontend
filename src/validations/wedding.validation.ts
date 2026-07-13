@@ -28,7 +28,14 @@ export const weddingFormSchema = z.object({
     .describe("Example: 2026-10-15"),
   venue: z
     .string()
+    .trim()
     .min(1, "Venue is required")
+    .max(200)
+    .describe("Example: The Grand Hotel, New York"),
+  address: z
+    .string("Address is required")
+    .trim()
+    .min(1, "Address is required")
     .max(200)
     .describe("Example: The Grand Hotel, New York"),
   city: z

@@ -1,11 +1,4 @@
 import { ThemeProvider } from "@/components/ThemeProvider";
-import AIInviteCard from "@/pages/AIInviteCard";
-import AllWeddings from "@/pages/AllWeddings";
-import Events from "@/pages/Events";
-import GuestPreview from "@/pages/GuestPreview";
-import Guests from "@/pages/Guests";
-import PageSettings from "@/pages/PageSettings";
-import Signup from "@/pages/Signup";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, type FC } from "react";
 import {
@@ -18,7 +11,6 @@ import { authService } from "./api/auth.service";
 import Loader from "./components/ui/loader";
 import { useAuth } from "./hooks/use-auth";
 import { tokenStore } from "./store/token";
-import { email } from "zod";
 
 const RootLayout = () => {
   return (
