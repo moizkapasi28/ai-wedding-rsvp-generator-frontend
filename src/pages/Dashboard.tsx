@@ -7,7 +7,7 @@ import RsvpProgressCard from "@/components/RsvpProgressCard";
 export default function Dashboard() {
   return (
     <Page>
-      <PageHeader title="Dashboard" />
+      <PageHeader title="Wedding Dashboard" />
       <div className="mt-auto space-y-4">
         {/* Stats Cards */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -19,7 +19,7 @@ import { useWedding } from "./WeddingProvider";
 import type { Wedding } from "@/models/wedding.model";
 
 export default function WeddingCard({ wedding }: { wedding: Wedding }) {
-  const { setOpen } = useWedding();
+  const { setOpen, setCurrentRow } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const menuActive = menuOpen;
@@ -54,7 +54,10 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
             <DropdownMenuItem
               id="wedding-card-edit-btn"
               className="cursor-pointer"
-              onClick={() => setOpen("edit")}
+              onClick={() => {
+                setCurrentRow(wedding);
+                setOpen("edit");
+              }}
             >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
@@ -63,7 +66,10 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
             <DropdownMenuItem
               id="wedding-card-delete-btn"
               className="cursor-pointer text-destructive focus:text-destructive"
-              onClick={() => setOpen("delete")}
+              onClick={() => {
+                setCurrentRow(wedding);
+                setOpen("delete");
+              }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
@@ -72,9 +78,7 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
         </DropdownMenu>
 
         <div className="w-[calc(100%-6rem)]">
-          <h3 className="text-lg font-semibold truncate">
-            {wedding.bride_name} & {wedding.groom_name}
-          </h3>
+          <h3 className="text-lg font-semibold truncate">{wedding.title}</h3>
           <p className="text-sm text-white/80 truncate mt-1">
             {new Date(wedding.date).toLocaleDateString("en-US", {
               day: "numeric",

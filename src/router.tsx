@@ -88,53 +88,62 @@ const Setup = () => {
               },
               children: [
                 {
+                  path: "/",
                   index: true,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/Dashboard")).default,
-                  }),
-                },
-                {
-                  path: "all-weddings",
-                  index: false,
                   lazy: async () => ({
                     Component: (await import("@/pages/AllWeddings")).default,
                   }),
                 },
                 {
-                  path: "guests",
-                  index: false,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/Guests")).default,
-                  }),
-                },
-                {
-                  path: "events",
-                  index: false,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/Events")).default,
-                  }),
-                },
-                {
-                  path: "page-settings",
-                  index: false,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/PageSettings")).default,
-                  }),
-                },
-                {
-                  path: "ai-invite-card",
-                  index: false,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/AIInviteCard")).default,
-                  }),
-                },
-                {
-                  path: "guest-preview",
-                  index: false,
-                  lazy: async () => ({
-                    Component: (await import("@/pages/GuestPreview")).default,
-                  }),
-                },
+                  lazy: async () => {
+                    const RequireWedding = await import("@/layout/RequireWedding");
+                    return { Component: RequireWedding.default };
+                  },
+                  children: [
+                    {
+                      path: "/wedding-dashboard",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/Dashboard")).default,
+                      }),
+                    },
+                    {
+                      path: "guests",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/Guests")).default,
+                      }),
+                    },
+                    {
+                      path: "events",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/Events")).default,
+                      }),
+                    },
+                    {
+                      path: "page-settings",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/PageSettings")).default,
+                      }),
+                    },
+                    {
+                      path: "ai-invite-card",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/AIInviteCard")).default,
+                      }),
+                    },
+                    {
+                      path: "guest-preview",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/GuestPreview")).default,
+                      }),
+                    },
+                  ]
+                }
               ],
             },
           ],

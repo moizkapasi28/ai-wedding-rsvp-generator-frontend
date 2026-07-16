@@ -9,6 +9,7 @@ export interface Wedding {
   groom_name: string;
   date: string;
   venue: string;
+  address: string;
   city: string;
   message: string;
   created_at: string;
@@ -25,4 +26,6 @@ export type WeddingListResponse = GenericResponse<{
   currentPage: number;
 }>;
 
-export type CreateWeddingResponse = GenericResponse<Wedding>;
+export type CreateOrUpdateWeddingResponse = GenericResponse<Wedding>;
+
+export type DeletWeddingResponse = GenericResponse<{}>;

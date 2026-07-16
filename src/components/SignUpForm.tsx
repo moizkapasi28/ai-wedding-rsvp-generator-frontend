@@ -1,4 +1,3 @@
-import { authService } from "@/api/auth.service";
 import { PasswordInput } from "@/components/custom/PasswordInput";
 import { PhoneInput } from "@/components/custom/PhoneInput";
 import { Button } from "@/components/ui/button";
@@ -12,24 +11,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRegister } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
   signupSchema,
   type SignupRequest,
 } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Lock, Mail, User } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> { }
+interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 export default function SignUpForm({ className, ...props }: SignUpFormProps) {
-  const navigate = useNavigate();
-
   const form = useForm<SignupRequest>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -42,17 +38,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
     },
   });
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (data: SignupRequest) => authService.signup(data),
-    onSuccess: (_response) => {
-      navigate("/verification-pending", {
-        state: { email: form.getValues("email") },
-      });
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutateAsync, isPending } = useRegister(form);
 
   function onSubmit(values: SignupRequest) {
     mutateAsync(values);

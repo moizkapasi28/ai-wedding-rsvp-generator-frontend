@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { PasswordInput } from "./custom/PasswordInput";
+import { useResetPassword } from "@/hooks/use-auth";
 
 export interface ResetPasswordFormProps extends HTMLAttributes<HTMLDivElement> {
   token: string;
@@ -33,8 +34,6 @@ export default function ResetPasswordForm({
   token,
   ...props
 }: ResetPasswordFormProps) {
-  const navigate = useNavigate();
-
   const form = useForm<ResetPasswordRequest>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -44,26 +43,7 @@ export default function ResetPasswordForm({
     },
   });
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (data: ResetPasswordRequest) =>
-      authService.resetPassword(data),
-    onSuccess: (response) => {
-      toast.success(response.message || "Password reset successfully");
-      navigate("/signin");
-    },
-    onError: (error) => {
-      const msg = error.message?.toLowerCase() || "";
-      if (
-        msg.includes("token") ||
-        msg.includes("expire") ||
-        msg.includes("link")
-      ) {
-        props.setIsError(true);
-      } else {
-        toast.error(error.message || "Something went wrong. Please try again.");
-      }
-    },
-  });
+  const { mutateAsync, isPending } = useResetPassword(props);
 
   async function onSubmit(data: ResetPasswordRequest) {
     mutateAsync(data);

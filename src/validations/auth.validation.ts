@@ -105,3 +105,12 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordRequest = z.infer<typeof resetPasswordSchema>;
+
+export const logoutSchema = z.object({
+  refreshToken: z
+    .string("Refresh token is required")
+    .trim()
+    .describe("Refresh token is used to logout user"),
+});
+
+export type LogoutRequest = z.infer<typeof logoutSchema>;

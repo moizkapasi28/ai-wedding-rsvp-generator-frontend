@@ -1,5 +1,6 @@
 import type {
-  CreateWeddingResponse,
+  CreateOrUpdateWeddingResponse,
+  DeletWeddingResponse,
   WeddingListResponse,
 } from "@/models/wedding.model";
 import type { WeddingFormValues } from "@/validations/wedding.validation";
@@ -23,8 +24,27 @@ class WeddingService {
     );
   }
 
-  async createWedding(body: WeddingFormValues): Promise<CreateWeddingResponse> {
-    return this.api.post<CreateWeddingResponse>(`${this.controller}`, body);
+  async createWedding(
+    body: WeddingFormValues,
+  ): Promise<CreateOrUpdateWeddingResponse> {
+    return this.api.post<CreateOrUpdateWeddingResponse>(
+      `${this.controller}`,
+      body,
+    );
+  }
+
+  async updateWedding(
+    body: WeddingFormValues,
+    id: string,
+  ): Promise<CreateOrUpdateWeddingResponse> {
+    return this.api.patch<CreateOrUpdateWeddingResponse>(
+      `${this.controller}/${id}`,
+      body,
+    );
+  }
+
+  async deleteWedding(id: string): Promise<DeletWeddingResponse> {
+    return this.api.delete<DeletWeddingResponse>(`${this.controller}/${id}`);
   }
 }
 

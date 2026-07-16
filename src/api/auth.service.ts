@@ -70,6 +70,13 @@ class AuthService {
   async getUserInfo(): Promise<User> {
     return this.api.get<User>(`${this.controller}/me`);
   }
+
+  async logout(refreshToken: string | null = null): Promise<void> {
+    return this.api.post(
+      `${this.controller}/logout`,
+      refreshToken ? { refreshToken } : undefined,
+    );
+  }
 }
 
 export const authService = new AuthService();

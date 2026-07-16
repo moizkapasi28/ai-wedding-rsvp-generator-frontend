@@ -8,20 +8,30 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
+import type { Wedding } from "@/models/wedding.model";
+import { useDeleteWedding } from "@/hooks/use-wedding";
+import toast from "react-hot-toast";
 
 type WeddingDeleteDialogueProps = {
+  currentRow?: Wedding;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm?: () => void;
 };
 
 export function WeddingDeleteDialogue({
+  currentRow,
   open,
   onOpenChange,
-  onConfirm,
 }: WeddingDeleteDialogueProps) {
+  const deleteWedding = useDeleteWedding();
+
   const handleConfirm = () => {
-    onConfirm?.();
+    if (!currentRow?.id) {
+      toast.error("Missing wedding id for edit");
+      onOpenChange(false);
+      return;
+    }
+    deleteWedding.mutateAsync(currentRow.id);
     onOpenChange(false);
   };
 
@@ -37,9 +47,11 @@ export function WeddingDeleteDialogue({
           </div>
           <DialogDescription>
             Are you sure you want to delete{" "}
-            <span className="font-medium text-foreground">Tanvi &amp; Aditya</span>?
-            This action cannot be undone and will permanently remove the wedding
-            along with all its guests and events.
+            <span className="font-medium text-foreground">
+              {currentRow ? `${currentRow.title}` : "This wedding"}
+            </span>
+            ? This action cannot be undone and will permanently remove the
+            wedding along with all its guests and events.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="border-t-0 bg-transparent sm:justify-end">

@@ -1,5 +1,5 @@
 import { useGetWeddingsWithStats } from "@/hooks/use-wedding";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TablePagination from "./TablePagination";
 import WeddingCard from "./WeddingCard";
 
@@ -10,6 +10,17 @@ export default function WeddingList() {
     isLoading,
     isError,
   } = useGetWeddingsWithStats(page, 6, true);
+
+  const data = response?.data;
+  const weddings = data?.weddings || [];
+  const totalPages = data?.totalPages || 1;
+  const totalItems = data?.totalCount || 0;
+
+  useEffect(() => {
+    if (!isLoading && !isError && weddings.length === 0 && page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  }, [isLoading, isError, weddings.length, page]);
 
   if (isLoading) {
     return (
@@ -27,12 +38,7 @@ export default function WeddingList() {
     );
   }
 
-  const data = response?.data;
-  const weddings = data?.weddings || [];
-  const totalPages = data?.totalPages || 1;
-  const totalItems = data?.totalCount || 0;
-
-  if (weddings.length === 0) {
+  if (weddings.length === 0 && page === 1) {
     return (
       <div className="p-8 text-center text-muted-foreground">
         No weddings found.

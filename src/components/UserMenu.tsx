@@ -12,9 +12,11 @@ import { APP_SIDEBAR } from "@/constants";
 import Avtar from "react-avatar";
 import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { ChevronsUpDown } from "lucide-react";
+import { useLogout } from "@/hooks/use-auth";
 
 export default function UserMenu() {
   const { isMobile } = useSidebar();
+  const { mutate: handleLogout } = useLogout();
 
   return (
     <DropdownMenu>
@@ -76,7 +78,11 @@ export default function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {APP_SIDEBAR.userMenu.itemsSecondary.map((item, index) => (
-            <DropdownMenuItem key={index}>
+            <DropdownMenuItem key={index} onClick={() => {
+              if (item.title === "Sign out") {
+                handleLogout();
+              }
+            }}>
               <item.Icon />
               <span>{item.title}</span>
               {item.kbd && (

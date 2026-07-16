@@ -1,23 +1,14 @@
-import { authService } from "@/api/auth.service";
 import EmailVerificationInProgressCard from "@/components/EmailVerificationInProgressCard";
 import InvalidEmailVerificationLink from "@/components/InvalidEmailVerificationLink";
 import VerifyEmailCard from "@/components/VerifyEmailCard";
-import { useQuery } from "@tanstack/react-query";
+import { useVerifyEmail } from "@/hooks/use-auth";
 import { useSearchParams } from "react-router-dom";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
+  const token = searchParams.get("token") ?? null;
 
-  const { isPending, isSuccess, isError } = useQuery({
-    queryKey: ["verifyEmail", token],
-    queryFn: async () => {
-      if (!token) throw new Error("No token provided");
-      return authService.verifyEmail({ token });
-    },
-    enabled: !!token,
-    retry: false,
-  });
+  const { isPending, isSuccess, isError } = useVerifyEmail(token);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 relative overflow-hidden">

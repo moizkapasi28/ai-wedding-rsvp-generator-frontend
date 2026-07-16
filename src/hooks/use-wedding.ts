@@ -31,9 +31,50 @@ export const useCreateWedding = () => {
     mutationFn: async (data: WeddingFormValues) =>
       weddingService.createWedding(data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: WEDDING_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
 
       toast.success(response.message || "New Wedding Created Successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Something went wrong! Please try again later",
+      );
+    },
+  });
+};
+
+export const useUpdatWedding = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: WeddingFormValues & { id: string }) =>
+      weddingService.updateWedding(data, data.id),
+
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
+
+      toast.success(response.message || "New Wedding Updated Successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Something went wrong! Please try again later",
+      );
+    },
+  });
+};
+
+export const useDeleteWedding = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => weddingService.deleteWedding(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
+
+      toast.success(response.message || "Wedding Deleted Successfully");
     },
     onError: (error) => {
       toast.error(

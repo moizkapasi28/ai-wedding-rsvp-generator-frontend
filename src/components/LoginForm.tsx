@@ -1,4 +1,3 @@
-import { authService } from "@/api/auth.service";
 import { PasswordInput } from "@/components/custom/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
@@ -11,23 +10,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/use-auth";
+import { useLogin } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { loginSchema, type LoginRequest } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Lock, Mail } from "lucide-react";
 import { type HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 export default function LoginForm({ className, ...props }: LoginFormProps) {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -36,22 +30,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
     },
   });
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (data: LoginRequest) => authService.login(data),
-    onSuccess: (response) => {
-      let refreshToken = null;
-      if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION) {
-        refreshToken = response.data.tokens.refresh?.token ?? "";
-      }
-      login(response.data.user, refreshToken);
-
-      toast.success(`${response.message} 🎉` || "Login successfull! 🎉");
-      navigate("/");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Something went wrong. Please try again.");
-    },
-  });
+  const { mutateAsync, isPending } = useLogin();
 
   async function onSubmit(data: LoginRequest) {
     mutateAsync(data);

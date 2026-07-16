@@ -1,4 +1,4 @@
-import { DownloadIcon, PlusIcon } from "lucide-react";
+import { DownloadIcon, PlusIcon, UploadIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { useGuest } from "./GuestProvider";
 
@@ -7,8 +7,16 @@ export default function GuestPrimaryButtons() {
   return (
     <div className="flex items-center gap-2 shrink-0">
       <Button variant="outline">
+        <UploadIcon />
+        <span>Import Guest List</span>
+      </Button>
+      <Button variant="outline">
         <DownloadIcon />
-        <span>Export CSV</span>
+        <span>Export Guest List</span>
+      </Button>
+      <Button variant="default">
+        <DownloadIcon />
+        <span>Export Template</span>
       </Button>
       <Button variant="default" onClick={() => setOpen("add")}>
         <PlusIcon />

@@ -1,4 +1,3 @@
-import { authService } from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,12 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useResendEmailVerification } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import type { ResendVerificationEmailRequest } from "@/validations/auth.validation";
-import { useMutation } from "@tanstack/react-query";
-import { MailQuestion, Inbox, RefreshCw } from "lucide-react";
+import { Inbox, MailQuestion, RefreshCw } from "lucide-react";
 import { useEffect, type HTMLAttributes } from "react";
-import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export interface VerifyEmailCardProps extends HTMLAttributes<HTMLDivElement> {}
@@ -26,16 +24,7 @@ export default function EmailVerificationPendingCard({
 
   const email = (location.state as { email?: string } | null)?.email;
 
-  const mutation = useMutation({
-    mutationFn: async (data: ResendVerificationEmailRequest) =>
-      authService.resendVerificationEmail(data),
-    onSuccess: (_response) => {
-      toast.success("Verification email sent successfully");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutateAsync, isPending } = useResendEmailVerification();
 
   useEffect(() => {
     if (!email) {
@@ -48,7 +37,7 @@ export default function EmailVerificationPendingCard({
   }
 
   const handleResendVerificationEmail = () => {
-    mutation.mutate({ email } as ResendVerificationEmailRequest);
+    mutateAsync({ email } as ResendVerificationEmailRequest);
   };
 
   return (
@@ -88,12 +77,12 @@ export default function EmailVerificationPendingCard({
               className="w-full gap-2 font-medium"
               variant="outline"
               onClick={handleResendVerificationEmail}
-              disabled={mutation.isPending}
+              disabled={isPending}
             >
               <RefreshCw
-                className={cn("h-4 w-4", mutation.isPending && "animate-spin")}
+                className={cn("h-4 w-4", isPending && "animate-spin")}
               />
-              {mutation.isPending ? "Sending..." : "Resend Verification Link"}
+              {isPending ? "Sending..." : "Resend Verification Link"}
             </Button>
             <div className="text-sm text-center text-zinc-500 dark:text-zinc-400">
               Back to login?{" "}

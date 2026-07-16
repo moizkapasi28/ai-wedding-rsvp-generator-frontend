@@ -22,6 +22,7 @@ import {
 } from "@/validations/wedding.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building, Calendar, LandmarkIcon, Type, User } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AddressAutocomplete } from "./custom/AddressAutocomplete";
 import { Input } from "./ui/input";
@@ -31,17 +32,33 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "./ui/input-group";
-import { useCreateWedding } from "@/hooks/use-wedding";
+import { useCreateWedding, useUpdatWedding } from "@/hooks/use-wedding";
+import type { Wedding } from "@/models/wedding.model";
+import toast from "react-hot-toast";
+import { formatDateForInput } from "@/lib/utils";
 
 type WeddingActionDialogMode = "add" | "edit";
 
 type WeddingActionDialogProps = {
+  currentRow?: Wedding;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: WeddingActionDialogMode;
 };
 
+const getFormValues = (row?: Wedding | null): WeddingFormValues => ({
+  title: row?.title ?? "",
+  bride_name: row?.bride_name ?? "",
+  groom_name: row?.groom_name ?? "",
+  date: row?.date ? formatDateForInput(row.date) : "",
+  venue: row?.venue ?? "",
+  address: row?.address ?? "",
+  city: row?.city ?? "",
+  message: row?.message ?? "",
+});
+
 export function WeddingActionDialogue({
+  currentRow,
   open,
   onOpenChange,
   mode = "add",
@@ -50,50 +67,43 @@ export function WeddingActionDialogue({
 
   const form = useForm<WeddingFormValues>({
     resolver: zodResolver(weddingFormSchema),
-    defaultValues: {
-      title: isEdit ? "Tanvi & Aditya Wedding" : "",
-      bride_name: isEdit ? "Tanvi" : "",
-      groom_name: isEdit ? "Aditya" : "",
-      date: isEdit ? "2026-06-16" : "",
-      venue: isEdit ? "Taj Lands End" : "",
-      city: isEdit ? "Mumbai" : "",
-      message: isEdit ? "Message" : "",
-    },
+    defaultValues: getFormValues(isEdit ? currentRow : null),
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset(getFormValues(isEdit ? currentRow : null));
+    }
+  }, [open, isEdit, currentRow, form]);
+
   const createWedding = useCreateWedding();
+  const updateWedding = useUpdatWedding();
 
   const isPending = createWedding.isPending;
 
   const handleClose = () => {
-    if (isPending) return; // don't allow closing mid-submit
+    if (isPending) return;
     form.reset();
     onOpenChange(false);
   };
 
   const onSubmit = (values: WeddingFormValues) => {
+    const onMutationSuccess = () => {
+      form.reset();
+      onOpenChange(false);
+    };
+
     if (isEdit) {
-      console.log("Edit feature is pending to implement");
-      // if (!weddingId) {
-      //   toast.error("Missing wedding id for edit");
-      //   return;
-      // }
-      // updateWedding.mutate(
-      //   { id: weddingId, payload: values },
-      //   {
-      //     onSuccess: () => {
-      //       form.reset();
-      //       onOpenChange(false);
-      //     },
-      //   }
-      // );
+      if (!currentRow?.id) {
+        toast.error("Missing wedding id for edit");
+        return;
+      }
+      updateWedding.mutate(
+        { id: currentRow.id, ...values },
+        { onSuccess: onMutationSuccess },
+      );
     } else {
-      createWedding.mutateAsync(values, {
-        onSuccess: () => {
-          form.reset();
-          onOpenChange(false);
-        },
-      });
+      createWedding.mutate(values, { onSuccess: onMutationSuccess });
     }
   };
 

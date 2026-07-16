@@ -1,4 +1,3 @@
-import { authService } from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -9,18 +8,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useForgotPassword } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
   forgotPasswordSchema,
   type ForgotPasswordRequest,
 } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, MailIcon } from "lucide-react";
 import { type HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Input } from "./ui/input";
 
 export interface ForgotPasswordFormProps extends HTMLAttributes<HTMLDivElement> {}
@@ -29,8 +27,6 @@ export default function ForgotPasswordForm({
   className,
   ...props
 }: ForgotPasswordFormProps) {
-  const navigate = useNavigate();
-
   const form = useForm<ForgotPasswordRequest>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -38,17 +34,7 @@ export default function ForgotPasswordForm({
     },
   });
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async (data: ForgotPasswordRequest) =>
-      authService.forgotPassword(data),
-    onSuccess: () => {
-      toast.success("Reset password link sent to registered email address");
-      navigate("/");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Something went wrong. Please try again.");
-    },
-  });
+  const { mutateAsync, isPending } = useForgotPassword();
 
   async function onSubmit(data: ForgotPasswordRequest) {
     mutateAsync(data);

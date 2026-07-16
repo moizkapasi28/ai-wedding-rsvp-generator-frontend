@@ -11,8 +11,8 @@ import {
   CalendarIcon,
   CopyIcon,
   EyeIcon,
-  LayoutDashboardIcon,
-  LayoutGridIcon,
+  GaugeIcon,
+  LayoutListIcon,
   LifeBuoyIcon,
   LogOutIcon,
   PencilIcon,
@@ -23,41 +23,19 @@ import {
   Users2Icon,
 } from "lucide-react";
 
-/**
- * Types
- */
-// import type { Vendor } from "@/components/Columns";
-
-export const VENDOR_BREAKDOWN = [
-  { month: "Jan 2025", asia: 35, us: 20, eu: 30 },
-  { month: "Feb 2025", asia: 30, us: 30, eu: 32 },
-  { month: "Mar 2025", asia: 24, us: 20, eu: 30 },
-  { month: "Apr 2025", asia: 28, us: 30, eu: 24 },
-  { month: "May 2025", asia: 10, us: 28, eu: 32 },
-  { month: "Jun 2025", asia: 13, us: 30, eu: 33 },
-  { month: "Jul 2025", asia: 10, us: 20, eu: 30 },
-  { month: "Aug 2025", asia: 20, us: 30, eu: 35 },
-  { month: "Sept 2025", asia: 10, us: 20, eu: 30 },
-  { month: "Oct 2025", asia: 28, us: 30, eu: 20 },
-  { month: "Nov 2025", asia: 24, us: 30, eu: 30 },
-  { month: "Dec 2025", asia: 35, us: 40, eu: 20 },
-];
-
-export const VENDOR_MONITORED = [{ year: "2025", monitored: 240, limit: 60 }];
-
 export const APP_SIDEBAR = {
   primaryNav: [
     {
       title: "All Weddings",
-      path: "/all-weddings",
-      url: "#",
-      Icon: LayoutGridIcon,
-    },
-    {
-      title: "Dashboard",
       path: "/",
       url: "#",
-      Icon: LayoutDashboardIcon,
+      Icon: LayoutListIcon,
+    },
+    {
+      title: "Wedding Dashboard",
+      path: "/wedding-dashboard",
+      url: "#",
+      Icon: GaugeIcon,
     },
     {
       title: "Guests",
