@@ -52,3 +52,21 @@ export const useUpdateGuest = () => {
     },
   });
 };
+
+export const useDeleteGuest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => guestService.deleteGuest(id),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+
+      toast.success(response.message || "Guest Deleted Successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Something went wrong! Please try again later",
+      );
+    },
+  });
+};

@@ -216,7 +216,7 @@ export function EventActionDialogue({
                           value={field.value}
                           onValueChange={field.onChange}
                         >
-                          <SelectTrigger className="w-full pl-11 !h-10 rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
+                          <SelectTrigger className="w-full pl-11 h-10! rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
                             <SelectValue placeholder="Select side" />
                           </SelectTrigger>
                           <SelectContent>

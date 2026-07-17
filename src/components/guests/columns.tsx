@@ -51,7 +51,10 @@ function GuestActionsCell({ guest }: { guest: Guest }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
-          onClick={() => setOpen("delete")}
+          onClick={() => {
+            setCurrentRow(guest);
+            setOpen("delete");
+          }}
         >
           <Trash2 className="mr-2 h-4 w-4" />
           Delete
@@ -78,7 +81,6 @@ export const columns: ColumnDef<Guest>[] = [
     accessorKey: "side",
     header: "Side",
     cell: ({ row }) => {
-
       return (
         <Badge
           className={cn(
@@ -96,22 +98,28 @@ export const columns: ColumnDef<Guest>[] = [
     header: "Group",
     cell: ({ row }) => {
       const groupColors: Record<string, string> = {
-        FAMILY: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-950/30 dark:text-fuchsia-300 dark:border-fuchsia-900/50",
-        FRIEND: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-900/50",
-        RELATIVE: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-900/50",
-        EMPLOYEE: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/50",
-        COLLEAGUE: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300 dark:border-cyan-900/50",
+        FAMILY:
+          "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-950/30 dark:text-fuchsia-300 dark:border-fuchsia-900/50",
+        FRIEND:
+          "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-900/50",
+        RELATIVE:
+          "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-900/50",
+        EMPLOYEE:
+          "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/50",
+        COLLEAGUE:
+          "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300 dark:border-cyan-900/50",
         VIP: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
-        OTHER: "bg-stone-50 text-stone-700 border-stone-200 dark:bg-stone-950/30 dark:text-stone-300 dark:border-stone-900/50",
+        OTHER:
+          "bg-stone-50 text-stone-700 border-stone-200 dark:bg-stone-950/30 dark:text-stone-300 dark:border-stone-900/50",
       };
-      
+
       const groupStr = row.original.group || "OTHER";
-      
+
       return (
         <Badge
           className={cn(
             "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-            groupColors[groupStr] || groupColors.OTHER
+            groupColors[groupStr] || groupColors.OTHER,
           )}
         >
           {groupStr}
@@ -125,12 +133,16 @@ export const columns: ColumnDef<Guest>[] = [
     cell: ({ row }) => (
       <div className="flex flex-wrap gap-1">
         {row.original.guestEventInvite.map((invite) => {
-          const status = invite.status?.toLowerCase() || 'pending';
+          const status = invite.status?.toLowerCase() || "pending";
           const statusColors: Record<string, string> = {
-            attending: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50",
-            declined: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/50",
-            maybe: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
-            pending: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-900/50"
+            attending:
+              "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50",
+            declined:
+              "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/50",
+            maybe:
+              "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
+            pending:
+              "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-900/50",
           };
 
           return (
@@ -138,7 +150,7 @@ export const columns: ColumnDef<Guest>[] = [
               key={invite.id}
               className={cn(
                 "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-                statusColors[status] || statusColors.pending
+                statusColors[status] || statusColors.pending,
               )}
             >
               {invite.event.title}

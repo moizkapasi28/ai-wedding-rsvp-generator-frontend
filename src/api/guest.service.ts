@@ -26,6 +26,10 @@ class GuestService {
   async updateGuest(body: GuestFormValues, id: string): Promise<any> {
     return this.api.patch<any>(`${this.controller}/${id}`, body);
   }
+
+  async deleteGuest(id: string): Promise<any> {
+    return this.api.delete<any>(`${this.controller}/${id}`);
+  }
 }
 
 export const guestService = new GuestService();

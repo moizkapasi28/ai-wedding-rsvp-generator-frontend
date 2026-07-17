@@ -7,21 +7,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useDeleteGuest } from "@/hooks/use-guest";
+import type { Guest } from "@/models/guest.model";
 import { Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 type GuestDeleteDialogueProps = {
+  currentRow?: Guest;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm?: () => void;
 };
 
 export function GuestDeleteDialogue({
+  currentRow,
   open,
   onOpenChange,
-  onConfirm,
 }: GuestDeleteDialogueProps) {
+  const deleteEvent = useDeleteGuest();
+
   const handleConfirm = () => {
-    onConfirm?.();
+    if (!currentRow?.id) {
+      toast.error("Missing guest id for delete");
+      onOpenChange(false);
+      return;
+    }
+    deleteEvent.mutateAsync(currentRow.id);
     onOpenChange(false);
   };
 
@@ -36,9 +47,12 @@ export function GuestDeleteDialogue({
             <DialogTitle>Delete Guest</DialogTitle>
           </div>
           <DialogDescription>
-            Are you sure you want to delete this guest? This action cannot be
-            undone and will permanently remove the guest along with all their
-            event invitations.
+            Are you sure you want to delete{" "}
+            <span className="font-medium text-foreground">
+              {currentRow ? `${currentRow.name}` : "This guest"}
+            </span>
+            ? This action cannot be undone and will permanently remove the guest
+            along with all their event invitations.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="border-t-0 bg-transparent sm:justify-end">

@@ -52,6 +52,7 @@ export default function GuestDialogues() {
           />
 
           <GuestDeleteDialogue
+            currentRow={currentRow}
             open={open === "delete"}
             onOpenChange={(isOpen) => setOpen(isOpen ? "delete" : null)}
             onConfirm={() => {
