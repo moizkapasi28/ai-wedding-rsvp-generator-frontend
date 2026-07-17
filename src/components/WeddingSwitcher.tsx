@@ -1,5 +1,5 @@
-import { useGetWeddings } from "@/hooks/use-wedding";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { cn } from "@/lib/utils";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtom } from "jotai";
@@ -29,15 +29,30 @@ const getWeddingColor = (id: string) => {
 };
 
 const getInitials = (bride: string, groom: string) => {
-  return `${bride?.charAt(0) || ""}${groom?.charAt(0) || ""}`.toUpperCase() || "W";
+  return (
+    `${bride?.charAt(0) || ""}${groom?.charAt(0) || ""}`.toUpperCase() || "W"
+  );
 };
 
 export default function WeddingSwitcher() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  const { data, isLoading } = useGetWeddings(1, 100);
-  const weddings = data?.data?.weddings || [];
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetWeddingsInfinite(20);
+  
+  const weddings = React.useMemo(() => {
+    return data?.pages.flatMap((page) => page.data?.weddings || []) || [];
+  }, [data]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight < 20) {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }
+  };
 
   const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
@@ -142,7 +157,9 @@ export default function WeddingSwitcher() {
             </span>
             <span className="text-xs text-muted-foreground truncate mt-0.5 flex items-center gap-1 font-medium">
               <Calendar className="h-2.5 w-2.5 shrink-0" />
-              {activeWedding.date ? new Date(activeWedding.date).toLocaleDateString() : "No Date"}
+              {activeWedding.date
+                ? new Date(activeWedding.date).toLocaleDateString()
+                : "No Date"}
             </span>
           </div>
         )}
@@ -182,7 +199,10 @@ export default function WeddingSwitcher() {
           </div>
 
           {/* Scrollable list */}
-          <div className="flex flex-col max-h-56 overflow-y-auto gap-0.5 pr-0.5">
+          <div 
+            className="flex flex-col max-h-56 overflow-y-auto no-scrollbar gap-0.5 pr-0.5"
+            onScroll={handleScroll}
+          >
             {filteredWeddings.length > 0 ? (
               filteredWeddings.map((w) => (
                 <button
@@ -212,7 +232,8 @@ export default function WeddingSwitcher() {
                       )}
                     </span>
                     <span className="text-[10px] text-muted-foreground truncate font-medium">
-                      {w.date ? new Date(w.date).toLocaleDateString() : ""} {w.city ? `• ${w.city}` : ""}
+                      {w.date ? new Date(w.date).toLocaleDateString() : ""}{" "}
+                      {w.city ? `• ${w.city}` : ""}
                     </span>
                   </div>
 
@@ -225,6 +246,12 @@ export default function WeddingSwitcher() {
             ) : (
               <div className="py-6 text-center text-xs text-muted-foreground select-none">
                 No wedding projects found
+              </div>
+            )}
+            
+            {isFetchingNextPage && (
+              <div className="py-2 text-center flex justify-center">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             )}
           </div>

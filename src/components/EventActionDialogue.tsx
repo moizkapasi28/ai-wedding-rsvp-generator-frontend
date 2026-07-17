@@ -8,13 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  eventFormSchema,
-  type EventFormValues,
-  EventSide,
-} from "@/validations/event.validation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
   Form,
   FormControl,
   FormDescription,
@@ -23,13 +16,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "./ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "./ui/input-group";
 import {
   Select,
   SelectContent,
@@ -37,55 +23,133 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { formatDateForInput } from "@/lib/utils";
+import type { Event } from "@/models/event.model";
+import { activeWeddingIdAtom } from "@/store/store";
+import { useAtomValue } from "jotai";
 import {
-  Type,
-  Users,
+  eventFormSchema,
+  type EventFormValues,
+  EventSide,
+} from "@/validations/event.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Building,
   Calendar,
   Clock,
-  MapPin,
-  Building,
   LandmarkIcon,
+  Type,
+  Users,
 } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { AddressAutocomplete } from "./custom/AddressAutocomplete";
+import { Input } from "./ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroupTextarea,
+} from "./ui/input-group";
+import { useCreateEvent, useUpdatEvent } from "@/hooks/use-event";
 
 type EventActionDialogMode = "add" | "edit";
 
 type EventActionDialogProps = {
+  currentRow?: Event;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: EventActionDialogMode;
 };
 
+const getFormValues = (
+  row?: Event | null,
+  activeWeddingId?: string | null,
+): EventFormValues => ({
+  title: row?.title ?? "",
+  date: row?.date ? formatDateForInput(row.date) : "",
+  venue: row?.venue ?? "",
+  address: row?.address ?? "",
+  city: row?.city ?? "",
+  description: row?.description ?? "",
+  time: row?.time ?? "",
+  event_side: row?.event_side ?? EventSide.BOTH,
+  weddingId: row?.wedding_id ?? activeWeddingId ?? "",
+});
+
 export function EventActionDialogue({
+  currentRow,
   open,
   onOpenChange,
   mode = "add",
 }: EventActionDialogProps) {
   const isEdit = mode === "edit";
 
+  const now = new Date();
+  const todayStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
+
+  const activeWeddingId = useAtomValue(activeWeddingIdAtom);
+
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
-    defaultValues: {
-      weddingId: "",
-      title: isEdit ? "Sangeet" : "",
-      description: isEdit ? "this is a description" : "",
-      date: isEdit ? "2026-06-16" : "",
-      time: isEdit ? "12:30" : "",
-      venue: isEdit ? "Taj Lands End" : "",
-      address: isEdit ? "Malad West" : "",
-      city: isEdit ? "Mumbai" : "",
-      eventSide: isEdit ? EventSide.BOTH : EventSide.BOTH,
-    },
+    defaultValues: getFormValues(isEdit ? currentRow : null, activeWeddingId),
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset(getFormValues(isEdit ? currentRow : null, activeWeddingId));
+    }
+  }, [open, isEdit, currentRow, form, activeWeddingId]);
+
+  const createEvent = useCreateEvent();
+  const updateEvent = useUpdatEvent();
+
+  const isPending = createEvent.isPending;
+
   const handleClose = () => {
+    if (isPending) return;
     form.reset();
     onOpenChange(false);
   };
 
   const onSubmit = (values: EventFormValues) => {
-    console.log(values);
-    form.reset();
-    onOpenChange(false);
+    const onMutationSuccess = () => {
+      form.reset();
+      onOpenChange(false);
+    };
+
+    if (isEdit) {
+      if (!currentRow?.id) {
+        toast.error("Missing wedding id for edit");
+        return;
+      }
+      updateEvent.mutate(
+        { id: currentRow.id, ...values },
+        { onSuccess: onMutationSuccess },
+      );
+    } else {
+      createEvent.mutate(values, { onSuccess: onMutationSuccess });
+    }
+  };
+
+  const handlePlaceSelected = (place: google.maps.places.PlaceResult) => {
+    if (place.formatted_address) {
+      form.setValue("address", place.formatted_address);
+    }
+
+    // Extract city from address_components
+    const cityComponent = place.address_components?.find(
+      (component) =>
+        component.types.includes("locality") ||
+        component.types.includes("administrative_area_level_2"),
+    );
+
+    if (cityComponent) {
+      form.setValue("city", cityComponent.long_name);
+    }
   };
 
   return (
@@ -96,7 +160,15 @@ export function EventActionDialogue({
         onOpenChange(state);
       }}
     >
-      <DialogContent className="w-full sm:max-w-2xl">
+      <DialogContent
+        className="w-full sm:max-w-2xl"
+        onInteractOutside={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest(".pac-container")) {
+            e.preventDefault();
+          }
+        }}
+      >
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader className="text-start">
@@ -133,7 +205,7 @@ export function EventActionDialogue({
               />
               <FormField
                 control={form.control}
-                name="eventSide"
+                name="event_side"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel>Event Side</FormLabel>
@@ -176,6 +248,7 @@ export function EventActionDialogue({
                           type="date"
                           placeholder="Select date"
                           autoComplete="off"
+                          min={todayStr}
                           className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           {...field}
                         />
@@ -195,9 +268,10 @@ export function EventActionDialogue({
                       <div className="relative group">
                         <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
                         <Input
+                          type="time"
                           placeholder="Enter time of the event"
                           autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           {...field}
                         />
                       </div>
@@ -256,11 +330,9 @@ export function EventActionDialogue({
                     <FormLabel>Address</FormLabel>
                     <FormControl>
                       <div className="relative group">
-                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter the address of the venue"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                        <AddressAutocomplete
+                          placeholder="Enter the address"
+                          onPlaceSelected={handlePlaceSelected}
                           {...field}
                         />
                       </div>

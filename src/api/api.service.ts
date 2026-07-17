@@ -32,7 +32,7 @@ class ApiService {
     if (body) {
       if (body instanceof FormData) {
         options.body = body;
-        mainHeader.delete("Content-Type"); // let the browser set it with the correct boundary
+        mainHeader.delete("Content-Type");
       } else {
         options.body = JSON.stringify(body);
       }
@@ -43,6 +43,9 @@ class ApiService {
       const response = await fetch(url, options);
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.dispatchEvent(new Event("unauthorized"));
+        }
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message ||

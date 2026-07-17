@@ -25,6 +25,8 @@ type MultiSelectProps = {
   className?: string;
   id?: string;
   "aria-invalid"?: boolean;
+  onScrollEnd?: () => void;
+  isFetchingNextPage?: boolean;
 };
 
 export function MultiSelect({
@@ -35,6 +37,8 @@ export function MultiSelect({
   className,
   id,
   "aria-invalid": ariaInvalid,
+  onScrollEnd,
+  isFetchingNextPage,
 }: MultiSelectProps) {
   const allSelected =
     options.length > 0 && options.every((o) => value.includes(o.value));
@@ -106,7 +110,14 @@ export function MultiSelect({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-full min-w-(--radix-dropdown-menu-trigger-width)"
+        className="w-full min-w-(--radix-dropdown-menu-trigger-width) max-h-[300px] overflow-y-auto"
+        onScroll={(e) => {
+          if (!onScrollEnd) return;
+          const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+          if (scrollHeight - scrollTop - clientHeight < 20) {
+            onScrollEnd();
+          }
+        }}
       >
         {/* Select All — custom item to correctly show dash for indeterminate */}
         <DropdownMenuItem
@@ -131,6 +142,11 @@ export function MultiSelect({
             {option.label}
           </DropdownMenuCheckboxItem>
         ))}
+        {isFetchingNextPage && (
+          <div className="py-2 text-center text-xs text-muted-foreground flex justify-center">
+            Loading more...
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

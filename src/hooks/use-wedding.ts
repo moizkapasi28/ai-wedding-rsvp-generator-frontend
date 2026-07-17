@@ -1,15 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { weddingService } from "@/api/wedding.service";
 import type { WeddingFormValues } from "@/validations/wedding.validation";
 import toast from "react-hot-toast";
 
-const WEDDING_QUERY_KEY = ["weddings"] as const;
-const WEDDING_STATS_QUERY_KEY = ["weddings-stats"] as const;
+const WEDDING_QUERY_KEY = ["weddings", "weddings-stats"] as const;
 
 export const useGetWeddings = (page: number, limit: number = 10) => {
   return useQuery({
-    queryKey: [WEDDING_QUERY_KEY, page, limit],
+    queryKey: [...WEDDING_QUERY_KEY, page, limit],
     queryFn: () => weddingService.getWeddings(page, limit),
+  });
+};
+
+export const useGetWeddingsInfinite = (limit: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: [...WEDDING_QUERY_KEY, "infinite", limit],
+    queryFn: ({ pageParam = 1 }) => weddingService.getWeddings(pageParam as number, limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const data = lastPage.data;
+      if (!data) return undefined;
+      return data.currentPage < data.totalPages ? data.currentPage + 1 : undefined;
+    },
   });
 };
 
@@ -19,7 +31,7 @@ export const useGetWeddingsWithStats = (
   stats: boolean = false,
 ) => {
   return useQuery({
-    queryKey: [WEDDING_STATS_QUERY_KEY, page, limit, stats],
+    queryKey: [...WEDDING_QUERY_KEY, page, limit, stats],
     queryFn: () => weddingService.getWeddings(page, limit, stats),
   });
 };
@@ -31,8 +43,7 @@ export const useCreateWedding = () => {
     mutationFn: async (data: WeddingFormValues) =>
       weddingService.createWedding(data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...WEDDING_QUERY_KEY] });
 
       toast.success(response.message || "New Wedding Created Successfully");
     },
@@ -52,8 +63,7 @@ export const useUpdatWedding = () => {
       weddingService.updateWedding(data, data.id),
 
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...WEDDING_QUERY_KEY] });
 
       toast.success(response.message || "New Wedding Updated Successfully");
     },
@@ -71,8 +81,7 @@ export const useDeleteWedding = () => {
   return useMutation({
     mutationFn: async (id: string) => weddingService.deleteWedding(id),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [WEDDING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [WEDDING_STATS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...WEDDING_QUERY_KEY] });
 
       toast.success(response.message || "Wedding Deleted Successfully");
     },

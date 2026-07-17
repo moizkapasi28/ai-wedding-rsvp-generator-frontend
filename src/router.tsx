@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, type FC } from "react";
+import { useEffect, useMemo, type FC } from "react";
 import {
   createBrowserRouter,
   Outlet,
@@ -115,6 +115,13 @@ const Setup = () => {
                       }),
                     },
                     {
+                      path: "guests/:id",
+                      index: false,
+                      lazy: async () => ({
+                        Component: (await import("@/pages/GuestDetails")).default,
+                      }),
+                    },
+                    {
                       path: "events",
                       index: false,
                       lazy: async () => ({
@@ -157,6 +164,17 @@ const Setup = () => {
 
 const Router: FC = () => {
   const { login, logout, isLoggedIn, refreshToken } = useAuth();
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+    };
+    window.addEventListener("unauthorized", handleUnauthorized);
+    return () => {
+      window.removeEventListener("unauthorized", handleUnauthorized);
+    };
+  }, [logout]);
+
   const { isLoading } = useQuery<Promise<boolean>>({
     queryKey: ["user", isLoggedIn],
     queryFn: async () => {

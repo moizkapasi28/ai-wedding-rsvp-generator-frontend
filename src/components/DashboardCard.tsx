@@ -1,25 +1,21 @@
+import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { EllipsisVerticalIcon } from "lucide-react";
 import { DASHBOARD_CARD_MENU } from "@/constants";
+import { EllipsisVerticalIcon } from "lucide-react";
 
 type Props = {
   title: string;
@@ -31,7 +27,7 @@ type Props = {
 export default function DashboardCard({
   title,
   description,
-  text,
+
   buttonText,
   children,
 }: React.PropsWithChildren<Props>) {

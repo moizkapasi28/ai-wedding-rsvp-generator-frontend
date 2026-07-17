@@ -53,7 +53,7 @@ export function EventProgressRow() {
         </div>
       </div>
 
-      <MultiProgressBar confirmed={50} maybe={10} declined={5} />
+      <MultiProgressBar confirmed={50} maybe={10} declined={5} pending={35} />
     </div>
   );
 }

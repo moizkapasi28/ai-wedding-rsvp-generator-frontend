@@ -1,6 +1,11 @@
 import { authService } from "@/api/auth.service";
 import type { User } from "@/models/user.model";
-import { isLoggedInAtom, userAtom, refreshTokenAtom } from "@/store/store";
+import {
+  isLoggedInAtom,
+  userAtom,
+  refreshTokenAtom,
+  activeWeddingIdAtom,
+} from "@/store/store";
 import { tokenStore } from "@/store/token";
 import type {
   ForgotPasswordRequest,
@@ -19,6 +24,7 @@ export const useAuth = () => {
   const [user, setUser] = useAtom(userAtom);
   const [isLoggedIn, setIsLoggedIn] = useAtom(isLoggedInAtom);
   const [refreshToken, setRefreshToken] = useAtom(refreshTokenAtom);
+  const [, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
 
   const login = (userData: User, refreshToken: string | null = null) => {
     setUser(userData);
@@ -29,7 +35,9 @@ export const useAuth = () => {
   };
 
   const logout = () => {
+    localStorage.clear();
     setUser(null);
+    setActiveWeddingId(null);
     setIsLoggedIn(false);
     tokenStore.clearAccessToken();
   };
@@ -47,6 +55,9 @@ export const useLogin = () => {
       let refreshToken = null;
       if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION) {
         refreshToken = response.data.tokens.refresh?.token ?? "";
+        if (response.data.tokens.access) {
+          tokenStore.setAccessToken(response.data.tokens.access);
+        }
       }
       login(response.data.user, refreshToken);
 

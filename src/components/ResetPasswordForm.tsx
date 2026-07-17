@@ -1,4 +1,3 @@
-import { authService } from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -9,20 +8,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useResetPassword } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
   resetPasswordSchema,
   type ResetPasswordRequest,
 } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, LockIcon } from "lucide-react";
 import { type Dispatch, type HTMLAttributes, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { PasswordInput } from "./custom/PasswordInput";
-import { useResetPassword } from "@/hooks/use-auth";
 
 export interface ResetPasswordFormProps extends HTMLAttributes<HTMLDivElement> {
   token: string;
