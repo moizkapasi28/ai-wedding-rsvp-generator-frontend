@@ -34,6 +34,13 @@ export const useCreateGuest = () => {
   });
 };
 
+export const useGetGuest = (id: string) => {
+  return useQuery({
+    queryKey: [...GUEST_QUERY_KEY, id],
+    queryFn: () => guestService.getGuest(id),
+  });
+};
+
 export const useUpdateGuest = () => {
   const queryClient = useQueryClient();
 

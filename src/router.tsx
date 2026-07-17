@@ -36,7 +36,7 @@ const Setup = () => {
               }),
               loader: () => {
                 if (isLoggedIn) {
-                  return redirect("/");
+                  return redirect("/weddings");
                 } else {
                   return null;
                 }
@@ -75,6 +75,19 @@ const Setup = () => {
             },
             {
               path: "/",
+              lazy: async () => ({
+                Component: (await import("./pages/Landing")).default,
+              }),
+              loader: () => {
+                if (isLoggedIn) {
+                  return redirect("/weddings");
+                } else {
+                  return null;
+                }
+              },
+            },
+            {
+              path: "/weddings",
               lazy: async () => {
                 const AppShell = await import("@/layout/AppLayout");
                 return { Component: AppShell.default };
@@ -88,7 +101,6 @@ const Setup = () => {
               },
               children: [
                 {
-                  path: "/",
                   index: true,
                   lazy: async () => ({
                     Component: (await import("@/pages/AllWeddings")).default,
@@ -101,7 +113,7 @@ const Setup = () => {
                   },
                   children: [
                     {
-                      path: "/wedding-dashboard",
+                      path: "wedding-dashboard",
                       index: false,
                       lazy: async () => ({
                         Component: (await import("@/pages/Dashboard")).default,

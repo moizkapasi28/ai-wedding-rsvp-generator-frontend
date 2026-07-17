@@ -39,18 +39,18 @@ export const guestFormBaseSchema = z.object({
   email: z.string().min(1, "Email is required").max(50),
   side: SideSchema.describe("Side is required (BRIDE or GROOM)"),
   accomodation_required: z.boolean(),
-  accommodation_address: z.string().optional(),
+  accomodation_address: z.string().optional(),
   group: GuestGroupSchema.describe("Group is required"),
   note: z.string().max(100, "Note cannot exceed 100 characters").optional(),
 });
 
 export const guestFormSchema = guestFormBaseSchema.superRefine((data, ctx) => {
-  if (data.accomodation_required && !data.accommodation_address) {
+  if (data.accomodation_required && !data.accomodation_address) {
     ctx.addIssue({
       code: "custom",
       message:
         "Accommodation address is required when accommodation is requested",
-      path: ["accommodation_address"],
+      path: ["accomodation_address"],
     });
   }
 });

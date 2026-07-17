@@ -85,7 +85,7 @@ const getFormValues = (row?: Guest | null): GuestFormValues => ({
   group: row?.group ?? GuestGroup.FAMILY,
   note: row?.note ?? "",
   accomodation_required: row?.accomodation_required ?? false,
-  accommodation_address: row?.accommodation_address ?? "",
+  accomodation_address: row?.accomodation_address ?? "",
   eventIds: row?.guestEventInvite.map((e) => e.event.id) ?? [],
 });
 
@@ -127,7 +127,7 @@ export function GuestActionDialogue({
 
   const handlePlaceSelected = (place: google.maps.places.PlaceResult) => {
     if (place.formatted_address) {
-      form.setValue("accommodation_address", place.formatted_address);
+      form.setValue("accomodation_address", place.formatted_address);
     }
   };
 
@@ -390,7 +390,7 @@ export function GuestActionDialogue({
               />
               <FormField
                 control={form.control}
-                name="accommodation_address"
+                name="accomodation_address"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
                     <FormLabel>Accommodation Address</FormLabel>

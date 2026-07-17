@@ -9,7 +9,7 @@ export interface Guest {
   side: Side;
   group: GuestGroup;
   accomodation_required: boolean;
-  accommodation_address: string | null;
+  accomodation_address: string | null;
   note: string | null;
   created_at: string;
   updated_at: string;
@@ -53,7 +53,13 @@ export interface Event {
 
 export type GuestListResponse = GenericResponse<{
   guests: Guest[];
-  total: number;
-  page: number;
-  limit: number;
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
 }>;
+
+export type GetGuestDetailsResponse = GenericResponse<Guest>;
+
+export type CreateOrUpdateGuestResponse = GenericResponse<Guest>;
+
+export type DeleteGuestResponse = GenericResponse<{}>;

@@ -43,9 +43,54 @@ class ApiService {
       const response = await fetch(url, options);
 
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 && !url.includes("auth/access-token") && !url.includes("auth/signin")) {
+          // Attempt to refresh the access token
+          let rTokenStr = localStorage.getItem("refreshToken");
+          let rToken = null;
+          if (rTokenStr) {
+            try { rToken = JSON.parse(rTokenStr); } catch (e) { rToken = rTokenStr; }
+          }
+          const bodyPayload = rToken && !import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION ? { refreshToken: rToken } : undefined;
+          
+          try {
+            const refreshResp = await fetch(`${this.baseUrl}/auth/access-token`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: bodyPayload ? JSON.stringify(bodyPayload) : undefined
+            });
+
+            if (refreshResp.ok) {
+               const refreshData = await refreshResp.json();
+               if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION && refreshData.data?.tokens?.access) {
+                 tokenStore.setAccessToken(refreshData.data.tokens.access);
+                 mainHeader.set("Authorization", `Bearer ${refreshData.data.tokens.access.token}`);
+                 options.headers = mainHeader;
+               }
+               // Retry original request
+               const retryResponse = await fetch(url, options);
+               if (!retryResponse.ok) {
+                 if (retryResponse.status === 401) {
+                   window.dispatchEvent(new Event("unauthorized"));
+                 }
+                 const errorData = await retryResponse.json().catch(() => ({}));
+                 throw new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`);
+               }
+               
+               if (retryResponse.status === 204 || retryResponse.headers.get("content-length") === "0") {
+                 return undefined as T;
+               }
+               const text = await retryResponse.text();
+               return text ? (JSON.parse(text) as T) : (undefined as T);
+            } else {
+               window.dispatchEvent(new Event("unauthorized"));
+            }
+          } catch (e) {
+             window.dispatchEvent(new Event("unauthorized"));
+          }
+        } else if (response.status === 401) {
           window.dispatchEvent(new Event("unauthorized"));
         }
+
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message ||
