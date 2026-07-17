@@ -9,7 +9,6 @@ export default function WeddingToolbar() {
       </div>
 
       <div className="flex gap-2">
-        <Button variant="outline">All</Button>
         <Button variant="outline">This Week</Button>
         <Button variant="outline">Upcoming</Button>
         <Button variant="outline">Completed</Button>

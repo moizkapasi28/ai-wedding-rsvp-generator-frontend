@@ -17,6 +17,7 @@ export interface Wedding {
   totalGuests?: number;
   totalEvents?: number;
   confirmationRate?: number;
+  tag?: string;
 }
 
 export type WeddingListResponse = GenericResponse<{

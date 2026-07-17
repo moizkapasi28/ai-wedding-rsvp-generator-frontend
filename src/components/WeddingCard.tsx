@@ -32,7 +32,7 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
             menuActive ? "opacity-0" : "group-hover:opacity-0"
           }`}
         >
-          This Week
+          {wedding.tag}
         </Badge>
 
         {/* Options button — visible on hover OR while menu is open */}
@@ -96,7 +96,9 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
         <div className="flex items-start gap-2.5 flex-1 min-w-0 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-foreground/70" />
           <div className="flex flex-col min-w-0 w-full">
-            <span className="font-semibold text-foreground truncate">{wedding.venue}</span>
+            <span className="font-semibold text-foreground truncate">
+              {wedding.venue}
+            </span>
             {wedding.address && (
               <span className="text-xs truncate" title={wedding.address}>
                 {wedding.address}
