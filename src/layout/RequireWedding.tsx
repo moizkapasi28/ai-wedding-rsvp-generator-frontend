@@ -29,7 +29,7 @@ export default function RequireWedding() {
         open={open}
         onOpenChange={(isOpen) => {
           setOpen(isOpen);
-          if (!isOpen) navigate("/");
+          if (!isOpen) navigate("/weddings");
         }}
       >
         <DialogContent>
@@ -43,7 +43,7 @@ export default function RequireWedding() {
             <Button
               onClick={() => {
                 setOpen(false);
-                navigate("/");
+                navigate("/weddings");
               }}
             >
               Go to Weddings

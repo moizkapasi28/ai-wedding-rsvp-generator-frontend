@@ -13,7 +13,7 @@ export default function Footer() {
             </span>
           </Link>
           <p className="text-sm text-muted-foreground">
-            The intelligent way to manage your wedding guests, RSVPs, and memories.
+            The intelligent platform to manage your wedding guests, events, and RSVPs.
           </p>
         </div>
         

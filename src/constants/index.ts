@@ -27,44 +27,44 @@ export const APP_SIDEBAR = {
   primaryNav: [
     {
       title: "All Weddings",
-      path: "/",
+      path: "/weddings",
       url: "#",
       Icon: LayoutListIcon,
     },
     {
       title: "Wedding Dashboard",
-      path: "/wedding-dashboard",
+      path: "/weddings/wedding-dashboard",
       url: "#",
       Icon: GaugeIcon,
     },
     {
       title: "Guests",
       url: "#",
-      path: "/guests",
+      path: "/weddings/guests",
       Icon: Users2Icon,
     },
     {
       title: "Events",
       url: "#",
-      path: "/events",
+      path: "/weddings/events",
       Icon: CalendarIcon,
     },
     {
       title: "RSVP Page Settings",
       url: "#",
-      path: "/page-settings",
+      path: "/weddings/page-settings",
       Icon: SettingsIcon,
     },
     {
       title: "AI Invite Card",
       url: "#",
-      path: "/ai-invite-card",
+      path: "/weddings/ai-invite-card",
       Icon: SunIcon,
     },
     {
       title: "Guest Preview",
       url: "#",
-      path: "/guest-preview",
+      path: "/weddings/guest-preview",
       Icon: EyeIcon,
     },
   ],
@@ -143,7 +143,6 @@ export const DASHBOARD_CARD_MENU = [
   },
 ];
 
-// export const VENDOR_MOVEMENTS: Vendor[] = [
 //   {
 //     src: "https://www.google.com/s2/favicons?domain=aws.amazon.com&sz=128",
 //     name: "AWS",

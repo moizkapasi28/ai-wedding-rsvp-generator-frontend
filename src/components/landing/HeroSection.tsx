@@ -17,11 +17,11 @@ export default function HeroSection() {
         </div>
 
         <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
-          Generate <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">AI Wedding RSVPs</span> in seconds.
+          AI-Powered <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500">Wedding Guest Management</span> & RSVPs
         </h1>
 
         <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
-          Generate custom AI invite cards, track RSVPs seamlessly, and manage your guest list across multiple events with the power of Artificial Intelligence.
+          The all-in-one platform to generate custom AI invite cards, track RSVPs seamlessly, and organize your entire guest list across multiple wedding events.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-both">

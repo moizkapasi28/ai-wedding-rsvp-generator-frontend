@@ -62,7 +62,7 @@ export const useLogin = () => {
       login(response.data.user, refreshToken);
 
       toast.success(`${response.message} 🎉` || "Login successfull! 🎉");
-      navigate("/");
+      navigate("/weddings");
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong. Please try again.");
@@ -118,7 +118,7 @@ export const useForgotPassword = () => {
       authService.forgotPassword(data),
     onSuccess: () => {
       toast.success("Reset password link sent to registered email address");
-      navigate("/");
+      navigate("/weddings");
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong. Please try again.");

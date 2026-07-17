@@ -87,7 +87,7 @@ export default function GuestDetails() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
         <ToolBar>
           <Button variant="outline" size="sm" asChild className="gap-2">
-            <Link to="/guests">
+            <Link to="/weddings/guests">
               <ArrowLeft className="h-4 w-4" />
               Back to Guests
             </Link>

@@ -33,7 +33,7 @@ function GuestActionsCell({ guest }: { guest: Guest }) {
       <DropdownMenuContent align="end" className="w-36">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => navigate(`/guests/${guest.id}`)}
+          onClick={() => navigate(`/weddings/guests/${guest.id}`)}
         >
           <Eye className="mr-2 h-4 w-4" />
           View

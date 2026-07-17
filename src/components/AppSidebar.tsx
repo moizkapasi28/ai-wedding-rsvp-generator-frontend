@@ -3,7 +3,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import UserMenu from "@/components/UserMenu";
 import WeddingSwitcher from "@/components/WeddingSwitcher";
 import { APP_SIDEBAR } from "@/constants";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ import {
 export default function AppSidebar() {
   const { isMobile, state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const location = useLocation();
 
   return (
     <Sidebar variant="floating" collapsible="icon">
@@ -36,16 +37,23 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {APP_SIDEBAR.primaryNav.map((item, index) => (
-                <SidebarMenuItem key={index} title={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.path}>
-                      {item.Icon && <item.Icon />}
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {APP_SIDEBAR.primaryNav.map((item, index) => {
+                const isActive =
+                  item.path === "/weddings"
+                    ? location.pathname === "/weddings"
+                    : location.pathname.startsWith(item.path);
+
+                return (
+                  <SidebarMenuItem key={index} title={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive}>
+                      <NavLink to={item.path}>
+                        {item.Icon && <item.Icon />}
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
