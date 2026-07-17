@@ -17,7 +17,7 @@ import {
 } from "./ui/sidebar";
 
 export default function AppSidebar() {
-  const { isMobile, state } = useSidebar();
+  const { isMobile, state, setOpenMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
   const location = useLocation();
 
@@ -46,7 +46,14 @@ export default function AppSidebar() {
                 return (
                   <SidebarMenuItem key={index} title={item.title}>
                     <SidebarMenuButton asChild isActive={isActive}>
-                      <NavLink to={item.path}>
+                      <NavLink 
+                        to={item.path}
+                        onClick={() => {
+                          if (isMobile) {
+                            setOpenMobile(false);
+                          }
+                        }}
+                      >
                         {item.Icon && <item.Icon />}
                         <span>{item.title}</span>
                       </NavLink>
