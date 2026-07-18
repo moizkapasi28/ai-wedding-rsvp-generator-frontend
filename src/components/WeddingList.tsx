@@ -2,14 +2,16 @@ import { useGetWeddingsWithStats } from "@/hooks/use-wedding";
 import { useEffect, useState } from "react";
 import TablePagination from "./TablePagination";
 import WeddingCard from "./WeddingCard";
+import { useWedding } from "./WeddingProvider";
 
 export default function WeddingList() {
   const [page, setPage] = useState(1);
+  const { search, filter, sortBy, sortOrder } = useWedding();
   const {
     data: response,
     isLoading,
     isError,
-  } = useGetWeddingsWithStats(page, 6, true);
+  } = useGetWeddingsWithStats(page, 6, true, search, filter, sortBy, sortOrder);
 
   const data = response?.data;
   const weddings = data?.weddings || [];
@@ -21,6 +23,11 @@ export default function WeddingList() {
       setPage((prev) => prev - 1);
     }
   }, [isLoading, isError, weddings.length, page]);
+
+  // Reset page when search, filter or sort changes
+  useEffect(() => {
+    setPage(1);
+  }, [search, filter, sortBy, sortOrder]);
 
   if (isLoading) {
     return (

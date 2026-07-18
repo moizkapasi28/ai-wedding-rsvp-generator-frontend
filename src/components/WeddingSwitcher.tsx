@@ -38,9 +38,9 @@ export default function WeddingSwitcher() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetWeddingsInfinite(20);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetWeddingsInfinite(20);
-  
   const weddings = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data?.weddings || []) || [];
   }, [data]);
@@ -61,7 +61,6 @@ export default function WeddingSwitcher() {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Close dropdown on click outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -79,7 +78,6 @@ export default function WeddingSwitcher() {
     };
   }, []);
 
-  // Focus search input when dropdown opens
   React.useEffect(() => {
     if (isOpen && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 50);
@@ -199,7 +197,7 @@ export default function WeddingSwitcher() {
           </div>
 
           {/* Scrollable list */}
-          <div 
+          <div
             className="flex flex-col max-h-56 overflow-y-auto no-scrollbar gap-0.5 pr-0.5"
             onScroll={handleScroll}
           >
@@ -248,7 +246,7 @@ export default function WeddingSwitcher() {
                 No wedding projects found
               </div>
             )}
-            
+
             {isFetchingNextPage && (
               <div className="py-2 text-center flex justify-center">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />

@@ -26,9 +26,9 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
 
   return (
     <Card className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1">
-      <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative p-5">
+      <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative px-5 pb-5 pt-3">
         <Badge
-          className={`absolute right-3 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${
+          className={`absolute right-5 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${
             menuActive ? "opacity-0" : "group-hover:opacity-0"
           }`}
         >
@@ -42,7 +42,7 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
               id="wedding-card-options-btn"
               variant="ghost"
               size="icon"
-              className={`absolute right-2 top-2 h-7 w-7 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${
+              className={`absolute right-4 top-2 h-7 w-7 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${
                 menuActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               }`}
               aria-label="Wedding options"
