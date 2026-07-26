@@ -104,7 +104,7 @@ export function MultiSelect({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-full min-w-(--radix-dropdown-menu-trigger-width) max-h-[300px] overflow-y-auto"
+        className="w-full min-w-(--radix-dropdown-menu-trigger-width) max-h-75 overflow-y-auto"
         onScroll={(e) => {
           if (!onScrollEnd) return;
           const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
