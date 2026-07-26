@@ -9,7 +9,6 @@ export default function WeddingToolbar() {
     setSearch,
     filter,
     setFilter,
-    sortBy,
     setSortBy,
     sortOrder,
     setSortOrder,

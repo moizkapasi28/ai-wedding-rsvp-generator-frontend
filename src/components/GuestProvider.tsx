@@ -8,6 +8,14 @@ type GuestContextType = {
   setOpen: (str: GuestDialogType | null) => void;
   currentRow: Guest | null;
   setCurrentRow: React.Dispatch<React.SetStateAction<Guest | null>>;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  eventFilter: string[];
+  setEventFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  sideFilter: string[];
+  setSideFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  groupFilter: string[];
+  setGroupFilter: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const GuestContext = React.createContext<GuestContextType | null>(null);
@@ -19,9 +27,28 @@ export default function GuestProvider({
 }) {
   const [open, setOpen] = useState<GuestDialogType | null>(null);
   const [currentRow, setCurrentRow] = useState<Guest | null>(null);
+  const [search, setSearch] = useState("");
+  const [eventFilter, setEventFilter] = useState<string[]>([]);
+  const [sideFilter, setSideFilter] = useState<string[]>([]);
+  const [groupFilter, setGroupFilter] = useState<string[]>([]);
 
   return (
-    <GuestContext.Provider value={{ open, setOpen, currentRow, setCurrentRow }}>
+    <GuestContext.Provider
+      value={{
+        open,
+        setOpen,
+        currentRow,
+        setCurrentRow,
+        search,
+        setSearch,
+        eventFilter,
+        setEventFilter,
+        sideFilter,
+        setSideFilter,
+        groupFilter,
+        setGroupFilter,
+      }}
+    >
       {children}
     </GuestContext.Provider>
   );

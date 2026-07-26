@@ -150,6 +150,41 @@ class ApiService {
   ): Promise<T> {
     return this.request<T>(endpoint, "DELETE", undefined, headers);
   }
+
+  async download(endpoint: string, filename: string): Promise<void> {
+    const url = `${this.baseUrl}/${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}`;
+    const headers = new Headers();
+    const token = tokenStore.getAccessToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    try {
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // ignore
+        }
+        throw new Error(errorMessage);
+      }
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Download error:", error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService();

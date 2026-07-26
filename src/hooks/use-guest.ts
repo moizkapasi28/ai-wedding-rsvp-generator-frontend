@@ -9,10 +9,32 @@ export const useGetGuests = (
   weddingId: string | null,
   page: number,
   limit: number = 10,
+  search: string,
+  events: string[] = [],
+  sides: string[] = [],
+  groups: string[] = [],
 ) => {
   return useQuery({
-    queryKey: [...GUEST_QUERY_KEY, page, limit, weddingId],
-    queryFn: () => guestService.getGuests(weddingId, page, limit),
+    queryKey: [
+      ...GUEST_QUERY_KEY,
+      page,
+      limit,
+      weddingId,
+      search,
+      events,
+      sides,
+      groups,
+    ],
+    queryFn: () =>
+      guestService.getGuests(
+        weddingId,
+        page,
+        limit,
+        search,
+        events,
+        sides,
+        groups,
+      ),
   });
 };
 
@@ -73,6 +95,67 @@ export const useDeleteGuest = () => {
     onError: (error) => {
       toast.error(
         error.message || "Something went wrong! Please try again later",
+      );
+    },
+  });
+};
+
+export const useDownloadTemplate = () => {
+  return useMutation({
+    mutationFn: async (weddingId: string) =>
+      guestService.downloadGuestListtemplate(weddingId),
+    onSuccess: () => {
+      toast.success("Template downloaded successfully");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error(
+        error.message || "Failed to download template! Please try again later",
+      );
+    },
+  });
+};
+
+export const useExportGuestList = () => {
+  return useMutation({
+    mutationFn: async ({
+      weddingId,
+      search,
+      events,
+      sides,
+      groups,
+    }: {
+      weddingId: string;
+      search?: string;
+      events?: string[];
+      sides?: string[];
+      groups?: string[];
+    }) =>
+      guestService.exportGuestList(weddingId, search, events, sides, groups),
+    onSuccess: () => {
+      toast.success("Guest list exported successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Failed to export guest list! Please try again later",
+      );
+    },
+  });
+};
+
+export const useUploadGuestList = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, file }: { id: string; file: File }) =>
+      guestService.uploadGuestList(id, file),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      toast.success(response?.message || "Guest list uploaded successfully");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Failed to upload guest list! Please try again later",
       );
     },
   });

@@ -5,12 +5,26 @@ import { useAtom } from "jotai";
 import { useState } from "react";
 import { DataTable } from "../components/guests/data-table";
 import { columns } from "./guests/columns";
+import { useGuest } from "./GuestProvider";
 
 export default function GuestList() {
   const [page, setPage] = useState(1);
   const [activeWeddingid] = useAtom(activeWeddingIdAtom);
+  const { search, eventFilter, sideFilter, groupFilter } = useGuest();
 
-  const { data: queryData, isLoading, error } = useGetGuests(activeWeddingid, page, 6);
+  const {
+    data: queryData,
+    isLoading,
+    error,
+  } = useGetGuests(
+    activeWeddingid,
+    page,
+    6,
+    search,
+    eventFilter,
+    sideFilter,
+    groupFilter,
+  );
 
   const guests = queryData?.data?.guests || [];
   const totalPages = queryData?.data?.totalPages || 1;
@@ -19,7 +33,12 @@ export default function GuestList() {
   return (
     <>
       <div className="mt-auto">
-        <DataTable columns={columns} data={guests} isLoading={isLoading} error={error} />
+        <DataTable
+          columns={columns}
+          data={guests}
+          isLoading={isLoading}
+          error={error}
+        />
       </div>
 
       <div className="mt-4">

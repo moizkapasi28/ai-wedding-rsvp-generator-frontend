@@ -12,7 +12,7 @@ export default function Guests() {
       <Page>
         <PageHeader title="Guests" />
 
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+        <div className="flex flex-row justify-between items-center gap-4 mb-4 w-full overflow-x-auto pb-2">
           <ToolBar>
             <GuestToolbar />
           </ToolBar>

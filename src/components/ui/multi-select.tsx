@@ -1,5 +1,4 @@
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "./badge";
@@ -59,12 +58,6 @@ export function MultiSelect({
     }
   };
 
-  const handleRemoveBadge = (e: React.MouseEvent, optionValue: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onValueChange(value.filter((v) => v !== optionValue));
-  };
-
   const selectedOptions = options.filter((o) => value.includes(o.value));
 
   return (
@@ -86,6 +79,13 @@ export function MultiSelect({
         >
           {value.length === 0 ? (
             <span className="flex-1 text-start">{placeholder}</span>
+          ) : value.length > 1 ? (
+            <Badge
+              variant="secondary"
+              className="h-auto py-0 px-2 text-xs font-normal"
+            >
+              {value.length} selected
+            </Badge>
           ) : (
             <div className="flex flex-1 flex-wrap gap-1">
               {selectedOptions.map((opt) => (
@@ -95,12 +95,6 @@ export function MultiSelect({
                   className="h-auto gap-0.5 py-0 pl-2 pr-1 text-xs font-normal"
                 >
                   {opt.label}
-                  <span
-                    role="button"
-                    tabIndex={-1}
-                    onMouseDown={(e) => handleRemoveBadge(e, opt.value)}
-                    className="ml-0.5 cursor-pointer rounded-sm opacity-60 hover:opacity-100"
-                  ></span>
                 </Badge>
               ))}
             </div>
