@@ -24,6 +24,7 @@
     "react": "^19.2.6",
     "react-avatar": "^5.0.4",
     "react-dom": "^19.2.6",
+    "react-easy-crop": "^6.2.3",
     "react-google-autocomplete": "^2.7.5",
     "react-hook-form": "^7.81.0",
     "react-hot-toast": "^2.6.0",

@@ -1,9 +1,15 @@
 import { eventService } from "@/api/event.service";
 import type { EventFormValues } from "@/validations/event.validation";
-import { useMutation, useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { PAGE_SETTING_QUERY_KEY } from "./use-pageSetting";
 
-const EVENT_QUERY_KEY = ["events"] as const;
+export const EVENT_QUERY_KEY = ["events"] as const;
 
 export const useGetEventsWithStats = (
   weddingId: string | null,
@@ -27,13 +33,20 @@ export const useGetEventsWithStatsInfinite = (
   return useInfiniteQuery({
     queryKey: [...EVENT_QUERY_KEY, "infinite", weddingId, limit, stats],
     queryFn: ({ pageParam = 1 }) =>
-      eventService.getEvents(weddingId as string, pageParam as number, limit, stats),
+      eventService.getEvents(
+        weddingId as string,
+        pageParam as number,
+        limit,
+        stats,
+      ),
     initialPageParam: 1,
     enabled: !!weddingId,
     getNextPageParam: (lastPage) => {
       const data = lastPage.data;
       if (!data) return undefined;
-      return data.currentPage < data.totalPages ? data.currentPage + 1 : undefined;
+      return data.currentPage < data.totalPages
+        ? data.currentPage + 1
+        : undefined;
     },
   });
 };
@@ -45,6 +58,7 @@ export const useCreateEvent = () => {
     mutationFn: async (data: EventFormValues) => eventService.createEvent(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
       toast.success(response.message || "New Event Created Successfully");
     },
     onError: (error) => {
@@ -64,7 +78,7 @@ export const useUpdatEvent = () => {
 
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
-
+      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
       toast.success(response.message || "New Wedding Updated Successfully");
     },
     onError: (error) => {
@@ -82,7 +96,7 @@ export const useDeleteEvent = () => {
     mutationFn: async (id: string) => eventService.deleteEvent(id),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
-
+      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
       toast.success(response.message || "Wedding Deleted Successfully");
     },
     onError: (error) => {

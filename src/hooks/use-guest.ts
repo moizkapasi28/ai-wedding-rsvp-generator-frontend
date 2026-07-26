@@ -3,7 +3,7 @@ import type { GuestFormValues } from "@/validations/guest.validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-const GUEST_QUERY_KEY = ["guests"] as const;
+export const GUEST_QUERY_KEY = ["guests"] as const;
 
 export const useGetGuests = (
   weddingId: string | null,

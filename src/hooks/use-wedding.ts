@@ -8,7 +8,7 @@ import { weddingService } from "@/api/wedding.service";
 import type { WeddingFormValues } from "@/validations/wedding.validation";
 import toast from "react-hot-toast";
 
-const WEDDING_QUERY_KEY = ["weddings", "weddings-stats"] as const;
+export const WEDDING_QUERY_KEY = ["weddings", "weddings-stats"] as const;
 
 export const useGetWeddings = (
   page: number,

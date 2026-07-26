@@ -17,6 +17,7 @@ import {
   LogOutIcon,
   PencilIcon,
   SettingsIcon,
+  SparklesIcon,
   SunIcon,
   TrashIcon,
   UserIcon,
@@ -59,7 +60,7 @@ export const APP_SIDEBAR = {
       title: "AI Invite Card",
       url: "#",
       path: "/weddings/ai-invite-card",
-      Icon: SunIcon,
+      Icon: SparklesIcon,
     },
     {
       title: "Guest Preview",
