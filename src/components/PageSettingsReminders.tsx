@@ -2,13 +2,12 @@ import RsvpPageSettingToggleRow from "@/components/RsvpPageSettingToggleRow";
 import { Switch } from "@/components/ui/switch";
 import { BellRingIcon } from "lucide-react";
 
-export default function PageSettingsReminders({
-  activeFormat,
-  handleFormatToggle,
-}: {
-  activeFormat: any;
-  handleFormatToggle: (key: string, checked: boolean) => void;
-}) {
+import { useFormContext } from "react-hook-form";
+import type { RsvpSettingsFormValues } from "@/validations/pageSetting.validation";
+import { FormField, FormItem, FormControl } from "@/components/ui/form";
+
+export default function PageSettingsReminders() {
+  const form = useFormContext<RsvpSettingsFormValues>();
   return (
     <div className="mt-5">
       <h3 className="text-xl font-semibold">WhatsApp reminders</h3>
@@ -27,12 +26,20 @@ export default function PageSettingsReminders({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="first-reminder"
-              checked={activeFormat?.first_reminder || false}
-              onCheckedChange={(c) =>
-                handleFormatToggle("first_reminder", c)
-              }
+            <FormField
+              control={form.control}
+              name="first_reminder"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="first-reminder"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>
@@ -47,12 +54,20 @@ export default function PageSettingsReminders({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="final-reminder"
-              checked={activeFormat?.final_reminder || false}
-              onCheckedChange={(c) =>
-                handleFormatToggle("final_reminder", c)
-              }
+            <FormField
+              control={form.control}
+              name="final_reminder"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="final-reminder"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>

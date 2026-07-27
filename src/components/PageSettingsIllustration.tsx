@@ -46,22 +46,18 @@ import {
 import { generalService } from "@/api/general.service";
 import toast from "react-hot-toast";
 
+import { useFormContext } from "react-hook-form";
+import type { RsvpSettingsFormValues } from "@/validations/pageSetting.validation";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+
 export default function PageSettingsIllustration({
   eventId,
   generatedImage,
   setGeneratedImage,
-  rawImageKey,
-  setRawImageKey,
-  activeFormat,
-  handleFormatToggle,
 }: {
   eventId: string | null;
   generatedImage: string | null;
   setGeneratedImage: (val: string | null, key?: string | null) => void;
-  rawImageKey: string | null;
-  setRawImageKey: (val: string | null) => void;
-  activeFormat?: any;
-  handleFormatToggle?: (key: string, value: any) => void;
 }) {
   const [coupleImage, setCoupleImage] = useState<string | null>(null);
   const [uncroppedImage, setUncroppedImage] = useState<string | null>(null);
@@ -69,52 +65,33 @@ export default function PageSettingsIllustration({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [illustrationTheme, setIllustrationTheme] = useState(
-    activeFormat?.illustration_theme || "traditional",
-  );
-  const [illustrationStyle, setIllustrationStyle] = useState(
-    activeFormat?.illustration_style || "royal_regal_portrait",
-  );
-  const [photoType, setPhotoType] = useState<"couple" | "bride" | "groom">(
-    activeFormat?.photo_type || "couple",
-  );
-  const [attire, setAttire] = useState(() => {
-    const val =
-      activeFormat?.bride_attire_style || activeFormat?.groom_attire_style;
-    if (!val || val === "Default / Let style decide") return "default";
-    return val;
-  });
-  const [brideAttire, setBrideAttire] = useState(() => {
-    const val = activeFormat?.bride_attire_style;
-    if (!val || val === "Default / Let style decide") return "default";
-    return val;
-  });
-  const [groomAttire, setGroomAttire] = useState(() => {
-    const val = activeFormat?.groom_attire_style;
-    if (!val || val === "Default / Let style decide") return "default";
-    return val;
-  });
+  const form = useFormContext<RsvpSettingsFormValues>();
+  const rawImageKey = form.watch("raw_image");
+  const illustrationTheme = form.watch("illustration_theme") || "traditional";
+  const illustrationStyle = form.watch("illustration_style") || "royal_regal_portrait";
+  const photoType = form.watch("photo_type") || "couple";
+
+  const brideAttire = form.watch("bride_attire_style") || "default";
+  const groomAttire = form.watch("groom_attire_style") || "default";
+  const attire = brideAttire !== "default" ? brideAttire : groomAttire;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (handleFormatToggle && activeFormat?.raw_image) {
-      if (!activeFormat?.illustration_theme)
-        handleFormatToggle("illustration_theme", "traditional");
-      if (!activeFormat?.illustration_style)
-        handleFormatToggle("illustration_style", "royal_regal_portrait");
-      if (!activeFormat?.photo_type) handleFormatToggle("photo_type", "couple");
-      if (!activeFormat?.bride_attire_style)
-        handleFormatToggle("bride_attire_style", "default");
-      if (!activeFormat?.groom_attire_style)
-        handleFormatToggle("groom_attire_style", "default");
+    if (rawImageKey) {
+      if (!form.getValues("illustration_theme"))
+        form.setValue("illustration_theme", "traditional");
+      if (!form.getValues("illustration_style"))
+        form.setValue("illustration_style", "royal_regal_portrait");
+      if (!form.getValues("photo_type")) form.setValue("photo_type", "couple");
+      if (!form.getValues("bride_attire_style"))
+        form.setValue("bride_attire_style", "default");
+      if (!form.getValues("groom_attire_style"))
+        form.setValue("groom_attire_style", "default");
     }
   }, [
-    activeFormat?.raw_image,
-    activeFormat?.illustration_theme,
-    activeFormat?.illustration_style,
-    activeFormat?.photo_type,
-    activeFormat?.bride_attire_style,
-    activeFormat?.groom_attire_style,
+    rawImageKey,
+    form,
   ]);
 
   const generateUploadUrlMutation = useGenerateUploadUrl();
@@ -153,7 +130,6 @@ export default function PageSettingsIllustration({
       const url = URL.createObjectURL(file);
       setUncroppedImage(url);
       setIsCropperOpen(true);
-      // Reset input value so same file can be selected again
       e.target.value = "";
     }
   };
@@ -172,7 +148,7 @@ export default function PageSettingsIllustration({
       await generalService.uploadFileToS3(data.url, croppedImage.blob);
       if (!isMounted.current) return;
       prevRawImageKey.current = data.object_key;
-      setRawImageKey(data.object_key);
+      form.setValue("raw_image", data.object_key);
       toast.success("Image uploaded successfully!");
     } catch (e) {
       console.error(e);
@@ -211,19 +187,17 @@ export default function PageSettingsIllustration({
 
       const { data } = await generateImageMutation.mutateAsync(payload);
 
-      // Save to backend format payload if handler is provided
-      if (handleFormatToggle) {
-        handleFormatToggle("illustration_theme", illustrationTheme);
-        handleFormatToggle("illustration_style", illustrationStyle);
-        handleFormatToggle("photo_type", photoType);
-        if (photoType === "couple") {
-          handleFormatToggle("bride_attire_style", brideAttire);
-          handleFormatToggle("groom_attire_style", groomAttire);
-        } else if (photoType === "bride") {
-          handleFormatToggle("bride_attire_style", attire);
-        } else {
-          handleFormatToggle("groom_attire_style", attire);
-        }
+      // Save to backend format payload via react-hook-form
+      form.setValue("illustration_theme", illustrationTheme);
+      form.setValue("illustration_style", illustrationStyle);
+      form.setValue("photo_type", photoType);
+      if (photoType === "couple") {
+        form.setValue("bride_attire_style", brideAttire);
+        form.setValue("groom_attire_style", groomAttire);
+      } else if (photoType === "bride") {
+        form.setValue("bride_attire_style", attire);
+      } else {
+        form.setValue("groom_attire_style", attire);
       }
 
       const viewRes = await generateViewUrlMutation.mutateAsync(data.key);
@@ -290,56 +264,75 @@ export default function PageSettingsIllustration({
           </>
         ) : (
           <div className="w-full text-left">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Left Column: Settings */}
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">
                       1. Photo Type
                     </label>
-                    <div className="flex gap-2">
-                      {(["couple", "bride", "groom"] as const).map((type) => (
-                        <Button
-                          key={type}
-                          variant={photoType === type ? "default" : "outline"}
-                          className="flex-1 capitalize px-2"
-                          onClick={() => {
-                            setPhotoType(type);
-                            handleFormatToggle?.("photo_type", type);
-                          }}
-                          disabled={isGenerating || isUploading}
-                        >
-                          {type}
-                        </Button>
-                      ))}
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="photo_type"
+                      render={({ field }) => (
+                        <FormItem className="space-y-0">
+                          <FormControl>
+                            <div className="flex gap-2">
+                              {(["couple", "bride", "groom"] as const).map((type) => (
+                                <Button
+                                  key={type}
+                                  variant={field.value === type ? "default" : "outline"}
+                                  className="flex-1 capitalize px-2"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    field.onChange(type);
+                                  }}
+                                  disabled={isGenerating || isUploading}
+                                >
+                                  {type}
+                                </Button>
+                              ))}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div>
                     <label className="text-sm font-medium mb-2 block">
                       2. Illustration Theme
                     </label>
-                    <Select
-                      value={illustrationTheme}
-                      onValueChange={(val) => {
-                        setIllustrationTheme(val);
-                        handleFormatToggle?.("illustration_theme", val);
-                      }}
-                      disabled={isGenerating || isUploading}
-                    >
-                      <SelectTrigger className="w-full bg-background">
-                        <SelectValue placeholder="Select a theme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="traditional">
-                          Traditional Indian
-                        </SelectItem>
-                        <SelectItem value="modern">Modern Minimalist</SelectItem>
-                        <SelectItem value="watercolor">Watercolor</SelectItem>
-                        <SelectItem value="royal">Royal Heritage</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormField
+                      control={form.control}
+                      name="illustration_theme"
+                      render={({ field }) => (
+                        <FormItem className="space-y-0">
+                          <FormControl>
+                            <Select
+                              value={field.value || undefined}
+                              onValueChange={field.onChange}
+                              disabled={isGenerating || isUploading}
+                            >
+                              <SelectTrigger className="w-full bg-background">
+                                <SelectValue placeholder="Select a theme" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="traditional">
+                                  Traditional Indian
+                                </SelectItem>
+                                <SelectItem value="modern">Modern Minimalist</SelectItem>
+                                <SelectItem value="watercolor">Watercolor</SelectItem>
+                                <SelectItem value="royal">Royal Heritage</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -347,208 +340,229 @@ export default function PageSettingsIllustration({
                   <label className="text-sm font-medium mb-2 block">
                     3. Illustration Style
                   </label>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-2">
-                    {[
-                      {
-                        id: "royal_regal_portrait",
-                        name: "Royal Portrait",
-                        icon: Crown,
-                      },
-                      {
-                        id: "watercolor_fine_art",
-                        name: "Watercolor Dream",
-                        icon: Palette,
-                      },
-                      {
-                        id: "heritage_miniature",
-                        name: "Heritage Miniature",
-                        icon: Heart,
-                      },
-                      { id: "storybook_3d", name: "3D Storybook", icon: Smile },
-                      {
-                        id: "modern_line_art",
-                        name: "Modern Line Art",
-                        icon: LayoutGrid,
-                      },
-                      {
-                        id: "vintage_keepsake",
-                        name: "Vintage Keepsake",
-                        icon: Camera,
-                      },
-                      { id: "anime_style", name: "Anime Style", icon: Star },
-                      { id: "pop_art_bash", name: "Pop Art Bash", icon: Zap },
-                      {
-                        id: "fairytale_romance",
-                        name: "Fairytale Romance",
-                        icon: Sparkles,
-                      },
-                      {
-                        id: "retro_cinema_poster",
-                        name: "Retro Cinema Poster",
-                        icon: Video,
-                      },
-                      {
-                        id: "fun_caricature",
-                        name: "Fun Caricature",
-                        icon: Pencil,
-                      },
-                      {
-                        id: "classic_oil_painting",
-                        name: "Classic Oil Painting",
-                        icon: Paintbrush,
-                      },
-                    ].map((style) => {
-                      const Icon = style.icon;
-                      return (
-                        <div
-                          key={style.id}
-                          className={`cursor-pointer rounded-md border-2 overflow-hidden aspect-square transition-all relative ${
-                            illustrationStyle === style.id
-                              ? "border-primary ring-2 ring-primary/20"
-                              : "border-transparent hover:border-muted-foreground/30"
-                          }`}
-                          onClick={() => {
-                            if (!isGenerating && !isUploading) {
-                              setIllustrationStyle(style.id);
-                              handleFormatToggle?.(
-                                "illustration_style",
-                                style.id,
+                  <FormField
+                    control={form.control}
+                    name="illustration_style"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                            {[
+                              {
+                                id: "royal_regal_portrait",
+                                name: "Royal Portrait",
+                                icon: Crown,
+                              },
+                              {
+                                id: "watercolor_fine_art",
+                                name: "Watercolor Dream",
+                                icon: Palette,
+                              },
+                              {
+                                id: "heritage_miniature",
+                                name: "Heritage Miniature",
+                                icon: Heart,
+                              },
+                              { id: "storybook_3d", name: "3D Storybook", icon: Smile },
+                              {
+                                id: "modern_line_art",
+                                name: "Modern Line Art",
+                                icon: LayoutGrid,
+                              },
+                              {
+                                id: "vintage_keepsake",
+                                name: "Vintage Keepsake",
+                                icon: Camera,
+                              },
+                              { id: "anime_style", name: "Anime Style", icon: Star },
+                              { id: "pop_art_bash", name: "Pop Art Bash", icon: Zap },
+                              {
+                                id: "fairytale_romance",
+                                name: "Fairytale Romance",
+                                icon: Sparkles,
+                              },
+                              {
+                                id: "retro_cinema_poster",
+                                name: "Retro Cinema Poster",
+                                icon: Video,
+                              },
+                              {
+                                id: "fun_caricature",
+                                name: "Fun Caricature",
+                                icon: Pencil,
+                              },
+                              {
+                                id: "classic_oil_painting",
+                                name: "Classic Oil Painting",
+                                icon: Paintbrush,
+                              },
+                            ].map((style) => {
+                              const Icon = style.icon;
+                              return (
+                                <div
+                                  key={style.id}
+                                  className={`cursor-pointer rounded-md border-2 overflow-hidden aspect-square transition-all relative ${field.value === style.id
+                                      ? "border-primary ring-2 ring-primary/20"
+                                      : "border-transparent hover:border-muted-foreground/30"
+                                    }`}
+                                  onClick={() => {
+                                    if (!isGenerating && !isUploading) {
+                                      field.onChange(style.id);
+                                    }
+                                  }}
+                                >
+                                  <div
+                                    className={`w-full h-full flex flex-col items-center justify-center p-2 text-center bg-muted/30 hover:bg-muted/50 transition-colors ${field.value === style.id
+                                        ? "bg-primary/5 text-primary"
+                                        : "text-muted-foreground"
+                                      }`}
+                                  >
+                                    <Icon
+                                      className={`h-6 w-6 mb-2 ${field.value === style.id ? "text-primary" : "text-muted-foreground/60"}`}
+                                    />
+                                    <span className="text-[10px] leading-tight font-medium">
+                                      {style.name}
+                                    </span>
+                                  </div>
+                                  {field.value === style.id && (
+                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm">
+                                      <CheckIcon className="w-3 h-3" />
+                                    </div>
+                                  )}
+                                </div>
                               );
-                            }
-                          }}
-                        >
-                          <div
-                            className={`w-full h-full flex flex-col items-center justify-center p-2 text-center bg-muted/30 hover:bg-muted/50 transition-colors ${
-                              illustrationStyle === style.id
-                                ? "bg-primary/5 text-primary"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            <Icon
-                              className={`h-6 w-6 mb-2 ${illustrationStyle === style.id ? "text-primary" : "text-muted-foreground/60"}`}
-                            />
-                            <span className="text-[10px] leading-tight font-medium">
-                              {style.name}
-                            </span>
+                            })}
                           </div>
-                          {illustrationStyle === style.id && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm">
-                              <CheckIcon className="w-3 h-3" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {photoType === "couple" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         4. Bride Attire Style
                       </label>
-                      <Select
-                        value={brideAttire}
-                        onValueChange={(val) => {
-                          setBrideAttire(val);
-                          handleFormatToggle?.("bride_attire_style", val);
-                        }}
-                        disabled={isGenerating || isUploading}
-                      >
-                        <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder="Select attire" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[
-                            { id: "default", name: "Default / Let style decide" },
-                            { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                            {
-                              id: "sharara_sherwani",
-                              name: "Sharara/Gharara & Sherwani",
-                            },
-                            {
-                              id: "kurta_pagri_sharara",
-                              name: "Kurta, Pagri & Sharara",
-                            },
-                            { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                            {
-                              id: "white_gown_tuxedo",
-                              name: "White Gown & Tuxedo",
-                            },
-                            {
-                              id: "qipao_tang_suit",
-                              name: "Qipao/Cheongsam & Tang Suit",
-                            },
-                            { id: "hanbok", name: "Hanbok" },
-                            { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                            { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                            {
-                              id: "jalabiya_thobe",
-                              name: "Jalabiya & Thobe-style",
-                            },
-                            { id: "modern_fusion", name: "Modern Fusion" },
-                            { id: "surprise_me", name: "Surprise me" },
-                          ].map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormField
+                        control={form.control}
+                        name="bride_attire_style"
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormControl>
+                              <Select
+                                value={field.value || undefined}
+                                onValueChange={field.onChange}
+                                disabled={isGenerating || isUploading}
+                              >
+                                <SelectTrigger className="w-full bg-background">
+                                  <SelectValue placeholder="Select attire" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "default", name: "Default / Let style decide" },
+                                    { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
+                                    {
+                                      id: "sharara_sherwani",
+                                      name: "Sharara/Gharara & Sherwani",
+                                    },
+                                    {
+                                      id: "kurta_pagri_sharara",
+                                      name: "Kurta, Pagri & Sharara",
+                                    },
+                                    { id: "saree_bandhgala", name: "Saree & Bandhgala" },
+                                    {
+                                      id: "white_gown_tuxedo",
+                                      name: "White Gown & Tuxedo",
+                                    },
+                                    {
+                                      id: "qipao_tang_suit",
+                                      name: "Qipao/Cheongsam & Tang Suit",
+                                    },
+                                    { id: "hanbok", name: "Hanbok" },
+                                    { id: "kimono_montsuki", name: "Kimono & Montsuki" },
+                                    { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
+                                    {
+                                      id: "jalabiya_thobe",
+                                      name: "Jalabiya & Thobe-style",
+                                    },
+                                    { id: "modern_fusion", name: "Modern Fusion" },
+                                    { id: "surprise_me", name: "Surprise me" },
+                                  ].map((opt) => (
+                                    <SelectItem key={opt.id} value={opt.id}>
+                                      {opt.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         5. Groom Attire Style
                       </label>
-                      <Select
-                        value={groomAttire}
-                        onValueChange={(val) => {
-                          setGroomAttire(val);
-                          handleFormatToggle?.("groom_attire_style", val);
-                        }}
-                        disabled={isGenerating || isUploading}
-                      >
-                        <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder="Select attire" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[
-                            { id: "default", name: "Default / Let style decide" },
-                            { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                            {
-                              id: "sharara_sherwani",
-                              name: "Sharara/Gharara & Sherwani",
-                            },
-                            {
-                              id: "kurta_pagri_sharara",
-                              name: "Kurta, Pagri & Sharara",
-                            },
-                            { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                            {
-                              id: "white_gown_tuxedo",
-                              name: "White Gown & Tuxedo",
-                            },
-                            {
-                              id: "qipao_tang_suit",
-                              name: "Qipao/Cheongsam & Tang Suit",
-                            },
-                            { id: "hanbok", name: "Hanbok" },
-                            { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                            { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                            {
-                              id: "jalabiya_thobe",
-                              name: "Jalabiya & Thobe-style",
-                            },
-                            { id: "modern_fusion", name: "Modern Fusion" },
-                            { id: "surprise_me", name: "Surprise me" },
-                          ].map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormField
+                        control={form.control}
+                        name="groom_attire_style"
+                        render={({ field }) => (
+                          <FormItem className="space-y-0">
+                            <FormControl>
+                              <Select
+                                value={field.value || undefined}
+                                onValueChange={field.onChange}
+                                disabled={isGenerating || isUploading}
+                              >
+                                <SelectTrigger className="w-full bg-background">
+                                  <SelectValue placeholder="Select attire" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "default", name: "Default / Let style decide" },
+                                    { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
+                                    {
+                                      id: "sharara_sherwani",
+                                      name: "Sharara/Gharara & Sherwani",
+                                    },
+                                    {
+                                      id: "kurta_pagri_sharara",
+                                      name: "Kurta, Pagri & Sharara",
+                                    },
+                                    { id: "saree_bandhgala", name: "Saree & Bandhgala" },
+                                    {
+                                      id: "white_gown_tuxedo",
+                                      name: "White Gown & Tuxedo",
+                                    },
+                                    {
+                                      id: "qipao_tang_suit",
+                                      name: "Qipao/Cheongsam & Tang Suit",
+                                    },
+                                    { id: "hanbok", name: "Hanbok" },
+                                    { id: "kimono_montsuki", name: "Kimono & Montsuki" },
+                                    { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
+                                    {
+                                      id: "jalabiya_thobe",
+                                      name: "Jalabiya & Thobe-style",
+                                    },
+                                    { id: "modern_fusion", name: "Modern Fusion" },
+                                    { id: "surprise_me", name: "Surprise me" },
+                                  ].map((opt) => (
+                                    <SelectItem key={opt.id} value={opt.id}>
+                                      {opt.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </div>
                 ) : (
@@ -556,58 +570,62 @@ export default function PageSettingsIllustration({
                     <label className="text-sm font-medium mb-2 block">
                       4. Attire Style
                     </label>
-                    <Select
-                      value={attire}
-                      onValueChange={(val) => {
-                        setAttire(val);
-                        if (photoType === "bride") {
-                          handleFormatToggle?.("bride_attire_style", val);
-                        } else {
-                          handleFormatToggle?.("groom_attire_style", val);
-                        }
-                      }}
-                      disabled={isGenerating || isUploading}
-                    >
-                      <SelectTrigger className="w-full bg-background">
-                        <SelectValue placeholder="Select attire" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          { id: "default", name: "Default / Let style decide" },
-                          { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                          {
-                            id: "sharara_sherwani",
-                            name: "Sharara/Gharara & Sherwani",
-                          },
-                          {
-                            id: "kurta_pagri_sharara",
-                            name: "Kurta, Pagri & Sharara",
-                          },
-                          { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                          {
-                            id: "white_gown_tuxedo",
-                            name: "White Gown & Tuxedo",
-                          },
-                          {
-                            id: "qipao_tang_suit",
-                            name: "Qipao/Cheongsam & Tang Suit",
-                          },
-                          { id: "hanbok", name: "Hanbok" },
-                          { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                          { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                          {
-                            id: "jalabiya_thobe",
-                            name: "Jalabiya & Thobe-style",
-                          },
-                          { id: "modern_fusion", name: "Modern Fusion" },
-                          { id: "surprise_me", name: "Surprise me" },
-                        ].map((opt) => (
-                          <SelectItem key={opt.id} value={opt.id}>
-                            {opt.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormField
+                      control={form.control}
+                      name={photoType === "bride" ? "bride_attire_style" : "groom_attire_style"}
+                      render={({ field }) => (
+                        <FormItem className="space-y-0">
+                          <FormControl>
+                            <Select
+                              value={field.value || undefined}
+                              onValueChange={field.onChange}
+                              disabled={isGenerating || isUploading}
+                            >
+                              <SelectTrigger className="w-full bg-background">
+                                <SelectValue placeholder="Select attire" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  { id: "default", name: "Default / Let style decide" },
+                                  { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
+                                  {
+                                    id: "sharara_sherwani",
+                                    name: "Sharara/Gharara & Sherwani",
+                                  },
+                                  {
+                                    id: "kurta_pagri_sharara",
+                                    name: "Kurta, Pagri & Sharara",
+                                  },
+                                  { id: "saree_bandhgala", name: "Saree & Bandhgala" },
+                                  {
+                                    id: "white_gown_tuxedo",
+                                    name: "White Gown & Tuxedo",
+                                  },
+                                  {
+                                    id: "qipao_tang_suit",
+                                    name: "Qipao/Cheongsam & Tang Suit",
+                                  },
+                                  { id: "hanbok", name: "Hanbok" },
+                                  { id: "kimono_montsuki", name: "Kimono & Montsuki" },
+                                  { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
+                                  {
+                                    id: "jalabiya_thobe",
+                                    name: "Jalabiya & Thobe-style",
+                                  },
+                                  { id: "modern_fusion", name: "Modern Fusion" },
+                                  { id: "surprise_me", name: "Surprise me" },
+                                ].map((opt) => (
+                                  <SelectItem key={opt.id} value={opt.id}>
+                                    {opt.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 )}
 
@@ -644,7 +662,7 @@ export default function PageSettingsIllustration({
               </div>
 
               {/* Right Column: Preview & Actions */}
-              <div className="flex flex-col items-center lg:sticky lg:top-6">
+              <div className="flex flex-col items-center lg:sticky lg:top-6 order-first lg:order-last mb-6 lg:mb-0">
                 <div className="w-full max-w-sm space-y-6">
                   <div className={`flex flex-col items-center ${generatedImage && !isGenerating ? 'justify-start h-auto' : 'justify-center p-6 border border-dashed rounded-xl bg-muted/30 w-full aspect-square'}`}>
                     {isGenerating ? (
@@ -742,24 +760,12 @@ export default function PageSettingsIllustration({
                               onClick={() => {
                                 setCoupleImage(null);
                                 setGeneratedImage(null, null);
-                                setRawImageKey(null);
-
-                                // Reset local state to defaults
-                                setIllustrationTheme("traditional");
-                                setIllustrationStyle("royal_regal_portrait");
-                                setPhotoType("couple");
-                                setAttire("default");
-                                setBrideAttire("default");
-                                setGroomAttire("default");
-
-                                // Send null to backend for all illustration fields
-                                if (handleFormatToggle) {
-                                  handleFormatToggle("illustration_theme", null);
-                                  handleFormatToggle("illustration_style", null);
-                                  handleFormatToggle("photo_type", null);
-                                  handleFormatToggle("bride_attire_style", null);
-                                  handleFormatToggle("groom_attire_style", null);
-                                }
+                                form.setValue("raw_image", null);
+                                form.setValue("illustration_theme", null);
+                                form.setValue("illustration_style", null);
+                                form.setValue("photo_type", null);
+                                form.setValue("bride_attire_style", null);
+                                form.setValue("groom_attire_style", null);
                               }}
                             >
                               Remove

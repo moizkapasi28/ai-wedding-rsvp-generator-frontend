@@ -73,12 +73,10 @@ export default function RsvpPhonePreview({
             {/* Phone frame */}
             <div className="overflow-hidden rounded-2xl border bg-background shadow-xl sm:rounded-[28px]">
               {/* Hero */}
-              <div
-                className="relative px-5 py-8 text-white sm:px-6 sm:py-9 flex flex-col items-center justify-center text-center bg-linear-to-br from-indigo-500 via-purple-600 to-indigo-700 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.1)] overflow-hidden"
-              >
+              <div className="relative px-5 py-8 text-white sm:px-6 sm:py-9 flex flex-col items-center justify-center text-center bg-linear-to-br from-indigo-500 via-purple-600 to-indigo-700 shadow-[inset_0_-10px_20px_rgba(0,0,0,0.1)] overflow-hidden">
                 {/* Decorative subtle lighting */}
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent opacity-70 pointer-events-none"></div>
-                
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent opacity-70 pointer-events-none"></div>
+
                 {heroImage && (
                   <div className="mb-4 overflow-hidden rounded-full border-2 border-white/80 shadow-lg w-28 h-28 shrink-0">
                     <img
@@ -185,10 +183,16 @@ export default function RsvpPhonePreview({
                     Yes, I'll be there!
                   </Button>
                   <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" className="w-full text-muted-foreground">
+                    <Button
+                      variant="outline"
+                      className="w-full text-muted-foreground"
+                    >
                       Maybe
                     </Button>
-                    <Button variant="outline" className="w-full text-muted-foreground">
+                    <Button
+                      variant="outline"
+                      className="w-full text-muted-foreground"
+                    >
                       Can't make it
                     </Button>
                   </div>

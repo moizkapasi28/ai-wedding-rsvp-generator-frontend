@@ -17,6 +17,7 @@ export interface EventWithInvitesAndWedding {
   updated_at: string;
   guestEventInviteFormat: GuestEventInviteFormat[];
   wedding: Wedding;
+  stats: Stats;
 }
 
 export interface GuestEventInviteFormat {
@@ -25,6 +26,10 @@ export interface GuestEventInviteFormat {
   raw_image: string | null;
   generated_image: string | null;
   illustration_style: string | null;
+  illustration_theme: string | null;
+  photo_type: string | null;
+  bride_attire_style: string | null;
+  groom_attire_style: string | null;
   dietary_preference: boolean;
   song_request: boolean;
   message: boolean;
@@ -49,6 +54,14 @@ export interface Wedding {
   message: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Stats {
+  total: number;
+  PENDING: number;
+  ATTENDING: number;
+  DECLINED: number;
+  MAYBE: number;
 }
 
 export type PageSettingListResponse = GenericResponse<{

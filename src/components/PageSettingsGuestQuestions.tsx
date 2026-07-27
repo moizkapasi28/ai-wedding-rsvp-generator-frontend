@@ -2,13 +2,12 @@ import RsvpPageSettingToggleRow from "@/components/RsvpPageSettingToggleRow";
 import { Switch } from "@/components/ui/switch";
 import { MessageSquare, Music, UsersIcon, Utensils } from "lucide-react";
 
-export default function PageSettingsGuestQuestions({
-  activeFormat,
-  handleFormatToggle,
-}: {
-  activeFormat: any;
-  handleFormatToggle: (key: string, checked: boolean) => void;
-}) {
+import { useFormContext } from "react-hook-form";
+import type { RsvpSettingsFormValues } from "@/validations/pageSetting.validation";
+import { FormField, FormItem, FormControl } from "@/components/ui/form";
+
+export default function PageSettingsGuestQuestions() {
+  const form = useFormContext<RsvpSettingsFormValues>();
   return (
     <div>
       <h3 className="text-xl font-semibold">Guest questions</h3>
@@ -30,12 +29,20 @@ export default function PageSettingsGuestQuestions({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="dietary-preference"
-              checked={activeFormat?.dietary_preference || false}
-              onCheckedChange={(c) =>
-                handleFormatToggle("dietary_preference", c)
-              }
+            <FormField
+              control={form.control}
+              name="dietary_preference"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="dietary-preference"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>
@@ -50,12 +57,20 @@ export default function PageSettingsGuestQuestions({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="plus-ones"
-              checked={activeFormat?.plus_ones || false}
-              onCheckedChange={(c) =>
-                handleFormatToggle("plus_ones", c)
-              }
+            <FormField
+              control={form.control}
+              name="plus_ones"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="plus-ones"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>
@@ -70,12 +85,20 @@ export default function PageSettingsGuestQuestions({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="song-request"
-              checked={activeFormat?.song_request || false}
-              onCheckedChange={(c) =>
-                handleFormatToggle("song_request", c)
-              }
+            <FormField
+              control={form.control}
+              name="song_request"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="song-request"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>
@@ -92,10 +115,20 @@ export default function PageSettingsGuestQuestions({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Switch
-              id="message-to-couple"
-              checked={activeFormat?.message || false}
-              onCheckedChange={(c) => handleFormatToggle("message", c)}
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Switch
+                      id="message-to-couple"
+                      checked={field.value || false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
         </RsvpPageSettingToggleRow>
