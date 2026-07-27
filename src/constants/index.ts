@@ -18,7 +18,6 @@ import {
   PencilIcon,
   SettingsIcon,
   SparklesIcon,
-  SunIcon,
   TrashIcon,
   UserIcon,
   Users2Icon,
