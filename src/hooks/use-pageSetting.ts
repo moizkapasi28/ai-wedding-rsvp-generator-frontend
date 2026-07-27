@@ -86,15 +86,27 @@ export const useGenerateViewUrl = () => {
 
 export const useGenerateImage = () => {
   return useMutation({
-    mutationFn: async ({
-      rawImageKey,
-      eventId,
-      theme,
-    }: {
-      eventId: string;
+    mutationFn: async (payload: {
       rawImageKey: string;
-      theme: string;
-    }) => pageSettingService.generateImage(rawImageKey, eventId, theme),
+      eventId: string;
+      illustrationTheme?: string;
+      illustrationStyle: string;
+      photoType: string;
+      brideAttireId?: string;
+      groomAttireId?: string;
+      attireId?: string;
+      customStyleNote?: string;
+    }) => pageSettingService.generateImage(
+      payload.rawImageKey, 
+      payload.eventId, 
+      payload.illustrationTheme,
+      payload.illustrationStyle,
+      payload.photoType,
+      payload.brideAttireId,
+      payload.groomAttireId,
+      payload.attireId,
+      payload.customStyleNote
+    ),
     onError: (error: any) => {
       toast.error(
         error.message || "Failed to generate image. Please try again.",

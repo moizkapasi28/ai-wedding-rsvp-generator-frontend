@@ -39,11 +39,27 @@ class PageSettingService {
   async generateImage(
     rawImageKey: string,
     eventId: string,
-    theme: string,
+    illustrationTheme?: string,
+    illustrationStyle?: string,
+    photoType?: string,
+    brideAttireId?: string,
+    groomAttireId?: string,
+    attireId?: string,
+    customStyleNote?: string
   ): Promise<{ data: { key: string } }> {
     return this.api.post<{ data: { key: string } }>(
       `${this.controller}/generate-image`,
-      { rawImageKey, theme, eventId },
+      { 
+        rawImageKey, 
+        illustrationTheme, 
+        eventId,
+        illustrationStyle,
+        photoType,
+        brideAttireId,
+        groomAttireId,
+        attireId,
+        customStyleNote
+      },
     );
   }
 }

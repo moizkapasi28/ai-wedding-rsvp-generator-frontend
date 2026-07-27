@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { PAGE_SETTING_QUERY_KEY } from "./use-pageSetting";
+import { GUEST_QUERY_KEY } from "./use-guest";
 
 export const EVENT_QUERY_KEY = ["events"] as const;
 
@@ -59,6 +60,7 @@ export const useCreateEvent = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
       toast.success(response.message || "New Event Created Successfully");
     },
     onError: (error) => {
@@ -79,6 +81,7 @@ export const useUpdatEvent = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
       toast.success(response.message || "New Wedding Updated Successfully");
     },
     onError: (error) => {
@@ -97,6 +100,7 @@ export const useDeleteEvent = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
       toast.success(response.message || "Wedding Deleted Successfully");
     },
     onError: (error) => {
