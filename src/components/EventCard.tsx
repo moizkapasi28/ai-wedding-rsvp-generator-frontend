@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEvent } from "./EventProvider";
 import type { Event } from "@/models/event.model";
+import { useNavigate } from "react-router-dom";
 
 type EventCardProps = {
   event: Event;
@@ -56,6 +57,7 @@ export default function EventCard({ event }: EventCardProps) {
   const { setOpen, setCurrentRow } = useEvent();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuActive = menuOpen;
+  const navigate = useNavigate();
 
   return (
     <Card className="group flex flex-col h-full overflow-hidden gap-0 py-0 transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -183,12 +185,20 @@ export default function EventCard({ event }: EventCardProps) {
       {/* Footer */}
       <CardFooter className="px-5 pb-5 pt-0 border-t-0 bg-transparent">
         <div className="flex w-full flex-col gap-2 sm:flex-row">
-          <Button variant="outline" className="flex-1 p-2">
+          <Button 
+            variant="outline" 
+            className="flex-1 p-2"
+            onClick={() => navigate(`/weddings/page-settings?event=${event.id}`)}
+          >
             <SettingsIcon />
             <span>RSVP Settings</span>
           </Button>
 
-          <Button variant="outline" className="flex-1 p-2">
+          <Button 
+            variant="outline" 
+            className="flex-1 p-2"
+            onClick={() => navigate(`/weddings/guests?event=${event.id}`)}
+          >
             <UsersIcon />
             <span>Guest List</span>
           </Button>

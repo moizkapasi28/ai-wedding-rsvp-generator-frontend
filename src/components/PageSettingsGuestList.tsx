@@ -1,6 +1,11 @@
 import RsvpPageSettingToggleRow from "@/components/RsvpPageSettingToggleRow";
 import type { Stats } from "@/models/pageSetting.model";
 import { ChevronRight, UsersIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+interface PageSettingsGuestListProps extends Stats {
+  eventId?: string | null;
+}
 
 export default function PageSettingsGuestList({
   total,
@@ -8,7 +13,18 @@ export default function PageSettingsGuestList({
   ATTENDING,
   DECLINED,
   MAYBE,
-}: Stats) {
+  eventId,
+}: PageSettingsGuestListProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (eventId) {
+      navigate(`/weddings/guests?event=${eventId}`);
+    } else {
+      navigate(`/weddings/guests`);
+    }
+  };
+
   return (
     <div className="mt-5">
       <h3 className="text-xl font-semibold">Guest list for this event</h3>
@@ -16,7 +32,7 @@ export default function PageSettingsGuestList({
         Everyone invited to the event will be listed here.
       </p>
       <div className="mt-5 space-y-4">
-        <RsvpPageSettingToggleRow className="cursor-pointer">
+        <RsvpPageSettingToggleRow className="cursor-pointer" onClick={handleClick}>
           <div className="flex items-center space-x-2">
             <UsersIcon />
             <div className="mx-auto">

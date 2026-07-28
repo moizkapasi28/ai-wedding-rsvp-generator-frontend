@@ -1,7 +1,7 @@
 import { useSidebar } from "@/components/ui/sidebar";
 import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { cn } from "@/lib/utils";
-import { activeWeddingIdAtom } from "@/store/store";
+import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
 import { useAtom } from "jotai";
 import {
   Calendar,
@@ -38,25 +38,54 @@ export default function WeddingSwitcher() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState<string>("");
+  const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
+  const [activeWeddingStore, setActiveWeddingStore] = useAtom(activeWeddingAtom);
+  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useGetWeddingsInfinite(20);
+    useGetWeddingsInfinite(5, debouncedSearch);
 
   const weddings = React.useMemo(() => {
     return data?.pages.flatMap((page) => page.data?.weddings || []) || [];
   }, [data]);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollHeight - scrollTop - clientHeight < 20) {
-      if (hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    }
-  };
+  const observerTarget = React.useRef<HTMLDivElement>(null);
 
-  const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
+
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+      observer.disconnect();
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, isOpen]);
+
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -85,20 +114,20 @@ export default function WeddingSwitcher() {
   }, [isOpen]);
 
   const activeWedding = React.useMemo(() => {
-    return weddings.find((w) => w.id === activeWeddingId) || weddings[0];
-  }, [weddings, activeWeddingId]);
+    const found = weddings.find((w) => w.id === activeWeddingId);
+    if (found) return found;
+    if (activeWeddingStore && activeWeddingStore.id === activeWeddingId) return activeWeddingStore;
+    return weddings[0];
+  }, [weddings, activeWeddingId, activeWeddingStore]);
 
-  const filteredWeddings = React.useMemo(() => {
-    return weddings.filter(
-      (w) =>
-        w.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        w.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        w.venue?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [weddings, searchQuery]);
+  const filteredWeddings = weddings;
 
   const handleSelectWedding = (id: string) => {
     setActiveWeddingId(id);
+    const selected = weddings.find(w => w.id === id);
+    if (selected) {
+      setActiveWeddingStore(selected);
+    }
     setIsOpen(false);
     setSearchQuery("");
   };
@@ -199,7 +228,6 @@ export default function WeddingSwitcher() {
           {/* Scrollable list */}
           <div
             className="flex flex-col max-h-56 overflow-y-auto no-scrollbar gap-0.5 pr-0.5"
-            onScroll={handleScroll}
           >
             {filteredWeddings.length > 0 ? (
               filteredWeddings.map((w) => (
@@ -252,6 +280,7 @@ export default function WeddingSwitcher() {
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
             )}
+            <div ref={observerTarget} className="h-1 shrink-0" />
           </div>
 
           {/* Separator */}

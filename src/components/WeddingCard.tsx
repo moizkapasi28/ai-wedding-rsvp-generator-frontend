@@ -17,15 +17,33 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { useWedding } from "./WeddingProvider";
 import type { Wedding } from "@/models/wedding.model";
+import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
+import { useSetAtom } from "jotai";
+import { useNavigate } from "react-router-dom";
 
 export default function WeddingCard({ wedding }: { wedding: Wedding }) {
   const { setOpen, setCurrentRow } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
+  const setActiveWeddingId = useSetAtom(activeWeddingIdAtom);
+  const setActiveWeddingStore = useSetAtom(activeWeddingAtom);
+  const navigate = useNavigate();
 
   const menuActive = menuOpen;
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("button") || menuOpen) {
+      return;
+    }
+    setActiveWeddingId(wedding.id);
+    setActiveWeddingStore(wedding);
+    navigate("/weddings/wedding-dashboard");
+  };
+
   return (
-    <Card className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1">
+    <Card 
+      className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer"
+      onClick={handleCardClick}
+    >
       <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative px-5 pb-5 pt-3">
         <Badge
           className={`absolute right-5 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${

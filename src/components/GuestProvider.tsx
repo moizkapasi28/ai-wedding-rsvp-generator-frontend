@@ -1,5 +1,6 @@
 import type { Guest } from "@/models/guest.model";
 import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 type GuestDialogType = "add" | "edit" | "delete";
 
@@ -25,10 +26,13 @@ export default function GuestProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const [searchParams] = useSearchParams();
+  const eventParam = searchParams.get("event");
+
   const [open, setOpen] = useState<GuestDialogType | null>(null);
   const [currentRow, setCurrentRow] = useState<Guest | null>(null);
   const [search, setSearch] = useState("");
-  const [eventFilter, setEventFilter] = useState<string[]>([]);
+  const [eventFilter, setEventFilter] = useState<string[]>(eventParam ? [eventParam] : []);
   const [sideFilter, setSideFilter] = useState<string[]>([]);
   const [groupFilter, setGroupFilter] = useState<string[]>([]);
 

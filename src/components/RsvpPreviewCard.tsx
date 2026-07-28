@@ -182,16 +182,14 @@ export default function RsvpPhonePreview({
                   <Button className="w-full bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-md h-11 text-base">
                     Yes, I'll be there!
                   </Button>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <Button
-                      variant="outline"
-                      className="w-full text-muted-foreground"
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-sm text-xs sm:text-sm h-auto min-h-10 py-2 whitespace-normal leading-tight"
                     >
                       Maybe
                     </Button>
                     <Button
-                      variant="outline"
-                      className="w-full text-muted-foreground"
+                      className="w-full bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-sm text-xs sm:text-sm h-auto min-h-10 py-2 whitespace-normal leading-tight"
                     >
                       Can't make it
                     </Button>

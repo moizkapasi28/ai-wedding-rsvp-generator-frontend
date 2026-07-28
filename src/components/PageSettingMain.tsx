@@ -9,6 +9,7 @@ import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
 import { CheckIcon, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { getSideBadgeStyles } from "@/components/EventCard";
 import PageSettingsGuestList from "@/components/PageSettingsGuestList";
@@ -37,6 +38,8 @@ export default function PageSettingMain() {
 
   const events = data?.pages.flatMap((page) => page.data?.events || []) || [];
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const eventParam = searchParams.get("event");
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
   const selectedFormat = selectedEvent?.guestEventInviteFormat?.[0];
@@ -102,7 +105,11 @@ export default function PageSettingMain() {
 
   useEffect(() => {
     if (events.length > 0 && !selectedEventId) {
-      handleSelectEvent(events[0].id);
+      if (eventParam && events.some(e => e.id === eventParam)) {
+        handleSelectEvent(eventParam);
+      } else {
+        handleSelectEvent(events[0].id);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [events, selectedEventId]);
@@ -240,6 +247,7 @@ export default function PageSettingMain() {
             ATTENDING={selectedEvent?.stats?.ATTENDING ?? 0}
             DECLINED={selectedEvent?.stats?.DECLINED ?? 0}
             MAYBE={selectedEvent?.stats?.MAYBE ?? 0}
+            eventId={selectedEventId}
           />
 
           <PageSettingsReminders />

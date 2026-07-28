@@ -1,4 +1,5 @@
 import type { User } from "@/models/user.model";
+import type { Wedding } from "@/models/wedding.model";
 import { atomWithStorage } from "jotai/utils";
 
 export const userAtom = atomWithStorage<User | null>("user", null);
@@ -9,5 +10,9 @@ export const refreshTokenAtom = atomWithStorage<string | null>(
 );
 export const activeWeddingIdAtom = atomWithStorage<string | null>(
   "activeWeddingId",
+  null,
+);
+export const activeWeddingAtom = atomWithStorage<Wedding | null>(
+  "activeWedding",
   null,
 );

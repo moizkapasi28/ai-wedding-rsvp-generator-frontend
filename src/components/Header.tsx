@@ -4,10 +4,15 @@ import { Logo } from "@/assets/Logo";
 import { MenuIcon, SearchIcon } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useHeader } from "@/contexts/HeaderContext";
+import { activeWeddingAtom } from "@/store/store";
+import { useAtomValue } from "jotai";
 
 export default function Header() {
   const { toggleSidebar, isMobile } = useSidebar();
   const { title } = useHeader();
+  const activeWedding = useAtomValue(activeWeddingAtom);
+
+  const showWeddingTitle = title !== "All Weddings" && activeWedding;
 
   return (
     <header className="sticky top-0 z-30 flex flex-col bg-background border-0">
@@ -33,7 +38,14 @@ export default function Header() {
       <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:justify-between lg:items-center">
         <div className="flex items-center gap-2">
           {!isMobile && <SidebarTrigger className="-ml-2" />}
-          <h1 className="text-xl font-semibold">{title}</h1>
+          <h1 className="text-xl font-semibold flex items-center gap-2">
+            {title}
+            {showWeddingTitle && (
+              <span className="text-muted-foreground text-sm font-medium">
+                / {activeWedding.title}
+              </span>
+            )}
+          </h1>
         </div>
 
         <div className="flex gap-3 items-center">
