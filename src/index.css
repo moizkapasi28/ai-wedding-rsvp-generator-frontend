@@ -159,3 +159,22 @@ html, body {
 html::-webkit-scrollbar, body::-webkit-scrollbar {
   display: none;
 }
+
+@layer utilities {
+  .glass {
+    @apply bg-background/60 backdrop-blur-md border border-border/50;
+  }
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-xl border border-border/50 shadow-lg shadow-black/5;
+  }
+  .glow {
+    @apply relative;
+  }
+  .glow::before {
+    @apply content-[''] absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-full blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400;
+  }
+}
+
