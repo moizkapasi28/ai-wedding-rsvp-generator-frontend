@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import EventCard from "./EventCard";
 import TablePagination from "./TablePagination";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function EventList() {
   const [page, setPage] = useState(1);
   const [activeWeddingid] = useAtom(activeWeddingIdAtom);
@@ -36,8 +38,20 @@ export default function EventList() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Loading events...
+      <div className="mt-auto grid gap-5 sm:grid-cols-1 lg:grid-cols-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col space-y-3 p-6 border rounded-xl bg-card">
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-2/3" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <div className="flex justify-between pt-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-8 w-24" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

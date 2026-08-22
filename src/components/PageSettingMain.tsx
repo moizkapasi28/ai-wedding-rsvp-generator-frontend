@@ -1,5 +1,6 @@
 import RsvpPhonePreview from "@/components/RsvpPreviewCard";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGenerateViewUrl,
   useGetGuestEventInviteFormatsInfinite,
@@ -105,7 +106,7 @@ export default function PageSettingMain() {
 
   useEffect(() => {
     if (events.length > 0 && !selectedEventId) {
-      if (eventParam && events.some(e => e.id === eventParam)) {
+      if (eventParam && events.some((e) => e.id === eventParam)) {
         handleSelectEvent(eventParam);
       } else {
         handleSelectEvent(events[0].id);
@@ -143,8 +144,27 @@ export default function PageSettingMain() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Loading page settings...
+      <div className="flex flex-col gap-4 mt-6">
+        {/* Top bar skeletons */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+          <div className="flex flex-wrap gap-2 w-full">
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-32 rounded-full" />
+            <Skeleton className="h-10 w-28 rounded-full" />
+          </div>
+          <Skeleton className="h-10 w-32 rounded-md" />
+        </div>
+
+        {/* Two-column layout skeleton */}
+        <div className="mt-auto grid gap-5 grid-cols-1 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-64 w-full rounded-xl" />
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+          <div>
+            <Skeleton className="h-125 w-full rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }

@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,13 +58,17 @@ export function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>
           {isLoading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                <div className="flex justify-center items-center text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              </TableCell>
-            </TableRow>
+            <>
+              {[...Array(5)].map((_, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((_, colIndex) => (
+                    <TableCell key={colIndex}>
+                      <Skeleton className="h-5 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </>
           ) : error ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center text-destructive">

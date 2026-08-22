@@ -1,5 +1,15 @@
-import { useState, useRef, useEffect } from "react";
+import { generalService } from "@/api/general.service";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -7,48 +17,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OPTIONS } from "@/constants";
 import {
+  useGenerateImage,
+  useGenerateUploadUrl,
+  useGenerateViewUrl,
+} from "@/hooks/use-pageSetting";
+import {
+  CheckIcon,
+  Download,
   ImageIcon,
   Loader2,
   Sparkles,
-  Upload,
-  CheckIcon,
   Trash2,
-  Heart,
-  LayoutGrid,
-  Palette,
-  Crown,
-  Camera,
-  Smile,
-  Star,
-  Video,
-  Paintbrush,
-  Pencil,
-  Zap,
-  Download,
+  Upload
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
-import ImageCropper from "./ImageCropper";
-import {
-  useGenerateUploadUrl,
-  useGenerateImage,
-  useGenerateViewUrl,
-} from "@/hooks/use-pageSetting";
-import { generalService } from "@/api/general.service";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import ImageCropper from "./ImageCropper";
 
-import { useFormContext } from "react-hook-form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import type { RsvpSettingsFormValues } from "@/validations/pageSetting.validation";
-import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { useFormContext } from "react-hook-form";
 
 export default function PageSettingsIllustration({
   eventId,
@@ -68,7 +63,8 @@ export default function PageSettingsIllustration({
   const form = useFormContext<RsvpSettingsFormValues>();
   const rawImageKey = form.watch("raw_image");
   const illustrationTheme = form.watch("illustration_theme") || "traditional";
-  const illustrationStyle = form.watch("illustration_style") || "royal_regal_portrait";
+  const illustrationStyle =
+    form.watch("illustration_style") || "royal_regal_portrait";
   const photoType = form.watch("photo_type") || "couple";
 
   const brideAttire = form.watch("bride_attire_style") || "default";
@@ -89,10 +85,7 @@ export default function PageSettingsIllustration({
       if (!form.getValues("groom_attire_style"))
         form.setValue("groom_attire_style", "default");
     }
-  }, [
-    rawImageKey,
-    form,
-  ]);
+  }, [rawImageKey, form]);
 
   const generateUploadUrlMutation = useGenerateUploadUrl();
   const generateImageMutation = useGenerateImage();
@@ -142,7 +135,7 @@ export default function PageSettingsIllustration({
     setIsUploading(true);
     try {
       const { data } = await generateUploadUrlMutation.mutateAsync({
-        objectKey: `raw-images/cropped_image_${Date.now()}.jpg`,
+        objectKey: `raw-images/rsvp-raw-images/cropped_image_${Date.now()}.jpg`,
         mimeType: "image/jpeg",
       });
       await generalService.uploadFileToS3(data.url, croppedImage.blob);
@@ -244,6 +237,22 @@ export default function PageSettingsIllustration({
         Upload a photo of couple to generate a beautiful AI illustration for
         your RSVP thumbnail.
       </p>
+
+      <div className="space-y-3 mt-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start text-left">
+          <span className="text-lg leading-none">💡</span>
+          <p>
+            Upload a clear, front-facing photo of the couple. Our AI will seamlessly transform it into a beautiful custom illustration for your invitation.
+          </p>
+        </div>
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start text-left">
+          <span className="text-lg leading-none">🔒</span>
+          <p>
+            Face should be clear and front-facing for best results. Used only to generate this invite, never shared.
+          </p>
+        </div>
+      </div>
+
       <div className="mt-5 border border-dashed rounded-xl p-6 bg-card flex flex-col items-center justify-center text-center">
         {!coupleImage ? (
           <>
@@ -279,20 +288,26 @@ export default function PageSettingsIllustration({
                         <FormItem className="space-y-0">
                           <FormControl>
                             <div className="flex gap-2">
-                              {(["couple", "bride", "groom"] as const).map((type) => (
-                                <Button
-                                  key={type}
-                                  variant={field.value === type ? "default" : "outline"}
-                                  className="flex-1 capitalize px-2"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    field.onChange(type);
-                                  }}
-                                  disabled={isGenerating || isUploading}
-                                >
-                                  {type}
-                                </Button>
-                              ))}
+                              {(["couple", "bride", "groom"] as const).map(
+                                (type) => (
+                                  <Button
+                                    key={type}
+                                    variant={
+                                      field.value === type
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    className="flex-1 capitalize px-2"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      field.onChange(type);
+                                    }}
+                                    disabled={isGenerating || isUploading}
+                                  >
+                                    {type}
+                                  </Button>
+                                ),
+                              )}
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -320,12 +335,11 @@ export default function PageSettingsIllustration({
                                 <SelectValue placeholder="Select a theme" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="traditional">
-                                  Traditional Indian
-                                </SelectItem>
-                                <SelectItem value="modern">Modern Minimalist</SelectItem>
-                                <SelectItem value="watercolor">Watercolor</SelectItem>
-                                <SelectItem value="royal">Royal Heritage</SelectItem>
+                                {ILLUSTRATION_THEME_OPTIONS.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -347,56 +361,7 @@ export default function PageSettingsIllustration({
                       <FormItem className="space-y-0">
                         <FormControl>
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2">
-                            {[
-                              {
-                                id: "royal_regal_portrait",
-                                name: "Royal Portrait",
-                                icon: Crown,
-                              },
-                              {
-                                id: "watercolor_fine_art",
-                                name: "Watercolor Dream",
-                                icon: Palette,
-                              },
-                              {
-                                id: "heritage_miniature",
-                                name: "Heritage Miniature",
-                                icon: Heart,
-                              },
-                              { id: "storybook_3d", name: "3D Storybook", icon: Smile },
-                              {
-                                id: "modern_line_art",
-                                name: "Modern Line Art",
-                                icon: LayoutGrid,
-                              },
-                              {
-                                id: "vintage_keepsake",
-                                name: "Vintage Keepsake",
-                                icon: Camera,
-                              },
-                              { id: "anime_style", name: "Anime Style", icon: Star },
-                              { id: "pop_art_bash", name: "Pop Art Bash", icon: Zap },
-                              {
-                                id: "fairytale_romance",
-                                name: "Fairytale Romance",
-                                icon: Sparkles,
-                              },
-                              {
-                                id: "retro_cinema_poster",
-                                name: "Retro Cinema Poster",
-                                icon: Video,
-                              },
-                              {
-                                id: "fun_caricature",
-                                name: "Fun Caricature",
-                                icon: Pencil,
-                              },
-                              {
-                                id: "classic_oil_painting",
-                                name: "Classic Oil Painting",
-                                icon: Paintbrush,
-                              },
-                            ].map((style) => {
+                            {ILLUSTRATION_STYLE_OPTIONS.map((style) => {
                               const Icon = style.icon;
                               return (
                                 <div
@@ -461,36 +426,7 @@ export default function PageSettingsIllustration({
                                   <SelectValue placeholder="Select attire" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {[
-                                    { id: "default", name: "Default / Let style decide" },
-                                    { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                                    {
-                                      id: "sharara_sherwani",
-                                      name: "Sharara/Gharara & Sherwani",
-                                    },
-                                    {
-                                      id: "kurta_pagri_sharara",
-                                      name: "Kurta, Pagri & Sharara",
-                                    },
-                                    { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                                    {
-                                      id: "white_gown_tuxedo",
-                                      name: "White Gown & Tuxedo",
-                                    },
-                                    {
-                                      id: "qipao_tang_suit",
-                                      name: "Qipao/Cheongsam & Tang Suit",
-                                    },
-                                    { id: "hanbok", name: "Hanbok" },
-                                    { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                                    { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                                    {
-                                      id: "jalabiya_thobe",
-                                      name: "Jalabiya & Thobe-style",
-                                    },
-                                    { id: "modern_fusion", name: "Modern Fusion" },
-                                    { id: "surprise_me", name: "Surprise me" },
-                                  ].map((opt) => (
+                                  {ATTIRE_STYLE_OPTIONS.map((opt) => (
                                     <SelectItem key={opt.id} value={opt.id}>
                                       {opt.name}
                                     </SelectItem>
@@ -522,36 +458,7 @@ export default function PageSettingsIllustration({
                                   <SelectValue placeholder="Select attire" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {[
-                                    { id: "default", name: "Default / Let style decide" },
-                                    { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                                    {
-                                      id: "sharara_sherwani",
-                                      name: "Sharara/Gharara & Sherwani",
-                                    },
-                                    {
-                                      id: "kurta_pagri_sharara",
-                                      name: "Kurta, Pagri & Sharara",
-                                    },
-                                    { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                                    {
-                                      id: "white_gown_tuxedo",
-                                      name: "White Gown & Tuxedo",
-                                    },
-                                    {
-                                      id: "qipao_tang_suit",
-                                      name: "Qipao/Cheongsam & Tang Suit",
-                                    },
-                                    { id: "hanbok", name: "Hanbok" },
-                                    { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                                    { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                                    {
-                                      id: "jalabiya_thobe",
-                                      name: "Jalabiya & Thobe-style",
-                                    },
-                                    { id: "modern_fusion", name: "Modern Fusion" },
-                                    { id: "surprise_me", name: "Surprise me" },
-                                  ].map((opt) => (
+                                  {ATTIRE_STYLE_OPTIONS.map((opt) => (
                                     <SelectItem key={opt.id} value={opt.id}>
                                       {opt.name}
                                     </SelectItem>
@@ -572,7 +479,11 @@ export default function PageSettingsIllustration({
                     </label>
                     <FormField
                       control={form.control}
-                      name={photoType === "bride" ? "bride_attire_style" : "groom_attire_style"}
+                      name={
+                        photoType === "bride"
+                          ? "bride_attire_style"
+                          : "groom_attire_style"
+                      }
                       render={({ field }) => (
                         <FormItem className="space-y-0">
                           <FormControl>
@@ -585,36 +496,7 @@ export default function PageSettingsIllustration({
                                 <SelectValue placeholder="Select attire" />
                               </SelectTrigger>
                               <SelectContent>
-                                {[
-                                  { id: "default", name: "Default / Let style decide" },
-                                  { id: "lehenga_sherwani", name: "Lehenga & Sherwani" },
-                                  {
-                                    id: "sharara_sherwani",
-                                    name: "Sharara/Gharara & Sherwani",
-                                  },
-                                  {
-                                    id: "kurta_pagri_sharara",
-                                    name: "Kurta, Pagri & Sharara",
-                                  },
-                                  { id: "saree_bandhgala", name: "Saree & Bandhgala" },
-                                  {
-                                    id: "white_gown_tuxedo",
-                                    name: "White Gown & Tuxedo",
-                                  },
-                                  {
-                                    id: "qipao_tang_suit",
-                                    name: "Qipao/Cheongsam & Tang Suit",
-                                  },
-                                  { id: "hanbok", name: "Hanbok" },
-                                  { id: "kimono_montsuki", name: "Kimono & Montsuki" },
-                                  { id: "agbada_asooke", name: "Agbada & Aso-Oke" },
-                                  {
-                                    id: "jalabiya_thobe",
-                                    name: "Jalabiya & Thobe-style",
-                                  },
-                                  { id: "modern_fusion", name: "Modern Fusion" },
-                                  { id: "surprise_me", name: "Surprise me" },
-                                ].map((opt) => (
+                                {ATTIRE_STYLE_OPTIONS.map((opt) => (
                                   <SelectItem key={opt.id} value={opt.id}>
                                     {opt.name}
                                   </SelectItem>
@@ -664,7 +546,9 @@ export default function PageSettingsIllustration({
               {/* Right Column: Preview & Actions */}
               <div className="flex flex-col items-center lg:sticky lg:top-6 order-first lg:order-last mb-6 lg:mb-0">
                 <div className="w-full max-w-sm space-y-6">
-                  <div className={`flex flex-col items-center ${generatedImage && !isGenerating ? 'justify-start h-auto' : 'justify-center p-6 border border-dashed rounded-xl bg-muted/30 w-full aspect-square'}`}>
+                  <div
+                    className={`flex flex-col items-center ${generatedImage && !isGenerating ? "justify-start h-auto" : "justify-center p-6 border border-dashed rounded-xl bg-muted/30 w-full aspect-square"}`}
+                  >
                     {isGenerating ? (
                       <div className="flex flex-col items-center text-primary text-center px-4">
                         <Loader2 className="h-10 w-10 animate-spin mb-4" />
@@ -672,9 +556,10 @@ export default function PageSettingsIllustration({
                           Creating your illustration...
                         </p>
                         <p className="text-xs font-semibold text-destructive bg-destructive/10 border border-destructive/20 px-3 py-2 rounded-md max-w-xs leading-relaxed">
-                          Warning: Please do not perform any actions, switch tabs,
-                          switch events, or leave this page while generation is in
-                          progress. This will cause the generation to stop.
+                          Warning: Please do not perform any actions, switch
+                          tabs, switch events, or leave this page while
+                          generation is in progress. This will cause the
+                          generation to stop.
                         </p>
                       </div>
                     ) : generatedImage ? (
@@ -704,9 +589,12 @@ export default function PageSettingsIllustration({
                     ) : (
                       <div className="flex flex-col items-center text-muted-foreground opacity-60">
                         <ImageIcon className="h-12 w-12 mb-3 opacity-20" />
-                        <p className="text-sm font-medium">Illustration Preview</p>
+                        <p className="text-sm font-medium">
+                          Illustration Preview
+                        </p>
                         <p className="text-xs text-center mt-1 max-w-50">
-                          Select a style and click generate to see the result here.
+                          Select a style and click generate to see the result
+                          here.
                         </p>
                       </div>
                     )}

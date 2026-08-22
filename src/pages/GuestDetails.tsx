@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGuest } from "@/hooks/use-guest";
 import { cn } from "@/lib/utils";
 import {
@@ -66,9 +67,45 @@ export default function GuestDetails() {
 
   if (isLoading || isPending) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Loading guest details...
-      </div>
+      <Page>
+        <PageHeader title="Guest Details" />
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
+          <ToolBar>
+            <Skeleton className="h-9 w-32 rounded-md" />
+          </ToolBar>
+        </div>
+        
+        {/* Guest Overview Skeleton */}
+        <Card className="shadow-sm mb-5 overflow-hidden py-0 gap-0">
+          <CardHeader className="p-5">
+            <Skeleton className="h-6 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-6 p-6 pt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:justify-between gap-6">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="min-w-0 space-y-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Responses Skeleton */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+          {[...Array(2)].map((_, i) => (
+            <Card key={i} className="shadow-sm">
+              <CardHeader className="p-5">
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent className="p-6">
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </Page>
     );
   }
 

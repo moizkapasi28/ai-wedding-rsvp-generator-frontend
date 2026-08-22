@@ -4,6 +4,8 @@ import TablePagination from "./TablePagination";
 import WeddingCard from "./WeddingCard";
 import { useWedding } from "./WeddingProvider";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export default function WeddingList() {
   const [page, setPage] = useState(1);
   const { search, filter, sortBy, sortOrder } = useWedding();
@@ -31,8 +33,27 @@ export default function WeddingList() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Loading weddings...
+      <div className="mt-auto grid gap-5 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="flex flex-col space-y-4 p-6 border rounded-xl bg-card">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+            <div className="space-y-2 pt-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+            </div>
+            <div className="flex justify-between pt-4 mt-auto">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-24" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

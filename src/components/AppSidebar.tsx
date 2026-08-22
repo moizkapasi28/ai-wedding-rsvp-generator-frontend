@@ -4,6 +4,7 @@ import UserMenu from "@/components/UserMenu";
 import WeddingSwitcher from "@/components/WeddingSwitcher";
 import { APP_SIDEBAR } from "@/constants";
 import { NavLink, useLocation } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -55,7 +56,17 @@ export default function AppSidebar() {
                         }}
                       >
                         {item.Icon && <item.Icon />}
-                        <span>{item.title}</span>
+                        <span className="flex items-center gap-2">
+                          {item.title}
+                          {item.badge && (
+                            <Badge 
+                              variant="default" 
+                              className={`h-4 px-1.5 text-[10px] leading-none ${isActive ? "bg-background text-foreground hover:bg-background/90" : ""}`}
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
