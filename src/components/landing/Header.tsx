@@ -24,12 +24,14 @@ export default function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+        mobileMenuOpen
+          ? "bg-background border-b border-border/50 py-3"
+          : isScrolled
           ? "glass border-b border-border/50 py-3"
           : "bg-transparent py-5"
       }`}
     >
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto md:px-6 flex items-center justify-between">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
             <Sparkles className="w-5 h-5 text-white" />
@@ -81,30 +83,36 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 glass border-b border-border/50 p-4 flex flex-col gap-4 shadow-xl md:hidden">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-primary hover:bg-white/5 rounded-lg transition-all"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.name}
-            </a>
-          ))}
-          <div className="flex flex-col gap-2 mt-4 pt-4 border-t border-border/50">
-            <Link
-              to="/signin"
-              className="px-4 py-2 text-sm font-medium text-center text-foreground hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Log in
-            </Link>
-            <Link
-              to="/signup"
-              className="px-4 py-2 text-sm font-semibold text-center text-white bg-primary rounded-lg shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
-            >
-              Start Free Trial
-            </Link>
+        <div className="absolute top-full left-0 right-0 bg-background border-b border-border/50 shadow-2xl md:hidden">
+          <div className="space-y-1 px-2 pt-2 pb-3">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-white/5 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+          <div className="border-t border-border/50 pt-4 pb-4">
+            <div className="flex flex-col gap-3 px-5">
+              <Link
+                to="/signin"
+                className="block text-center px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-white/5 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Log in
+              </Link>
+              <Link
+                to="/signup"
+                className="block text-center px-3 py-2 rounded-md text-base font-semibold text-white bg-primary shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Start Free Trial
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 export default function CTASection() {
   return (
     <section className="py-24 relative overflow-hidden">
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto relative z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
         <div className="max-w-5xl mx-auto rounded-3xl p-1 relative overflow-hidden">
           {/* Animated Gradient Border */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-primary background-animate rounded-3xl opacity-50" />

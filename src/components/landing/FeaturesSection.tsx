@@ -61,7 +61,7 @@ export default function FeaturesSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background blur-2xl" />
       </div>
 
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto relative z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Everything you need for a <span className="text-gradient">flawless wedding</span>

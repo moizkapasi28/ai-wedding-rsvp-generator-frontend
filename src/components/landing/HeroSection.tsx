@@ -9,7 +9,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-600 blur-[100px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto relative z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass border border-primary/30 text-sm font-medium text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

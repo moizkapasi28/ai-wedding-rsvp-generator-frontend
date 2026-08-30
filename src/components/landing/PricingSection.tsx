@@ -54,7 +54,7 @@ const plans = [
 export default function PricingSection() {
   return (
     <section id="pricing" className="py-24 relative overflow-hidden">
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto relative z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
             Simple, Transparent Pricing

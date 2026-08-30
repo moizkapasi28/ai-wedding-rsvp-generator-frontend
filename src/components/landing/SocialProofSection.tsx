@@ -4,7 +4,7 @@ export default function SocialProofSection() {
       {/* Subtle background glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-purple-500/10 opacity-50" />
       
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto relative z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col items-center justify-center gap-8">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest text-center">
             Trusted by modern wedding planners and couples worldwide

@@ -26,7 +26,7 @@ const steps = [
 export default function HowItWorksSection() {
   return (
     <section id="how-it-works" className="py-24 bg-white/5 border-y border-border/50">
-      <div className="w-full max-w-none px-6 md:px-12 lg:px-24 mx-auto">
+      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
             How <span className="text-primary">WedNexa</span> Works
