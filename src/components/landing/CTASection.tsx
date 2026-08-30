@@ -15,7 +15,7 @@ export default function CTASection() {
               dream wedding?
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Join thousands of couples and planners using Aura to eliminate stress and deliver flawless experiences.
+              Join thousands of couples and planners using WedNexa to eliminate stress and deliver flawless experiences.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

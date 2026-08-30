@@ -35,7 +35,7 @@ export default function Header() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-xl tracking-tight text-foreground">
-            Aura
+            WedNexa
           </span>
         </Link>
 

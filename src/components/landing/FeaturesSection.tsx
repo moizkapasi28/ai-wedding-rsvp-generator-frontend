@@ -67,7 +67,7 @@ export default function FeaturesSection() {
             Everything you need for a <span className="text-gradient">flawless wedding</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Aura combines powerful AI design tools with a comprehensive guest CRM, giving you everything you need to invite and organize guests like a pro.
+            WedNexa combines powerful AI design tools with a comprehensive guest CRM, giving you everything you need to invite and organize guests like a pro.
           </p>
         </div>
 

@@ -54,7 +54,7 @@ export default function HeroSection() {
             <div className="relative rounded-2xl md:rounded-[2rem] overflow-hidden glass-card p-2 md:p-4 border border-white/10">
               <img
                 src="/mockups/hero.jpg"
-                alt="Aura AI Guest Management Dashboard"
+                alt="WedNexa AI Guest Management Dashboard"
                 className="w-full h-auto rounded-xl md:rounded-2xl border border-white/5 shadow-2xl"
               />
             </div>

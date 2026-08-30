@@ -7,7 +7,7 @@ export default function ProductShowcase() {
         
         <div className="text-center max-w-3xl mx-auto mb-20">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-            See Aura in Action
+            See WedNexa in Action
           </h2>
           <p className="text-muted-foreground text-lg">
             Experience the platform designed to give you total control over your guest CRM and beautiful AI designs.
@@ -51,7 +51,7 @@ export default function ProductShowcase() {
                 </div>
                 <img 
                   src="/mockups/hero.jpg" 
-                  alt="Aura Guest CRM" 
+                  alt="WedNexa Guest CRM" 
                   className="w-full h-auto rounded-b-xl border-t-0 shadow-2xl" 
                 />
               </div>
@@ -72,7 +72,7 @@ export default function ProductShowcase() {
                 </div>
                 <img 
                   src="/mockups/rsvp.jpg" 
-                  alt="Aura AI Design & Page Builder" 
+                  alt="WedNexa AI Design & Page Builder" 
                   className="w-full h-auto rounded-b-xl border-t-0 shadow-2xl" 
                 />
               </div>

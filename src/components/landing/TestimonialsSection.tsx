@@ -6,14 +6,14 @@ const testimonials = [
     role: "Lead Wedding Planner",
     company: "Vance & Co. Events",
     image: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-    quote: "Aura has completely transformed how I manage weddings. The AI wedding card generator allowed us to create a stunning custom design from a reference in seconds.",
+    quote: "WedNexa has completely transformed how I manage weddings. The AI wedding card generator allowed us to create a stunning custom design from a reference in seconds.",
   },
   {
     name: "Marcus Thorne",
     role: "Groom-to-be",
     company: "Married in 2024",
     image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-    quote: "Managing a 300-person wedding used to be a spreadsheet nightmare. With Aura's real-time RSVP dashboard, we had zero stress about who was actually coming.",
+    quote: "Managing a 300-person wedding used to be a spreadsheet nightmare. With WedNexa's real-time RSVP dashboard, we had zero stress about who was actually coming.",
   },
   {
     name: "Sarah Jenkins",
@@ -37,7 +37,7 @@ export default function TestimonialsSection() {
             Loved by Event Professionals
           </h2>
           <p className="text-muted-foreground text-lg">
-            Don't just take our word for it. See what top planners and hosts are saying about Aura.
+            Don't just take our word for it. See what top planners and hosts are saying about WedNexa.
           </p>
         </div>
 
