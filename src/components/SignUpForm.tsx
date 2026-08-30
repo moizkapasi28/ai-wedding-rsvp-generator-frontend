@@ -134,7 +134,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                      <Lock className="absolute left-3.5 top-[18px] -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
                       <PasswordInput
                         showTooltip
                         placeholder="••••••••"
@@ -155,7 +155,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
+                      <Lock className="absolute left-3.5 top-[18px] -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
                       <PasswordInput
                         // showTooltip
                         placeholder="••••••••"
