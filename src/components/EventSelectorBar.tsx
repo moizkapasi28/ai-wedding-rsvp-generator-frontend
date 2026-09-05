@@ -31,7 +31,7 @@ export default function EventSelectorBar({
   if (events.length === 0) return null;
 
   return (
-    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4 mt-6">
+    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
       <div className="flex flex-wrap gap-2 w-full">
         {events.map((event: any) => {
           const sideStyles = getSideBadgeStyles(event.event_side as any);

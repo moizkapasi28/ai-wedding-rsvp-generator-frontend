@@ -73,7 +73,10 @@ class ApiService {
                    window.dispatchEvent(new Event("unauthorized"));
                  }
                  const errorData = await retryResponse.json().catch(() => ({}));
-                 throw new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`);
+                 const err = new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`) as any;
+                 err.type = errorData.type;
+                 err.status = retryResponse.status;
+                 throw err;
                }
                
                if (retryResponse.status === 204 || retryResponse.headers.get("content-length") === "0") {
@@ -92,11 +95,14 @@ class ApiService {
         }
 
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
+        const err = new Error(
           errorData.message ||
             errorData.error ||
             `HTTP error! status: ${response.status}`,
-        );
+        ) as any;
+        err.type = errorData.type;
+        err.status = response.status;
+        throw err;
       }
 
       if (

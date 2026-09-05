@@ -107,7 +107,7 @@ export function EventActionDialogue({
   const createEvent = useCreateEvent();
   const updateEvent = useUpdatEvent();
 
-  const isPending = createEvent.isPending;
+  const isPending = createEvent.isPending || updateEvent.isPending;
 
   const handleClose = () => {
     if (isPending) return;
@@ -377,7 +377,7 @@ export function EventActionDialogue({
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" loading={isPending}>
                 {isEdit ? "Save Changes" : "Add Event"}
               </Button>
             </DialogFooter>

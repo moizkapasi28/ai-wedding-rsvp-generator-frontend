@@ -1,4 +1,4 @@
-import { aiInviteCardService } from "@/api/aiInviteCard.service";
+import { aiInviteCardService, type GenerateAIInviteCardError } from "@/api/aiInviteCard.service";
 import { generalService } from "@/api/general.service";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,7 +12,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { aiInviteFormSchema, type AiInviteFormValues } from "./aiInviteCardSchema";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import toast from "react-hot-toast";
 
 // Sub-components
@@ -22,6 +23,8 @@ import ReferenceUploadForm from "./ReferenceUploadForm";
 import CustomMessageForm from "./CustomMessageForm";
 import CharacterPhotoForm from "./CharacterPhotoForm";
 import DesignPreviewCard from "./DesignPreviewCard";
+import { aiInviteFormSchema, type AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+
 
 export default function AiCardInviteMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
@@ -31,11 +34,15 @@ export default function AiCardInviteMain() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isLoading,
   } = useGetGuestEventInviteFormatsInfinite(activeWeddingId, 5);
 
   const events = data?.pages.flatMap((page) => page.data?.events || []) || [];
 
-  const [selectedEventId, setSelectedEventId] = useState<string>("");
+  const [selectedEventId, setSelectedEventId] = useState<string>(
+    events?.[0]?.id || ""
+  );
+
   useEffect(() => {
     if (events.length > 0 && !selectedEventId) {
       setSelectedEventId(events[0].id);
@@ -44,11 +51,12 @@ export default function AiCardInviteMain() {
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
-  
+
   const [characterImage, setCharacterImage] = useState<string | null>(null);
   const [isUploadingCharacter, setIsUploadingCharacter] = useState(false);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<GenerateAIInviteCardError | null>(null);
 
   const form = useForm<AiInviteFormValues>({
     resolver: zodResolver(aiInviteFormSchema),
@@ -77,6 +85,9 @@ export default function AiCardInviteMain() {
   const activeTab = form.watch("activeTab");
 
   const generateMutation = useMutation({
+    onMutate: () => {
+      setGenerationError(null);
+    },
     mutationFn: async (formData: AiInviteFormValues) => {
       return aiInviteCardService.generateAIInviteCardImage({
         eventId: selectedEventId,
@@ -105,8 +116,16 @@ export default function AiCardInviteMain() {
         toast.success("Invitation generated successfully!");
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Failed to generate", error);
+
+      const type = error?.type;
+      if (type && ["transient", "timeout", "permanent"].includes(type)) {
+        setGenerationError({ type, message: error.message });
+      } else {
+        setGenerationError({ type: "permanent", message: "An unexpected error occurred." });
+      }
+
       toast.error("Failed to generate invitation.");
     }
   });
@@ -121,7 +140,8 @@ export default function AiCardInviteMain() {
       setUploadedImage(URL.createObjectURL(file));
       setIsUploadingReference(true);
       try {
-        const urlRes = await generalService.generateUploadUrl(file.name, file.type);
+        const objectKey = `ai-invite-cards/raw-images/invitation-reference/${Date.now()}-${file.name}`;
+        const urlRes = await generalService.generateUploadUrl(objectKey, file.type);
         await generalService.uploadFileToS3(urlRes.data.url, file);
         form.setValue("referenceKey", urlRes.data.object_key, { shouldValidate: true });
       } catch (err) {
@@ -139,7 +159,8 @@ export default function AiCardInviteMain() {
       setCharacterImage(URL.createObjectURL(file));
       setIsUploadingCharacter(true);
       try {
-        const urlRes = await generalService.generateUploadUrl(file.name, file.type);
+        const objectKey = `ai-invite-cards/raw-images/invitation-character/${Date.now()}-${file.name}`;
+        const urlRes = await generalService.generateUploadUrl(objectKey, file.type);
         await generalService.uploadFileToS3(urlRes.data.url, file);
         form.setValue("characterKey", urlRes.data.object_key, { shouldValidate: true });
       } catch (err) {
@@ -150,6 +171,41 @@ export default function AiCardInviteMain() {
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        {/* Top bar skeletons */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+          <div className="flex flex-wrap gap-2 w-full">
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-32 rounded-full" />
+            <Skeleton className="h-10 w-28 rounded-full" />
+          </div>
+          <Skeleton className="h-10 w-32 rounded-md" />
+        </div>
+
+        {/* Layout skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
+          <div className="space-y-6 md:col-span-6 lg:col-span-7">
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+          <div className="md:col-span-6 lg:col-span-5">
+            <Skeleton className="h-[500px] w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (events.length === 0 && data?.pages?.length === 1) {
+    return (
+      <div className="p-8 text-center text-muted-foreground">
+        No AI Invitations found.
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -245,6 +301,11 @@ export default function AiCardInviteMain() {
           <DesignPreviewCard
             isGenerating={generateMutation.isPending}
             generatedImageUrl={generatedImageUrl}
+            error={generationError}
+            onRetry={() => {
+              setGenerationError(null);
+              form.handleSubmit(onSubmit)();
+            }}
           />
         </div>
       </Form>

@@ -1,5 +1,10 @@
 import { apiService } from "./api.service";
 
+export interface GenerateAIInviteCardError {
+  type: "transient" | "timeout" | "permanent";
+  message: string;
+}
+
 export type GenerateAIInviteCardPayload = {
   eventId: string;
   generation_mode: "EXAMPLE" | "MANUAL";

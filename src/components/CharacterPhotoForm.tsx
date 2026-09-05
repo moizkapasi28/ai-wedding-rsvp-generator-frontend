@@ -16,7 +16,8 @@ import {
 } from "@/constants";
 import { CheckIcon, ImageIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import type { AiInviteFormValues } from "./aiInviteCardSchema";
+import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+
 
 interface CharacterPhotoFormProps {
   characterImage: string | null;
@@ -143,8 +144,8 @@ export default function CharacterPhotoForm({
                             <div
                               key={style.id}
                               className={`cursor-pointer rounded-md border-2 overflow-hidden aspect-square transition-all relative ${field.value === style.id
-                                  ? "border-primary ring-2 ring-primary/20"
-                                  : "border-transparent hover:border-muted-foreground/30"
+                                ? "border-primary ring-2 ring-primary/20"
+                                : "border-transparent hover:border-muted-foreground/30"
                                 }`}
                               onClick={() => field.onChange(field.value === style.id ? null : style.id)}
                             >

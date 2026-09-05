@@ -79,11 +79,10 @@ export function WeddingActionDialogue({
   const createWedding = useCreateWedding();
   const updateWedding = useUpdatWedding();
 
-  const isPendingCreate = createWedding.isPending;
-  const isPendingUpdate = updateWedding.isPending;
+  const isPending = createWedding.isPending || updateWedding.isPending;
 
   const handleClose = () => {
-    if (isPendingCreate || isPendingUpdate) return;
+    if (isPending) return;
     form.reset();
     onOpenChange(false);
   };
@@ -341,7 +340,7 @@ export function WeddingActionDialogue({
               </Button>
               <Button
                 type="submit"
-                loading={isPendingCreate || isPendingUpdate}
+                loading={isPending}
               >
                 {isEdit ? "Save Changes" : "Add Wedding"}
               </Button>

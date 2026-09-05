@@ -23,9 +23,10 @@ import {
   TYPOGRAPHY_PAIRING_OPTIONS,
   TEXT_ALIGNMENT_OPTIONS,
 } from "@/constants";
+import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
 import { InfoIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import type { AiInviteFormValues } from "./aiInviteCardSchema";
+
 
 export default function DesignConfigForm() {
   const form = useFormContext<AiInviteFormValues>();
