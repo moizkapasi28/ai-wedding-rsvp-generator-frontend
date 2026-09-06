@@ -6,6 +6,7 @@ import type {
   User,
   VerifyEmailResponse,
 } from "@/models/user.model";
+import type { GenericResponse } from "@/models/generic";
 import { apiService } from "./api.service";
 import type {
   ForgotPasswordRequest,
@@ -14,6 +15,7 @@ import type {
   ResetPasswordRequest,
   SignupRequest,
   VerifyEmailRequest,
+  UpdateProfileRequest,
 } from "@/validations/auth.validation";
 
 class AuthService {
@@ -67,8 +69,12 @@ class AuthService {
     );
   }
 
-  async getUserInfo(): Promise<User> {
-    return this.api.get<User>(`${this.controller}/me`);
+  async getUserInfo(): Promise<GenericResponse<User>> {
+    return this.api.get<GenericResponse<User>>(`${this.controller}/me`);
+  }
+
+  async updateProfile(body: UpdateProfileRequest): Promise<GenericResponse<User>> {
+    return this.api.patch<GenericResponse<User>>(`${this.controller}/me`, body);
   }
 
   async logout(refreshToken: string | null = null): Promise<void> {

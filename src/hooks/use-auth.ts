@@ -13,8 +13,9 @@ import type {
   ResendVerificationEmailRequest,
   ResetPasswordRequest,
   SignupRequest,
+  UpdateProfileRequest,
 } from "@/validations/auth.validation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom, useStore } from "jotai";
 import type { UseFormReturn } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -172,6 +173,35 @@ export const useLogout = () => {
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong. Please try again.");
+    },
+  });
+};
+
+export const useUserProfile = () => {
+  return useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      const response = await authService.getUserInfo();
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  const [, setUser] = useAtom(userAtom);
+
+  return useMutation({
+    mutationFn: async (data: UpdateProfileRequest) =>
+      authService.updateProfile(data),
+    onSuccess: (response) => {
+      setUser(response.data);
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      toast.success("Profile updated successfully! 🎉");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update profile. Please try again.");
     },
   });
 };

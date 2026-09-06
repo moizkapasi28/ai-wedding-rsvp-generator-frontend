@@ -114,3 +114,25 @@ export const logoutSchema = z.object({
 });
 
 export type LogoutRequest = z.infer<typeof logoutSchema>;
+
+export const updateProfileSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name is required")
+    .min(3, "First name must be of minimum 3 characters")
+    .max(50, "First name can not be greater than 50 characters"),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Last name is required")
+    .min(3, "Last name must be of minimum 3 characters")
+    .max(50, "Last name can not be greater than 50 characters"),
+  mobileNumber: z
+    .string()
+    .min(10, "Please enter a valid mobile number")
+    .max(15, "Mobile number too long"),
+  profilePicture: z.string().nullable().optional(),
+});
+
+export type UpdateProfileRequest = z.infer<typeof updateProfileSchema>;

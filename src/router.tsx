@@ -107,6 +107,12 @@ const Setup = () => {
                   }),
                 },
                 {
+                  path: "profile",
+                  lazy: async () => ({
+                    Component: (await import("@/pages/ViewProfile")).default,
+                  }),
+                },
+                {
                   lazy: async () => {
                     const RequireWedding = await import("@/layout/RequireWedding");
                     return { Component: RequireWedding.default };
@@ -197,13 +203,8 @@ const Router: FC = () => {
           } = await authService.getAccessToken(refreshToken);
 
           tokenStore.setAccessToken(access);
-          //   const user = await authService.getUserInfo();
-          const user = {
-            id: 123,
-            username: "moizkapasi",
-            email: "moizkapasi90@gmail.com",
-          };
-          login(user, refresh.token);
+          const userResponse = await authService.getUserInfo();
+          login(userResponse.data, refresh.token);
         } catch {
           logout();
           return true;
