@@ -55,7 +55,7 @@ export default function AiCardInviteMain() {
   const [characterImage, setCharacterImage] = useState<string | null>(null);
   const [isUploadingCharacter, setIsUploadingCharacter] = useState(false);
 
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>("/test-preview.jpeg");
   const [generationError, setGenerationError] = useState<GenerateAIInviteCardError | null>(null);
 
   const form = useForm<AiInviteFormValues>({
@@ -110,10 +110,16 @@ export default function AiCardInviteMain() {
         groom_attire_style: formData.photoType === "couple" ? formData.groomAttireStyle : formData.singleAttireStyle,
       });
     },
-    onSuccess: (res) => {
-      if (res.data.generated_invite_image_url) {
-        setGeneratedImageUrl(res.data.generated_invite_image_url);
-        toast.success("Invitation generated successfully!");
+    onSuccess: async (res) => {
+      if (res.data.key) {
+        try {
+          const viewRes = await generalService.generateViewUrl(res.data.key);
+          setGeneratedImageUrl(viewRes.data.url);
+          toast.success("Invitation generated successfully!");
+        } catch (error) {
+          console.error("Failed to generate view URL", error);
+          setGenerationError({ type: "transient", message: "Failed to load invitation preview. Please try again." });
+        }
       }
     },
     onError: (error: any) => {
@@ -187,12 +193,12 @@ export default function AiCardInviteMain() {
 
         {/* Layout skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
-          <div className="space-y-6 md:col-span-6 lg:col-span-7">
+          <div className="space-y-4 md:col-span-6 lg:col-span-6">
             <Skeleton className="h-24 w-full rounded-xl" />
             <Skeleton className="h-[400px] w-full rounded-xl" />
           </div>
-          <div className="md:col-span-6 lg:col-span-5">
-            <Skeleton className="h-[500px] w-full rounded-xl" />
+          <div className="md:col-span-6 lg:col-span-6">
+            <Skeleton className="h-[600px] w-full rounded-xl" />
           </div>
         </div>
       </div>
@@ -225,7 +231,7 @@ export default function AiCardInviteMain() {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
           {/* Left Column: Form Controls */}
-          <div className="space-y-6 md:col-span-6 lg:col-span-7">
+          <div className="space-y-4 md:col-span-7 lg:col-span-8">
             <div className="mb-2">
               <h3 className="text-xl font-semibold">AI Invitation Card Builder</h3>
               <p className="text-sm text-muted-foreground">
@@ -245,11 +251,11 @@ export default function AiCardInviteMain() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="describe" className="space-y-4 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent value="describe" className="space-y-3 focus-visible:outline-none focus-visible:ring-0">
                 <DesignConfigForm />
               </TabsContent>
 
-              <TabsContent value="upload" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent value="upload" className="space-y-4 focus-visible:outline-none focus-visible:ring-0">
                 <ReferenceUploadForm
                   uploadedImage={uploadedImage}
                   isUploadingReference={isUploadingReference}
@@ -281,7 +287,7 @@ export default function AiCardInviteMain() {
                 type="button"
                 onClick={form.handleSubmit(onSubmit)}
                 disabled={generateMutation.isPending || !selectedEventId}
-                className="w-full h-14 text-lg font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 gap-3 group rounded-xl"
+                className="w-full h-11 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2 group rounded-xl"
               >
                 {generateMutation.isPending ? (
                   <>
@@ -298,15 +304,19 @@ export default function AiCardInviteMain() {
             </div>
           </div>
 
-          <DesignPreviewCard
-            isGenerating={generateMutation.isPending}
-            generatedImageUrl={generatedImageUrl}
-            error={generationError}
-            onRetry={() => {
-              setGenerationError(null);
-              form.handleSubmit(onSubmit)();
-            }}
-          />
+          <div className="md:col-span-5 lg:col-span-4 h-full flex justify-center items-start">
+            <div className="w-full max-w-sm lg:max-w-none md:sticky md:top-6">
+              <DesignPreviewCard
+              isGenerating={generateMutation.isPending}
+              generatedImageUrl={generatedImageUrl}
+              error={generationError}
+              onRetry={() => {
+                setGenerationError(null);
+                form.handleSubmit(onSubmit)();
+              }}
+            />
+            </div>
+          </div>
         </div>
       </Form>
     </TooltipProvider>

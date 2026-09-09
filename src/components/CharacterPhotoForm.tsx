@@ -11,10 +11,15 @@ import {
 } from "@/components/ui/select";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ATTIRE_STYLE_OPTIONS,
   ILLUSTRATION_STYLE_OPTIONS,
 } from "@/constants";
-import { CheckIcon, ImageIcon, Loader2 } from "lucide-react";
+import { CheckIcon, ImageIcon, InfoIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
 
@@ -38,56 +43,60 @@ export default function CharacterPhotoForm({
 
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader>
-        <CardTitle>Add your Photo (Optional)</CardTitle>
-        <CardDescription>
-          Upload photos of the bride and groom to include in the design, and select their attire.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-3">
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start">
-            <span className="text-lg leading-none">💡</span>
-            <p>
-              Upload a clear, front-facing photo of the couple. Our AI will seamlessly transform it into a beautiful custom illustration for your invitation.
-            </p>
+      <CardHeader className="py-3">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <CardTitle className="text-base">Add your Photo (Optional)</CardTitle>
+            <CardDescription className="text-xs">
+              Upload photos of the bride and groom to include in the design, and select their attire.
+            </CardDescription>
           </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start">
-            <span className="text-lg leading-none">🔒</span>
-            <p>
-              Face should be clear and front-facing for best results. Used only to generate this invite, never shared.
-            </p>
-          </div>
+          <Tooltip>
+            <TooltipTrigger type="button" className="cursor-help">
+              <InfoIcon className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs p-3 space-y-2">
+              <div className="flex gap-2 text-xs">
+                <span>💡</span>
+                <p>Upload a clear, front-facing photo of the couple. Our AI will seamlessly transform it into a custom illustration.</p>
+              </div>
+              <div className="flex gap-2 text-xs">
+                <span>🔒</span>
+                <p>Face should be clear for best results. Used only to generate this invite, never shared.</p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
-
-        <div className="space-y-6">
-          <div className="max-w-2xl">
+      </CardHeader>
+      <CardContent className="space-y-3 pt-0 pb-3">
+        <div className="space-y-3 w-full">
+          <div className="w-full">
             <Label className="text-sm font-medium mb-2 block">
               1. Upload Photo
             </Label>
             {!characterImage ? (
-              <label className="border-2 border-dashed border-muted-foreground/30 bg-background rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group block">
+              <label className="w-full border-2 border-dashed border-muted-foreground/30 bg-background rounded-xl p-4 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group">
                 <Input type="file" className="hidden" accept="image/*" onChange={handleCharacterUpload} />
-                <ImageIcon className="w-6 h-6 text-muted-foreground mb-2" />
+                <ImageIcon className="w-5 h-5 text-muted-foreground mb-1" />
                 <span className="text-sm font-medium">Click to Upload</span>
-                <span className="text-xs text-muted-foreground mt-1">Upload a clear front-facing photo</span>
+                <span className="text-[11px] text-muted-foreground mt-0.5">Upload a clear front-facing photo</span>
               </label>
             ) : (
-              <div className="relative rounded-xl overflow-hidden border bg-muted group mt-2">
+              <div className="w-full relative rounded-xl overflow-hidden border bg-muted group mt-1">
                 <img
                   src={characterImage}
                   alt="Uploaded character"
-                  className="w-full h-[200px] object-cover"
+                  className="w-full h-[120px] object-cover"
                 />
                 {isUploadingCharacter && (
                   <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
-                    <span className="text-xs text-white font-medium">Uploading...</span>
+                    <Loader2 className="w-6 h-6 text-white animate-spin mb-1" />
+                    <span className="text-[11px] text-white font-medium">Uploading...</span>
                   </div>
                 )}
                 {!isUploadingCharacter && (
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button variant="secondary" onClick={onRemoveImage}>
+                    <Button size="sm" variant="secondary" onClick={onRemoveImage}>
                       Remove Image
                     </Button>
                   </div>
@@ -111,8 +120,9 @@ export default function CharacterPhotoForm({
                         {(["couple", "bride", "groom"] as const).map((type) => (
                           <Button
                             key={type}
+                            size="sm"
                             variant={field.value === type ? "default" : "outline"}
-                            className="flex-1 capitalize px-2"
+                            className="flex-1 capitalize px-2 h-8"
                             onClick={(e) => {
                               e.preventDefault();
                               field.onChange(type);
@@ -143,21 +153,21 @@ export default function CharacterPhotoForm({
                           return (
                             <div
                               key={style.id}
-                              className={`cursor-pointer rounded-md border-2 overflow-hidden aspect-square transition-all relative ${field.value === style.id
+                              className={`cursor-pointer rounded-md border-2 overflow-hidden h-[60px] transition-all relative ${field.value === style.id
                                 ? "border-primary ring-2 ring-primary/20"
                                 : "border-transparent hover:border-muted-foreground/30"
                                 }`}
                               onClick={() => field.onChange(field.value === style.id ? null : style.id)}
                             >
-                              <div className="absolute inset-0 bg-muted/30 flex flex-col items-center justify-center p-2 text-center">
-                                <Icon className="w-8 h-8 mb-2 text-primary/80" />
-                                <span className="text-xs font-medium leading-tight">
+                              <div className="absolute inset-0 bg-muted/30 flex flex-col items-center justify-center p-1 text-center">
+                                <Icon className="w-5 h-5 mb-1 text-primary/80" />
+                                <span className="text-[10px] font-medium leading-tight">
                                   {style.name}
                                 </span>
                               </div>
                               {field.value === style.id && (
-                                <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm">
-                                  <CheckIcon className="w-3 h-3" />
+                                <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm">
+                                  <CheckIcon className="w-2 h-2" />
                                 </div>
                               )}
                             </div>
@@ -182,7 +192,7 @@ export default function CharacterPhotoForm({
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
-                            <SelectTrigger className="w-full h-10 bg-background">
+                            <SelectTrigger className="w-full h-9 bg-background">
                               <SelectValue placeholder="Select attire" />
                             </SelectTrigger>
                           </FormControl>
@@ -208,7 +218,7 @@ export default function CharacterPhotoForm({
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
-                            <SelectTrigger className="w-full h-10 bg-background">
+                            <SelectTrigger className="w-full h-9 bg-background">
                               <SelectValue placeholder="Select attire" />
                             </SelectTrigger>
                           </FormControl>
@@ -237,7 +247,7 @@ export default function CharacterPhotoForm({
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
-                            <SelectTrigger className="w-full h-10 bg-background">
+                            <SelectTrigger className="w-full h-9 bg-background">
                               <SelectValue placeholder="Select attire" />
                             </SelectTrigger>
                           </FormControl>

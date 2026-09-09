@@ -29,8 +29,7 @@ export type GenerateAIInviteCardPayload = {
 export interface GenerateAIInviteCardResponse {
   message?: string;
   data: {
-    generated_invite_image_url: string;
-    // other fields maybe returned
+    key: string;
   };
 }
 

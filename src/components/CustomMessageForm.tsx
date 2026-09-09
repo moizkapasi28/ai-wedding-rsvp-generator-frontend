@@ -10,13 +10,13 @@ export default function CustomMessageForm() {
 
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader>
-        <CardTitle>Custom Invitation Message (Optional)</CardTitle>
+      <CardHeader className="py-3">
+        <CardTitle className="text-base">Custom Invitation Message (Optional)</CardTitle>
         <CardDescription>
           Add a personalized message, quote, or cultural greeting to include on your invitation card.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0 pb-3">
         <FormField
           control={form.control}
           name="customMessage"
@@ -27,7 +27,7 @@ export default function CustomMessageForm() {
                   {...field}
                   value={field.value || ""}
                   placeholder="E.g., We joyfully invite you to share in our happiness..."
-                  className="min-h-[100px] resize-none"
+                  className="min-h-[60px] resize-none"
                 />
               </FormControl>
               <FormMessage />

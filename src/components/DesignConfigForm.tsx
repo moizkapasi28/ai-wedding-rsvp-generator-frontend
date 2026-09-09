@@ -33,21 +33,21 @@ export default function DesignConfigForm() {
 
   return (
     <Card className="border-border shadow-sm">
-      <CardHeader>
-        <CardTitle>Design your Invitation</CardTitle>
-        <CardDescription>
+      <CardHeader className="py-3">
+        <CardTitle className="text-base">Design your Invitation</CardTitle>
+        <CardDescription className="text-xs">
           Configure how your AI-generated invitation should look.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <CardContent className="space-y-3 pt-0 pb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           <FormField
             control={form.control}
             name="designPreset"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Design Preset</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Design Preset</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -57,7 +57,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select a preset" />
                     </SelectTrigger>
                   </FormControl>
@@ -76,9 +76,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="textureEmulation"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Texture Emulation</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Texture</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -88,7 +88,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select texture" />
                     </SelectTrigger>
                   </FormControl>
@@ -107,9 +107,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="typographyPairing"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Typography Pairing</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Typography</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -119,7 +119,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select typography" />
                     </SelectTrigger>
                   </FormControl>
@@ -138,9 +138,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="metallicAccents"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Metallic Accents</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Metallic Accents</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -150,7 +150,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select accent" />
                     </SelectTrigger>
                   </FormControl>
@@ -169,9 +169,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="negativeSpace"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Negative Space (Padding)</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Padding</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -181,7 +181,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select padding" />
                     </SelectTrigger>
                   </FormControl>
@@ -200,9 +200,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="monogramStyle"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Monogram & Crest Style</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Monogram Style</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -212,7 +212,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select monogram" />
                     </SelectTrigger>
                   </FormControl>
@@ -231,9 +231,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="textAlignment"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Text Alignment</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Text Alignment</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -243,7 +243,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select alignment" />
                     </SelectTrigger>
                   </FormControl>
@@ -262,9 +262,9 @@ export default function DesignConfigForm() {
             control={form.control}
             name="edgeStyling"
             render={({ field }) => (
-              <FormItem className="space-y-1.5">
+              <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel>Border & Edge Styling</FormLabel>
+                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Border Style</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -274,7 +274,7 @@ export default function DesignConfigForm() {
                 </div>
                 <Select onValueChange={field.onChange} value={field.value || ""}>
                   <FormControl>
-                    <SelectTrigger className="w-full h-10">
+                    <SelectTrigger className="w-full h-9">
                       <SelectValue placeholder="Select edge finish" />
                     </SelectTrigger>
                   </FormControl>
@@ -300,8 +300,8 @@ export default function DesignConfigForm() {
                 <Textarea
                   {...field}
                   value={field.value || ""}
-                  placeholder="E.g., Include watercolor elements, make it look like a postcard, keep the background dark..."
-                  className="min-h-[80px] resize-none"
+                  placeholder="E.g., Include watercolor elements..."
+                  className="min-h-[60px] resize-none"
                 />
               </FormControl>
               <FormMessage />
