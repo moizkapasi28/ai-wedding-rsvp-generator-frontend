@@ -1,5 +1,5 @@
 import { useGetWeddingsWithStats } from "@/hooks/use-wedding";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TablePagination from "./TablePagination";
 import WeddingCard from "./WeddingCard";
 import { useWedding } from "./WeddingProvider";
@@ -9,6 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function WeddingList() {
   const [page, setPage] = useState(1);
   const { search, filter, sortBy, sortOrder } = useWedding();
+
+  // Back to page 1 when search, filter or sort changes (adjusted during render, not in an effect)
+  const filterKey = JSON.stringify([search, filter, sortBy, sortOrder]);
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
+    setPage(1);
+  }
   const {
     data: response,
     isLoading,
@@ -20,16 +28,10 @@ export default function WeddingList() {
   const totalPages = data?.totalPages || 1;
   const totalItems = data?.totalCount || 0;
 
-  useEffect(() => {
-    if (!isLoading && !isError && weddings.length === 0 && page > 1) {
-      setPage((prev) => prev - 1);
-    }
-  }, [isLoading, isError, weddings.length, page]);
-
-  // Reset page when search, filter or sort changes
-  useEffect(() => {
-    setPage(1);
-  }, [search, filter, sortBy, sortOrder]);
+  // The last wedding on a page was deleted: step back a page
+  if (!isLoading && !isError && weddings.length === 0 && page > 1) {
+    setPage(page - 1);
+  }
 
   if (isLoading) {
     return (

@@ -1,68 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useGuest } from "@/components/GuestProvider";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
 import type { Guest } from "@/models/guest.model";
 import { cn } from "@/lib/utils";
 import { formatSide, getSideBadgeStyles } from "../EventCard";
-
-function GuestActionsCell({ guest }: { guest: Guest }) {
-  const { setOpen, setCurrentRow } = useGuest();
-  const navigate = useNavigate();
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          aria-label="Guest options"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => navigate(`/guests/${guest.id}`)}
-        >
-          <Eye className="mr-2 h-4 w-4" />
-          View
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => {
-            setCurrentRow(guest);
-            setOpen("edit");
-          }}
-        >
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer text-destructive focus:text-destructive"
-          onClick={() => {
-            setCurrentRow(guest);
-            setOpen("delete");
-          }}
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+import GuestActionsCell from "./GuestActionsCell";
 
 export const columns: ColumnDef<Guest>[] = [
   {
@@ -72,6 +13,12 @@ export const columns: ColumnDef<Guest>[] = [
   {
     accessorKey: "email",
     header: "Email",
+    // Cells don't wrap, so long addresses would push the actions column off screen
+    cell: ({ row }) => (
+      <span className="block max-w-48 truncate" title={row.original.email}>
+        {row.original.email}
+      </span>
+    ),
   },
   {
     accessorKey: "mobile_number",
@@ -131,7 +78,8 @@ export const columns: ColumnDef<Guest>[] = [
     accessorKey: "events",
     header: "Events",
     cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1">
+      // Capped width so badges wrap onto new lines instead of widening the table
+      <div className="flex max-w-64 flex-wrap gap-1">
         {row.original.guestEventInvite.map((invite) => {
           const status = invite.status?.toLowerCase() || "pending";
           const statusColors: Record<string, string> = {
@@ -148,9 +96,12 @@ export const columns: ColumnDef<Guest>[] = [
           return (
             <Badge
               key={invite.id}
+              title={invite.invite_sent_at ? "Invite sent" : "Invite not sent yet"}
               className={cn(
                 "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
                 statusColors[status] || statusColors.pending,
+                // Dashed border marks an invite not sent yet without making the column wider
+                !invite.invite_sent_at && "border-dashed",
               )}
             >
               {invite.event.title}

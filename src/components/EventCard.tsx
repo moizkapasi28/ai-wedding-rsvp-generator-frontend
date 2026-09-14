@@ -19,7 +19,6 @@ import { MultiProgressBar } from "./custom/MultiProgressBar";
 import { Button } from "./ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { EventSide } from "@/validations/event.validation";
 
 import {
   DropdownMenu,
@@ -36,7 +35,7 @@ type EventCardProps = {
   event: Event;
 };
 
-export const getSideBadgeStyles = (side: EventSide) => {
+export const getSideBadgeStyles = (side: string) => {
   switch (side) {
     case "BRIDE":
       return "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-900/50";
@@ -48,7 +47,7 @@ export const getSideBadgeStyles = (side: EventSide) => {
   }
 };
 
-export const formatSide = (side: EventSide) => {
+export const formatSide = (side: string) => {
   if (side === "BOTH") return "Bride & Groom";
   return side.charAt(0) + side.slice(1).toLowerCase();
 };

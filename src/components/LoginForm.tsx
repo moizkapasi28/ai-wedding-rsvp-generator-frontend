@@ -19,7 +19,7 @@ import { type HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-export interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {}
+export type LoginFormProps = HTMLAttributes<HTMLDivElement>;
 
 export default function LoginForm({ className, ...props }: LoginFormProps) {
   const form = useForm<LoginRequest>({

@@ -14,6 +14,8 @@ export const RsvpSettingsSchema = z.object({
   message: z.boolean().default(false).optional(),
   first_reminder: z.boolean().default(false).optional(),
   final_reminder: z.boolean().default(false).optional(),
+  // "YYYY-MM-DD" from the date input; turned into an end-of-day timestamp on save
+  rsvp_deadline: z.string().nullable().optional(),
 });
 
 export type RsvpSettingsFormValues = z.infer<typeof RsvpSettingsSchema>;

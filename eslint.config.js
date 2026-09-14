@@ -18,5 +18,29 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Providers, shadcn/ui primitives and a few shared helpers deliberately export hooks or
+      // constants next to their components; fast refresh just reloads those files in full
+      'react-refresh/only-export-components': [
+        'error',
+        {
+          allowConstantExport: true,
+          allowExportNames: [
+            'useEvent',
+            'useGuest',
+            'useTheme',
+            'useWedding',
+            'useHeader',
+            'useFormField',
+            'useSidebar',
+            'badgeVariants',
+            'buttonVariants',
+            'tabsListVariants',
+            'getSideBadgeStyles',
+            'formatSide',
+          ],
+        },
+      ],
+    },
   },
 ])

@@ -1,5 +1,13 @@
 import SearchBar from "./SerachBar";
 import { MultiSelect } from "@/components/ui/multi-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { InviteSentFilter } from "@/models/guest.model";
 import { Side, GuestGroup } from "@/validations/guest.validation";
 import { useGetEventsWithStatsInfinite } from "@/hooks/use-event";
 import { activeWeddingIdAtom } from "@/store/store";
@@ -16,6 +24,8 @@ export default function GuestToolbar() {
     setSideFilter,
     groupFilter,
     setGroupFilter,
+    sentFilter,
+    setSentFilter,
   } = useGuest();
   const [activeWeddingid] = useAtom(activeWeddingIdAtom);
   const { data, fetchNextPage, isFetchingNextPage, hasNextPage } =
@@ -30,8 +40,9 @@ export default function GuestToolbar() {
   }));
 
   return (
-    <div className="flex gap-3 items-center w-full flex-nowrap">
-      <div className="flex-1 min-w-45">
+    // Wraps onto more lines on narrow screens instead of scrolling sideways
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="w-40">
         <SearchBar
           placeholder="Search by name or phone...."
           value={search}
@@ -39,8 +50,8 @@ export default function GuestToolbar() {
         />
       </div>
 
-      <div className="flex gap-2 shrink-0">
-        <div className="w-45">
+      <div className="flex flex-wrap gap-2">
+        <div className="w-32">
           <MultiSelect
             options={eventOptions}
             value={eventFilter}
@@ -55,7 +66,7 @@ export default function GuestToolbar() {
           />
         </div>
 
-        <div className="w-37.5">
+        <div className="w-28">
           <MultiSelect
             options={sideOptions}
             value={sideFilter}
@@ -64,13 +75,31 @@ export default function GuestToolbar() {
           />
         </div>
 
-        <div className="w-37.5">
+        <div className="w-28">
           <MultiSelect
             options={groupOptions}
             value={groupFilter}
             onValueChange={setGroupFilter}
             placeholder="Groups"
           />
+        </div>
+
+        <div className="w-28">
+          <Select
+            value={sentFilter ?? "all"}
+            onValueChange={(value) =>
+              setSentFilter(value === "all" ? null : (value as InviteSentFilter))
+            }
+          >
+            <SelectTrigger className="w-full" aria-label="Invite status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All invites</SelectItem>
+              <SelectItem value="sent">Invite sent</SelectItem>
+              <SelectItem value="not_sent">Not sent yet</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

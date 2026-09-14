@@ -11,10 +11,13 @@ type SearchBarProps = {
 
 export default function SearchBar({ placeholder, value = "", onChange, debounceMs = 500 }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
+  // The parent changed the value (e.g. a reset): adopt it during render rather than in an effect
+  if (value !== prevValue) {
+    setPrevValue(value);
     setLocalValue(value);
-  }, [value]);
+  }
 
   useEffect(() => {
     const handler = setTimeout(() => {

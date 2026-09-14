@@ -6,8 +6,11 @@ import type {
   GetGuestDetailsResponse,
   GuestImportResult,
   GuestListResponse,
+  InviteSentFilter,
   JobStatusResponse,
+  DueRemindersResponse,
   MarkInviteSentResponse,
+  ReminderKind,
   UploadGuestListResponse,
   WhatsAppInvitesResponse,
 } from "@/models/guest.model";
@@ -28,6 +31,7 @@ class GuestService {
     events: string[] = [],
     sides: string[] = [],
     groups: string[] = [],
+    inviteSent?: InviteSentFilter,
   ): Promise<GuestListResponse> {
     const params = new URLSearchParams({
       weddingId: weddingId as string,
@@ -39,6 +43,7 @@ class GuestService {
     if (events && events.length > 0) params.append("events", events.join(","));
     if (sides && sides.length > 0) params.append("sides", sides.join(","));
     if (groups && groups.length > 0) params.append("groups", groups.join(","));
+    if (inviteSent) params.append("inviteSent", inviteSent);
 
     return this.api.get<GuestListResponse>(
       `${this.controller}?${params.toString()}`,
@@ -83,6 +88,7 @@ class GuestService {
     events: string[] = [],
     sides: string[] = [],
     groups: string[] = [],
+    inviteSent?: InviteSentFilter,
   ): Promise<void> {
     const params = new URLSearchParams({
       weddingId: weddingId as string,
@@ -91,8 +97,9 @@ class GuestService {
     if (events && events.length > 0) params.append("events", events.join(","));
     if (sides && sides.length > 0) params.append("sides", sides.join(","));
     if (groups && groups.length > 0) params.append("groups", groups.join(","));
+    if (inviteSent) params.append("inviteSent", inviteSent);
 
-    let url = `${this.controller}/export?${params.toString()}`;
+    const url = `${this.controller}/export?${params.toString()}`;
 
     await this.api.download(url, "guest-list.xlsx");
   }
@@ -131,6 +138,22 @@ class GuestService {
     return this.api.post<MarkInviteSentResponse>(
       `${this.controller}/invites/${inviteId}/mark-sent`,
       {},
+    );
+  }
+
+  async getDueReminders(eventId: string): Promise<DueRemindersResponse> {
+    return this.api.get<DueRemindersResponse>(
+      `${this.controller}/invites/reminders?eventId=${eventId}`,
+    );
+  }
+
+  async markReminderSent(
+    inviteId: string,
+    reminder: ReminderKind,
+  ): Promise<MarkInviteSentResponse> {
+    return this.api.post<MarkInviteSentResponse>(
+      `${this.controller}/invites/${inviteId}/mark-reminded`,
+      { reminder },
     );
   }
 }

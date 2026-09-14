@@ -1,5 +1,9 @@
 import { rsvpService } from "@/api/rsvp.service";
-import { GUEST_QUERY_KEY, WHATSAPP_INVITES_QUERY_KEY } from "@/hooks/use-guest";
+import {
+  GUEST_QUERY_KEY,
+  REMINDERS_QUERY_KEY,
+  WHATSAPP_INVITES_QUERY_KEY,
+} from "@/hooks/use-guest";
 import type { RsvpReply } from "@/models/rsvp.model";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -46,6 +50,8 @@ export const useSubmitGuestRsvp = () => {
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
+      // A guest who has replied no longer needs reminders
+      queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ["wedding-dashboard"] });
       toast.success(response.message || "RSVP updated");
     },

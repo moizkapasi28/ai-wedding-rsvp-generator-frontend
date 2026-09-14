@@ -62,7 +62,9 @@ export const useLogin = () => {
       }
       login(response.data.user, refreshToken);
 
-      toast.success(`${response.message} 🎉` || "Login successfull! 🎉");
+      toast.success(
+        response.message ? `${response.message} 🎉` : "Login successful! 🎉",
+      );
       navigate("/weddings");
     },
     onError: (error) => {
@@ -76,7 +78,7 @@ export const useRegister = (form: UseFormReturn<SignupRequest>) => {
 
   return useMutation({
     mutationFn: async (data: SignupRequest) => authService.signup(data),
-    onSuccess: (_response) => {
+    onSuccess: () => {
       navigate("/verification-pending", {
         state: { email: form.getValues("email") },
       });
@@ -103,7 +105,7 @@ export const useResendEmailVerification = () => {
   return useMutation({
     mutationFn: async (data: ResendVerificationEmailRequest) =>
       authService.resendVerificationEmail(data),
-    onSuccess: (_response) => {
+    onSuccess: () => {
       toast.success("Verification email sent successfully");
     },
     onError: (error: Error) => {

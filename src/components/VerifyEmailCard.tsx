@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { MailCheckIcon, ShieldCheck } from "lucide-react";
 import type { HTMLAttributes } from "react";
 
-export interface VerifyEmailCardProps extends HTMLAttributes<HTMLDivElement> {}
+export type VerifyEmailCardProps = HTMLAttributes<HTMLDivElement>;
 
 export default function VerifyEmailCard({
   className,

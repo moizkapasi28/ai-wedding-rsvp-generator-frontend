@@ -28,7 +28,7 @@ class PageSettingService {
 
   async updateGuestEventInviteFormat(
     id: string,
-    data: any,
+    data: Record<string, unknown>,
   ): Promise<CreateOrUpdateGuestInviteFormatResponse> {
     return this.api.patch<CreateOrUpdateGuestInviteFormatResponse>(
       `${this.controller}/${id}`,

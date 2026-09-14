@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { CheckIcon, Loader2 } from "lucide-react";
 
 interface EventSelectorBarProps {
-  events: any[];
+  // Only the fields the bar renders, so any event-shaped list fits
+  events: { id: string; title: string; event_side: string }[];
   selectedEventId: string;
   setSelectedEventId: (id: string) => void;
   hasNextPage: boolean;
@@ -33,8 +34,8 @@ export default function EventSelectorBar({
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
       <div className="flex flex-wrap gap-2 w-full">
-        {events.map((event: any) => {
-          const sideStyles = getSideBadgeStyles(event.event_side as any);
+        {events.map((event) => {
+          const sideStyles = getSideBadgeStyles(event.event_side);
           const isSelected = selectedEventId === event.id;
 
           return (

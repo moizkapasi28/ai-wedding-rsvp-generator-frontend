@@ -58,13 +58,13 @@ export const useUpdateAiInviteCard = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) =>
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       aiInviteCardService.updateAiInviteCard(id, data),
-    onSuccess: (response: any) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
       toast.success(response?.message || "AI Invite Card configuration saved successfully");
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(
         error.message || "Failed to save configuration. Please try again later.",
       );

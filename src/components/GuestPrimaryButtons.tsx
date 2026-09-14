@@ -8,7 +8,8 @@ import { useRef } from "react";
 import toast from "react-hot-toast";
 
 export default function GuestPrimaryButtons() {
-  const { setOpen, search, eventFilter, sideFilter, groupFilter } = useGuest();
+  const { setOpen, search, eventFilter, sideFilter, groupFilter, sentFilter } =
+    useGuest();
   const [activeWeddingid] = useAtom(activeWeddingIdAtom);
   const { mutate: downloadTemplate, isPending: isDownloading } = useDownloadTemplate();
   const { mutate: uploadGuestList, isPending: isUploading } = useUploadGuestList();
@@ -58,7 +59,7 @@ export default function GuestPrimaryButtons() {
   };
 
   return (
-    <div className="flex items-center gap-2 shrink-0">
+    <div className="flex flex-wrap items-center gap-2">
       <input 
         type="file" 
         accept=".xlsx, .xls"
@@ -79,7 +80,8 @@ export default function GuestPrimaryButtons() {
               search,
               events: eventFilter,
               sides: sideFilter,
-              groups: groupFilter
+              groups: groupFilter,
+              inviteSent: sentFilter ?? undefined,
             });
           }
         }}

@@ -11,7 +11,7 @@ import { AlertCircle, ArrowRight, MailX } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { useNavigate } from "react-router-dom";
 
-export interface VerifyEmailCardProps extends HTMLAttributes<HTMLDivElement> { }
+export type VerifyEmailCardProps = HTMLAttributes<HTMLDivElement>;
 
 export default function InvalidEmailVerificationLink({
   className,

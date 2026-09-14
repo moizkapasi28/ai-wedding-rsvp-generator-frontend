@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import type { HTMLAttributes } from "react";
 
-export interface VerifyEmailCardProps extends HTMLAttributes<HTMLDivElement> {}
+export type VerifyEmailCardProps = HTMLAttributes<HTMLDivElement>;
 
 export default function EmailVerificationInProgressCard({
   className,

@@ -8,7 +8,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import getCroppedImg from "@/lib/cropImage";
 import { useCallback, useState } from "react";
-import Cropper from "react-easy-crop";
+import Cropper, { type Area } from "react-easy-crop";
 
 interface ImageCropperProps {
   open: boolean;
@@ -25,16 +25,17 @@ export default function ImageCropper({
 }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const onCropCompleteCallback = useCallback(
-    (_croppedArea: any, croppedAreaPixels: any) => {
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
     []
   );
 
   const handleSave = async () => {
+    if (!croppedAreaPixels) return;
     try {
       const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
       if (croppedImage) {

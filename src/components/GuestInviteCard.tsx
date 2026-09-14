@@ -52,9 +52,13 @@ export default function GuestInviteCard({ invite, links }: GuestInviteCardProps)
   const hasReply =
     !!invite.plus_ones || !!dietary || !!invite.song_request || !!invite.message;
 
+  const lastReminder =
+    invite.final_reminder_sent_at ?? invite.first_reminder_sent_at;
   const activity = invite.responded_at
     ? `Replied ${formatDate(invite.responded_at)}`
-    : invite.invite_sent_at
+    : lastReminder
+      ? `Reminder sent ${formatDate(lastReminder)}`
+      : invite.invite_sent_at
       ? `Invite sent ${formatDate(invite.invite_sent_at)}`
       : "Invite not sent yet";
 

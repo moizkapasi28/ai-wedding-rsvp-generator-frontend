@@ -1,4 +1,5 @@
 import { useSidebar } from "@/components/ui/sidebar";
+import { WeddingActionDialogue } from "@/components/WeddingActionDialogue";
 import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { cn } from "@/lib/utils";
 import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
@@ -43,6 +44,7 @@ export default function WeddingSwitcher() {
   const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
   const [activeWeddingStore, setActiveWeddingStore] = useAtom(activeWeddingAtom);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [addOpen, setAddOpen] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,16 +76,11 @@ export default function WeddingSwitcher() {
       { threshold: 0.1 }
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    const target = observerTarget.current;
+    if (target) observer.observe(target);
 
-    return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
-      }
-      observer.disconnect();
-    };
+    // disconnect() stops observing every target, so the ref needn't be read again at cleanup
+    return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, isOpen]);
 
 
@@ -288,8 +285,12 @@ export default function WeddingSwitcher() {
 
           {/* Action Button */}
           <button
-            className="flex items-center gap-2 w-full text-left p-2 rounded-lg cursor-not-allowed opacity-60 text-xs font-medium text-foreground transition-colors"
-            disabled
+            className="flex items-center gap-2 w-full text-left p-2 rounded-lg cursor-pointer hover:bg-accent text-xs font-medium text-foreground transition-colors"
+            onClick={() => {
+              setIsOpen(false);
+              setSearchQuery("");
+              setAddOpen(true);
+            }}
           >
             <div className="flex items-center justify-center h-6 w-6 rounded-md bg-muted text-muted-foreground shrink-0">
               <Plus className="h-3.5 w-3.5" />
@@ -298,6 +299,8 @@ export default function WeddingSwitcher() {
           </button>
         </div>
       )}
+
+      <WeddingActionDialogue open={addOpen} onOpenChange={setAddOpen} mode="add" />
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import React from "react";
 import AutocompletePkg from "react-google-autocomplete";
-const Autocomplete = (AutocompletePkg as any).default ?? AutocompletePkg;
+// The package's CommonJS build nests the component under .default when bundled
+const Autocomplete =
+  (AutocompletePkg as unknown as { default?: typeof AutocompletePkg }).default ??
+  AutocompletePkg;
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { MapPin } from "lucide-react";
@@ -28,16 +31,16 @@ export const AddressAutocomplete = React.forwardRef<
           className,
         )}
         value={value ?? ""}
-        onKeyDown={(e: React.KeyboardEvent) => {
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter") {
             e.preventDefault();
           }
           if (props.onKeyDown) {
-            props.onKeyDown(e as any);
+            props.onKeyDown(e);
           }
         }}
-        {...(props as any)}
-        ref={ref as any}
+        {...props}
+        ref={ref}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useGetEventsWithStats } from "@/hooks/use-event";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import EventCard from "./EventCard";
 import TablePagination from "./TablePagination";
 
@@ -30,11 +30,11 @@ export default function EventList() {
   const totalPages = data?.totalPages || 1;
   const totalItems = data?.totalCount || 0;
 
-  useEffect(() => {
-    if (!isLoading && !isError && events.length === 0 && page > 1) {
-      setPage((prev) => prev - 1);
-    }
-  }, [isLoading, isError, events.length, page]);
+  // The last event on a page was deleted: step back a page. Adjusted during render instead of in
+  // an effect, which also fixes the effect having been called after the early return above
+  if (!isLoading && !isError && events.length === 0 && page > 1) {
+    setPage(page - 1);
+  }
 
   if (isLoading) {
     return (

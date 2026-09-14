@@ -44,13 +44,13 @@ export const useUpdateGuestEventInviteFormat = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) =>
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       pageSettingService.updateGuestEventInviteFormat(id, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
       toast.success(response?.message || "Settings updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(
         error.message || "Something went wrong! Please try again later",
       );
@@ -67,7 +67,7 @@ export const useGenerateUploadUrl = () => {
       objectKey: string;
       mimeType: string;
     }) => generalService.generateUploadUrl(objectKey, mimeType),
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(
         error.message || "Failed to generate upload URL. Please try again.",
       );
@@ -79,7 +79,7 @@ export const useGenerateViewUrl = () => {
   return useMutation({
     mutationFn: async (objectKey: string) =>
       generalService.generateViewUrl(objectKey),
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Failed to generate view URL:", error);
     },
   });
@@ -108,7 +108,7 @@ export const useGenerateImage = () => {
       payload.attireId,
       payload.customStyleNote
     ),
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(
         error.message || "Failed to generate image. Please try again.",
       );

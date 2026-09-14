@@ -35,7 +35,15 @@ export const GuestGroupSchema = z.enum([
 export const guestFormBaseSchema = z.object({
   eventIds: z.array(z.uuid()).min(1, "At least one event must be selected"),
   name: z.string().min(1, "Name is required").max(50),
-  mobile_number: z.string().min(1, "Mobile number is required").max(15),
+  mobile_number: z
+    .string()
+    .min(1, "Mobile number is required")
+    .max(15)
+    // Mirrors the backend rule: at least 8 digits once formatting and leading zeros are stripped
+    .refine(
+      (value) => value.replace(/\D/g, "").replace(/^0+/, "").length >= 8,
+      "Enter a valid mobile number (at least 8 digits)",
+    ),
   email: z.string().min(1, "Email is required").max(50),
   side: SideSchema.describe("Side is required (BRIDE or GROOM)"),
   accomodation_required: z.boolean(),

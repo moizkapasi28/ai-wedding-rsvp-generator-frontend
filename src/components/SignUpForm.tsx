@@ -23,7 +23,7 @@ import type { HTMLAttributes } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-interface SignUpFormProps extends HTMLAttributes<HTMLDivElement> {}
+type SignUpFormProps = HTMLAttributes<HTMLDivElement>;
 
 export default function SignUpForm({ className, ...props }: SignUpFormProps) {
   const form = useForm<SignupRequest>({

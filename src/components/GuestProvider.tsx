@@ -1,4 +1,4 @@
-import type { Guest } from "@/models/guest.model";
+import type { Guest, InviteSentFilter } from "@/models/guest.model";
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -17,6 +17,8 @@ type GuestContextType = {
   setSideFilter: React.Dispatch<React.SetStateAction<string[]>>;
   groupFilter: string[];
   setGroupFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  sentFilter: InviteSentFilter | null;
+  setSentFilter: React.Dispatch<React.SetStateAction<InviteSentFilter | null>>;
 };
 
 const GuestContext = React.createContext<GuestContextType | null>(null);
@@ -35,6 +37,7 @@ export default function GuestProvider({
   const [eventFilter, setEventFilter] = useState<string[]>(eventParam ? [eventParam] : []);
   const [sideFilter, setSideFilter] = useState<string[]>([]);
   const [groupFilter, setGroupFilter] = useState<string[]>([]);
+  const [sentFilter, setSentFilter] = useState<InviteSentFilter | null>(null);
 
   return (
     <GuestContext.Provider
@@ -51,6 +54,8 @@ export default function GuestProvider({
         setSideFilter,
         groupFilter,
         setGroupFilter,
+        sentFilter,
+        setSentFilter,
       }}
     >
       {children}

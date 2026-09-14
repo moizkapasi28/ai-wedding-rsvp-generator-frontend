@@ -82,8 +82,8 @@ class AiInviteCardService {
     );
   }
 
-  async updateAiInviteCard(id: string, data: any) {
-    return this.api.patch(`${this.controller}/${id}`, data);
+  async updateAiInviteCard(id: string, data: Record<string, unknown>) {
+    return this.api.patch<{ message?: string }>(`${this.controller}/${id}`, data);
   }
 }
 

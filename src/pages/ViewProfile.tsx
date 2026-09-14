@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth, useUpdateProfile } from "@/hooks/use-auth";
 import { generalService } from "@/api/general.service";
 import Avtar from "react-avatar";
-import Cropper from "react-easy-crop";
+import Cropper, { type Area } from "react-easy-crop";
+import { useGetViewUrl } from "@/hooks/use-pageSetting";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,14 +40,13 @@ export default function ViewProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [actualImageUrl, setActualImageUrl] = useState<string>("");
   
   // Crop state
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   
   const form = useForm<UpdateProfileRequest>({
     resolver: zodResolver(updateProfileSchema),
@@ -67,21 +67,18 @@ export default function ViewProfile() {
     }
   }, [user, form]);
 
-  useEffect(() => {
-    if (previewImage) {
-      setActualImageUrl(previewImage);
-    } else if (user?.profile_picture) {
-      if (user.profile_picture.startsWith('http') || user.profile_picture.startsWith('data:')) {
-        setActualImageUrl(user.profile_picture);
-      } else {
-        generalService.generateViewUrl(user.profile_picture)
-          .then(res => setActualImageUrl(res.data.url))
-          .catch(() => setActualImageUrl(""));
-      }
-    } else {
-      setActualImageUrl("");
-    }
-  }, [user?.profile_picture, previewImage]);
+  // Stored profile pictures are S3 object keys; older ones may be full URLs
+  const picture = user?.profile_picture ?? null;
+  const isObjectKey =
+    !!picture && !picture.startsWith("http") && !picture.startsWith("data:");
+  const { data: pictureViewUrl } = useGetViewUrl(isObjectKey ? picture : null);
+  const actualImageUrl =
+    previewImage ?? (isObjectKey ? pictureViewUrl : picture) ?? "";
+
+  // Declared before the early return below: hooks must run on every render
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
 
   if (!user) {
     return (
@@ -127,10 +124,6 @@ export default function ViewProfile() {
     }
   };
 
-  const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
-
   const handleCropConfirm = async () => {
     if (!imageToCrop || !croppedAreaPixels || !user) return;
     
@@ -161,8 +154,8 @@ export default function ViewProfile() {
           setPreviewImage(null);
         }
       });
-    } catch (error: any) {
-      toast.error(error.message || "Failed to upload image");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to upload image");
       setPreviewImage(null);
     } finally {
       setIsUploading(false);
@@ -182,7 +175,6 @@ export default function ViewProfile() {
     }, {
       onSuccess: () => {
         setPreviewImage(null);
-        setActualImageUrl("");
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }

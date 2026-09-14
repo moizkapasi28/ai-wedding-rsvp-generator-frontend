@@ -5,7 +5,11 @@ import RsvpForm from "@/components/RsvpForm";
 import { SendInvitesDialogue } from "@/components/SendInvitesDialogue";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGuestEventInviteFormatsInfinite } from "@/hooks/use-pageSetting";
+import { useGetDueReminders } from "@/hooks/use-guest";
+import {
+  useGetGuestEventInviteFormatsInfinite,
+  useGetViewUrl,
+} from "@/hooks/use-pageSetting";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
 import { Loader2, Send } from "lucide-react";
@@ -30,9 +34,14 @@ export default function GuestPreviewMain() {
   const eventParam = searchParams.get("event");
   const selectedEvent = events.find((e) => e.id === eventParam) ?? events[0];
   const format = selectedEvent?.guestEventInviteFormat?.[0];
+  const { data: dueReminders } = useGetDueReminders(selectedEvent?.id);
+  const reminderCount = dueReminders?.data.length ?? 0;
 
-  // ponytail: static card for now; swap to useGetViewUrl(format?.generated_image) when generated cards are ready
-  const cardImage = "/test-preview.jpeg";
+  const { data: generatedCardUrl } = useGetViewUrl(
+    selectedEvent?.aiEventInviteCard?.[0]?.generated_invite_image_url,
+  );
+  // Sample card until the event has a generated AI invitation card
+  const cardImage = generatedCardUrl ?? "/test-preview.jpeg";
 
   if (isLoading) {
     return (
@@ -105,12 +114,18 @@ export default function GuestPreviewMain() {
         <Button className="shrink-0" onClick={() => setSendOpen(true)}>
           <Send className="mr-2 h-4 w-4" />
           Send RSVPs on WhatsApp
+          {reminderCount > 0 && (
+            <span className="ml-2 rounded-full bg-primary-foreground/20 px-2 text-xs">
+              {reminderCount} reminder{reminderCount === 1 ? "" : "s"} due
+            </span>
+          )}
         </Button>
       </div>
 
       <SendInvitesDialogue
         eventId={selectedEvent.id}
         eventTitle={selectedEvent.title}
+        remindersEnabled={!!(format?.first_reminder || format?.final_reminder)}
         open={sendOpen}
         onOpenChange={setSendOpen}
       />

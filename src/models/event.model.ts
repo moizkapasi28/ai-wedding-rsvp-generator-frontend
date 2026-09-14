@@ -10,8 +10,8 @@ export interface Event {
   time: string;
   venue: string;
   address: string;
-  latitude: any;
-  longitude: any;
+  latitude: string | null;
+  longitude: string | null;
   city: string;
   event_side: EventSide;
   created_at: string;
@@ -45,4 +45,4 @@ export type EventListResponse = GenericResponse<{
 
 export type CreateOrUpdateEventResponse = GenericResponse<Event>;
 
-export type DeleteEventResponse = GenericResponse<{}>;
+export type DeleteEventResponse = GenericResponse<Record<string, never>>;

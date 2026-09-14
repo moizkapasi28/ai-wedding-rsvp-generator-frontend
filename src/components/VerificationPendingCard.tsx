@@ -13,7 +13,7 @@ import { Inbox, MailQuestion, RefreshCw } from "lucide-react";
 import { useEffect, type HTMLAttributes } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-export interface VerifyEmailCardProps extends HTMLAttributes<HTMLDivElement> {}
+export type VerifyEmailCardProps = HTMLAttributes<HTMLDivElement>;
 
 export default function EmailVerificationPendingCard({
   className,

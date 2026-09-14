@@ -4,7 +4,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
@@ -14,8 +13,7 @@ import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { ChevronsUpDown } from "lucide-react";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { generalService } from "@/api/general.service";
+import { useGetViewUrl } from "@/hooks/use-pageSetting";
 
 export default function UserMenu() {
   const { isMobile } = useSidebar();
@@ -26,21 +24,12 @@ export default function UserMenu() {
   const userName = user ? `${user.first_name} ${user.last_name}` : APP_SIDEBAR.curProfile.name;
   const userEmail = user?.email || APP_SIDEBAR.curProfile.email;
   
-  const [actualImageUrl, setActualImageUrl] = useState<string>("");
-
-  useEffect(() => {
-    if (user?.profile_picture) {
-      if (user.profile_picture.startsWith('http') || user.profile_picture.startsWith('data:')) {
-        setActualImageUrl(user.profile_picture);
-      } else {
-        generalService.generateViewUrl(user.profile_picture)
-          .then(res => setActualImageUrl(res.data.url))
-          .catch(() => setActualImageUrl(""));
-      }
-    } else {
-      setActualImageUrl("");
-    }
-  }, [user?.profile_picture]);
+  // Stored profile pictures are S3 object keys; older ones may be full URLs
+  const picture = user?.profile_picture ?? null;
+  const isObjectKey =
+    !!picture && !picture.startsWith("http") && !picture.startsWith("data:");
+  const { data: pictureViewUrl } = useGetViewUrl(isObjectKey ? picture : null);
+  const actualImageUrl = (isObjectKey ? pictureViewUrl : picture) ?? "";
 
   return (
     <DropdownMenu>
@@ -97,9 +86,6 @@ export default function UserMenu() {
             }}>
               <item.Icon />
               <span>{item.title}</span>
-              {item.kbd && (
-                <DropdownMenuShortcut>{item.kbd}</DropdownMenuShortcut>
-              )}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
@@ -113,9 +99,6 @@ export default function UserMenu() {
             }}>
               <item.Icon />
               <span>{item.title}</span>
-              {item.kbd && (
-                <DropdownMenuShortcut>{item.kbd}</DropdownMenuShortcut>
-              )}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>

@@ -11,8 +11,7 @@ import { AlertCircle, ArrowRight, KeyRound, MailX } from "lucide-react";
 import type { HTMLAttributes } from "react";
 import { useNavigate } from "react-router-dom";
 
-export interface InvalidResetPasswordLinkProps
-    extends HTMLAttributes<HTMLDivElement> { }
+export type InvalidResetPasswordLinkProps = HTMLAttributes<HTMLDivElement>;
 
 export default function InvalidResetPasswordLink({
     className,

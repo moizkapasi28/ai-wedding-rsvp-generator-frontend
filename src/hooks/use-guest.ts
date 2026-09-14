@@ -1,10 +1,15 @@
 import { guestService } from "@/api/guest.service";
-import type { GuestImportResult } from "@/models/guest.model";
+import type {
+  GuestImportResult,
+  InviteSentFilter,
+  ReminderKind,
+} from "@/models/guest.model";
 import type { GuestFormValues } from "@/validations/guest.validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 export const GUEST_QUERY_KEY = ["guests"] as const;
+export const REMINDERS_QUERY_KEY = ["reminders"] as const;
 
 export const useGetGuests = (
   weddingId: string | null,
@@ -14,6 +19,7 @@ export const useGetGuests = (
   events: string[] = [],
   sides: string[] = [],
   groups: string[] = [],
+  inviteSent?: InviteSentFilter,
 ) => {
   return useQuery({
     queryKey: [
@@ -25,6 +31,7 @@ export const useGetGuests = (
       events,
       sides,
       groups,
+      inviteSent,
     ],
     queryFn: () =>
       guestService.getGuests(
@@ -35,6 +42,7 @@ export const useGetGuests = (
         events,
         sides,
         groups,
+        inviteSent,
       ),
   });
 };
@@ -126,14 +134,23 @@ export const useExportGuestList = () => {
       events,
       sides,
       groups,
+      inviteSent,
     }: {
       weddingId: string;
       search?: string;
       events?: string[];
       sides?: string[];
       groups?: string[];
+      inviteSent?: InviteSentFilter;
     }) =>
-      guestService.exportGuestList(weddingId, search, events, sides, groups),
+      guestService.exportGuestList(
+        weddingId,
+        search,
+        events,
+        sides,
+        groups,
+        inviteSent,
+      ),
     onSuccess: () => {
       toast.success("Guest list exported successfully");
     },
@@ -195,9 +212,43 @@ export const useMarkInviteSent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      // The first reminder is timed from when the invite was sent
+      queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
     },
     onError: (error) => {
       toast.error(error.message || "Couldn't mark the invite as sent");
+    },
+  });
+};
+
+export const useGetDueReminders = (
+  eventId: string | undefined,
+  enabled: boolean = true,
+) => {
+  return useQuery({
+    queryKey: [...REMINDERS_QUERY_KEY, eventId],
+    queryFn: () => guestService.getDueReminders(eventId as string),
+    enabled: enabled && !!eventId,
+  });
+};
+
+export const useMarkReminderSent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      inviteId,
+      reminder,
+    }: {
+      inviteId: string;
+      reminder: ReminderKind;
+    }) => guestService.markReminderSent(inviteId, reminder),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Couldn't mark the reminder as sent");
     },
   });
 };

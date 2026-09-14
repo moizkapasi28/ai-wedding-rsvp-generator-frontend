@@ -17,11 +17,11 @@ export type LoginResponse = GenericResponse<{
   tokens: Tokens;
 }>;
 
-export type VerifyEmailResponse = GenericResponse<{}>;
+export type VerifyEmailResponse = GenericResponse<Record<string, never>>;
 
-export type ForgotPasswordResponse = GenericResponse<{}>;
+export type ForgotPasswordResponse = GenericResponse<Record<string, never>>;
 
-export type ResendVerificationEmailResponse = GenericResponse<{}>;
+export type ResendVerificationEmailResponse = GenericResponse<Record<string, never>>;
 
 export interface Tokens {
   access: Access;

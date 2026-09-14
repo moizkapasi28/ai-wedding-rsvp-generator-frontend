@@ -21,7 +21,7 @@ import { ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OP
 import {
   useGenerateImage,
   useGenerateUploadUrl,
-  useGenerateViewUrl,
+  useGetViewUrl,
 } from "@/hooks/use-pageSetting";
 import {
   CheckIcon,
@@ -48,13 +48,15 @@ import { useFormContext } from "react-hook-form";
 export default function PageSettingsIllustration({
   eventId,
   generatedImage,
-  setGeneratedImage,
+  onGeneratedImageChange,
 }: {
   eventId: string | null;
   generatedImage: string | null;
-  setGeneratedImage: (val: string | null, key?: string | null) => void;
+  // Receives the illustration's S3 key (null when removed); the parent resolves the view URL
+  onGeneratedImageChange: (key: string | null) => void;
 }) {
-  const [coupleImage, setCoupleImage] = useState<string | null>(null);
+  // Object URL of a just-cropped photo, shown before its upload finishes
+  const [localCoupleImage, setLocalCoupleImage] = useState<string | null>(null);
   const [uncroppedImage, setUncroppedImage] = useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -62,6 +64,9 @@ export default function PageSettingsIllustration({
 
   const form = useFormContext<RsvpSettingsFormValues>();
   const rawImageKey = form.watch("raw_image");
+  const { data: rawImageUrl } = useGetViewUrl(rawImageKey);
+  const coupleImage =
+    localCoupleImage ?? (rawImageKey ? (rawImageUrl ?? null) : null);
   const illustrationTheme = form.watch("illustration_theme") || "traditional";
   const illustrationStyle =
     form.watch("illustration_style") || "royal_regal_portrait";
@@ -89,8 +94,6 @@ export default function PageSettingsIllustration({
 
   const generateUploadUrlMutation = useGenerateUploadUrl();
   const generateImageMutation = useGenerateImage();
-  const generateViewUrlMutation = useGenerateViewUrl();
-  const prevRawImageKey = useRef<string | null>(null);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -99,23 +102,6 @@ export default function PageSettingsIllustration({
       isMounted.current = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (rawImageKey && rawImageKey !== prevRawImageKey.current) {
-      prevRawImageKey.current = rawImageKey;
-      generateViewUrlMutation
-        .mutateAsync(rawImageKey)
-        .then((res) => {
-          if (res.data?.url) {
-            setCoupleImage(res.data.url);
-          }
-        })
-        .catch(console.error);
-    } else if (!rawImageKey) {
-      setCoupleImage(null);
-      prevRawImageKey.current = null;
-    }
-  }, [rawImageKey]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,7 +117,7 @@ export default function PageSettingsIllustration({
     url: string;
     blob: Blob;
   }) => {
-    setCoupleImage(croppedImage.url);
+    setLocalCoupleImage(croppedImage.url);
     setIsUploading(true);
     try {
       const { data } = await generateUploadUrlMutation.mutateAsync({
@@ -140,7 +126,6 @@ export default function PageSettingsIllustration({
       });
       await generalService.uploadFileToS3(data.url, croppedImage.blob);
       if (!isMounted.current) return;
-      prevRawImageKey.current = data.object_key;
       form.setValue("raw_image", data.object_key);
       toast.success("Image uploaded successfully!");
     } catch (e) {
@@ -163,7 +148,7 @@ export default function PageSettingsIllustration({
 
     setIsGenerating(true);
     try {
-      const payload: any = {
+      const payload: Parameters<typeof generateImageMutation.mutateAsync>[0] = {
         rawImageKey,
         illustrationTheme: illustrationTheme,
         illustrationStyle: illustrationStyle,
@@ -193,9 +178,8 @@ export default function PageSettingsIllustration({
         form.setValue("groom_attire_style", attire);
       }
 
-      const viewRes = await generateViewUrlMutation.mutateAsync(data.key);
       if (!isMounted.current) return;
-      setGeneratedImage(viewRes.data.url, data.key);
+      onGeneratedImageChange(data.key);
       toast.success("Illustration generated!");
     } catch (e) {
       console.error(e);
@@ -646,8 +630,8 @@ export default function PageSettingsIllustration({
                             <Button
                               variant="destructive"
                               onClick={() => {
-                                setCoupleImage(null);
-                                setGeneratedImage(null, null);
+                                setLocalCoupleImage(null);
+                                onGeneratedImageChange(null);
                                 form.setValue("raw_image", null);
                                 form.setValue("illustration_theme", null);
                                 form.setValue("illustration_style", null);

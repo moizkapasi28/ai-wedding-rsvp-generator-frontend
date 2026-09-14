@@ -276,7 +276,7 @@ export default function AiCardInviteMain() {
       queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
       toast.success("Generating your invitation — you can leave this page.");
     },
-    onError: (error: any) => {
+    onError: (error: Error & { status?: number; type?: string }) => {
       console.error("Failed to start generation", error);
 
       // 409 means a run is already in flight for this card, so follow that one instead
@@ -286,7 +286,7 @@ export default function AiCardInviteMain() {
       }
 
       const type = error?.type;
-      if (type && ["transient", "timeout", "permanent"].includes(type)) {
+      if (type === "transient" || type === "timeout" || type === "permanent") {
         setGenerationError({ type, message: error.message });
       } else {
         setGenerationError({ type: "permanent", message: error?.message || "An unexpected error occurred." });

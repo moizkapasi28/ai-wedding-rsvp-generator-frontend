@@ -7,13 +7,11 @@
  * Assets
  */
 import {
-  BookOpenIcon,
   CalendarIcon,
   CopyIcon,
   EyeIcon,
   GaugeIcon,
   LayoutListIcon,
-  LifeBuoyIcon,
   LogOutIcon,
   PencilIcon,
   SettingsIcon,
@@ -82,18 +80,6 @@ export const APP_SIDEBAR = {
       Icon: EyeIcon,
     },
   ],
-  secondaryNav: [
-    {
-      title: "Support",
-      url: "#",
-      Icon: LifeBuoyIcon,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      Icon: SettingsIcon,
-    },
-  ],
   curProfile: {
     src: "https://randomuser.me/api/portraits/men/47.jpg",
     name: "Salvador Pearson",
@@ -117,18 +103,6 @@ export const APP_SIDEBAR = {
         title: "View profile",
         url: "#",
         Icon: UserIcon,
-        kbd: "⌘K->P",
-      },
-      {
-        title: "Account settings",
-        url: "#",
-        Icon: SettingsIcon,
-        kbd: "⌘S",
-      },
-      {
-        title: "Documentation",
-        url: "#",
-        Icon: BookOpenIcon,
       },
     ],
     itemsSecondary: [
@@ -136,7 +110,6 @@ export const APP_SIDEBAR = {
         title: "Sign out",
         url: "#",
         Icon: LogOutIcon,
-        kbd: "⌥⇧Q",
       },
     ],
   },

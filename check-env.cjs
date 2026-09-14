@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable no-undef */
+// Checks that every variable in .env is listed in .env.example and validated in env.ts
 const fs = require("fs");
 const path = require("path");
 
@@ -10,8 +8,10 @@ const envTsPath = path.resolve(__dirname, "env.ts");
 
 const getEnvVariables = (filePath) => {
   const content = fs.readFileSync(filePath, "utf-8");
+  // Trim first so Windows line endings don't turn blank lines into an empty variable name
   return content
     .split("\n")
+    .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"))
     .map((line) => line.split("=")[0].trim());
 };

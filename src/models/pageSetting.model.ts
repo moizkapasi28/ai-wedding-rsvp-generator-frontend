@@ -16,6 +16,8 @@ export interface EventWithInvitesAndWedding {
   created_at: string;
   updated_at: string;
   guestEventInviteFormat: GuestEventInviteFormat[];
+  // At most one card per event; the key is null until generation completes
+  aiEventInviteCard?: { generated_invite_image_url: string | null }[];
   wedding: Wedding;
   stats: Stats;
 }
@@ -36,6 +38,7 @@ export interface GuestEventInviteFormat {
   plus_ones: boolean;
   first_reminder: boolean;
   final_reminder: boolean;
+  rsvp_deadline: string | null;
   created_at: string;
   updated_at: string;
 }

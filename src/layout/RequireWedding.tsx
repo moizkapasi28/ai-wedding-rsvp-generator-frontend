@@ -9,26 +9,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 export default function RequireWedding() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!activeWeddingId) {
-      setOpen(true);
-    }
-  }, [activeWeddingId]);
 
   if (!activeWeddingId) {
+    // Always open while there's no wedding; dismissing it goes to the weddings page
     return (
       <Dialog
-        open={open}
+        open
         onOpenChange={(isOpen) => {
-          setOpen(isOpen);
           if (!isOpen) navigate("/weddings");
         }}
       >
@@ -40,14 +32,7 @@ export default function RequireWedding() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              onClick={() => {
-                setOpen(false);
-                navigate("/weddings");
-              }}
-            >
-              Go to Weddings
-            </Button>
+            <Button onClick={() => navigate("/weddings")}>Go to Weddings</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

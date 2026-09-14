@@ -7,10 +7,12 @@ import { DataTable } from "../components/guests/data-table";
 import { columns } from "./guests/columns";
 import { useGuest } from "./GuestProvider";
 
+const PAGE_SIZE = 10;
+
 export default function GuestList() {
   const [page, setPage] = useState(1);
   const [activeWeddingid] = useAtom(activeWeddingIdAtom);
-  const { search, eventFilter, sideFilter, groupFilter } = useGuest();
+  const { search, eventFilter, sideFilter, groupFilter, sentFilter } = useGuest();
 
   const {
     data: queryData,
@@ -19,11 +21,12 @@ export default function GuestList() {
   } = useGetGuests(
     activeWeddingid,
     page,
-    6,
+    PAGE_SIZE,
     search,
     eventFilter,
     sideFilter,
     groupFilter,
+    sentFilter ?? undefined,
   );
 
   const guests = queryData?.data?.guests || [];
@@ -46,7 +49,7 @@ export default function GuestList() {
           page={page}
           totalPages={totalPages}
           totalItems={totalCount}
-          pageSize={6}
+          pageSize={PAGE_SIZE}
           onPageChange={setPage}
         />
       </div>

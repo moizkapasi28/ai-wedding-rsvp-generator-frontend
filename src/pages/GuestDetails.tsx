@@ -162,10 +162,10 @@ export default function GuestDetails() {
               <Badge
                 className={cn(
                   "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-                  getSideBadgeStyles(guest.data.side as any)
+                  getSideBadgeStyles(guest.data.side)
                 )}
               >
-                {formatSide(guest.data.side as any)}
+                {formatSide(guest.data.side)}
               </Badge>
             </div>
             <div className="min-w-0">

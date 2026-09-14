@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { Input } from "./ui/input";
 
-export interface ForgotPasswordFormProps extends HTMLAttributes<HTMLDivElement> {}
+export type ForgotPasswordFormProps = HTMLAttributes<HTMLDivElement>;
 
 export default function ForgotPasswordForm({
   className,

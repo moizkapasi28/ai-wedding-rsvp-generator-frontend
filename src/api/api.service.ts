@@ -2,6 +2,9 @@ import { tokenStore } from "@/store/token";
 
 type RequestBody = undefined | Record<string, unknown> | FormData;
 
+// Errors thrown by request() carry the HTTP status and the API's error type
+type ApiRequestError = Error & { type?: string; status?: number };
+
 class ApiService {
   private baseUrl: string;
 
@@ -45,10 +48,10 @@ class ApiService {
       if (!response.ok) {
         if (response.status === 401 && !url.includes("auth/access-token") && !url.includes("auth/signin")) {
           // Attempt to refresh the access token
-          let rTokenStr = localStorage.getItem("refreshToken");
+          const rTokenStr = localStorage.getItem("refreshToken");
           let rToken = null;
           if (rTokenStr) {
-            try { rToken = JSON.parse(rTokenStr); } catch (e) { rToken = rTokenStr; }
+            try { rToken = JSON.parse(rTokenStr); } catch { rToken = rTokenStr; }
           }
           const bodyPayload = rToken && !import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION ? { refreshToken: rToken } : undefined;
           
@@ -73,7 +76,7 @@ class ApiService {
                    window.dispatchEvent(new Event("unauthorized"));
                  }
                  const errorData = await retryResponse.json().catch(() => ({}));
-                 const err = new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`) as any;
+                 const err = new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`) as ApiRequestError;
                  err.type = errorData.type;
                  err.status = retryResponse.status;
                  throw err;
@@ -87,7 +90,7 @@ class ApiService {
             } else {
                window.dispatchEvent(new Event("unauthorized"));
             }
-          } catch (e) {
+          } catch {
              window.dispatchEvent(new Event("unauthorized"));
           }
         } else if (response.status === 401) {
@@ -99,7 +102,7 @@ class ApiService {
           errorData.message ||
             errorData.error ||
             `HTTP error! status: ${response.status}`,
-        ) as any;
+        ) as ApiRequestError;
         err.type = errorData.type;
         err.status = response.status;
         throw err;
@@ -116,7 +119,6 @@ class ApiService {
       const text = await response.text();
       return text ? (JSON.parse(text) as T) : (undefined as T);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("API request error:", error);
       throw error;
     }
@@ -172,8 +174,8 @@ class ApiService {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-          // ignore
+        } catch {
+          // Not JSON; keep the status message
         }
         throw new Error(errorMessage);
       }

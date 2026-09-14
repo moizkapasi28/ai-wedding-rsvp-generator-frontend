@@ -3,8 +3,8 @@ import RsvpPhonePreview from "@/components/RsvpPreviewCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  useGenerateViewUrl,
   useGetGuestEventInviteFormatsInfinite,
+  useGetViewUrl,
   useUpdateGuestEventInviteFormat,
 } from "@/hooks/use-pageSetting";
 import { activeWeddingIdAtom } from "@/store/store";
@@ -62,6 +62,7 @@ export default function PageSettingMain() {
       message: false,
       first_reminder: false,
       final_reminder: false,
+      rsvp_deadline: null,
     },
   });
 
@@ -85,6 +86,10 @@ export default function PageSettingMain() {
         message: format.message || false,
         first_reminder: format.first_reminder || false,
         final_reminder: format.final_reminder || false,
+        // en-CA formats as YYYY-MM-DD, the value a date input expects, in the host's timezone
+        rsvp_deadline: format.rsvp_deadline
+          ? new Date(format.rsvp_deadline).toLocaleDateString("en-CA")
+          : null,
       });
     } else {
       form.reset({
@@ -101,6 +106,7 @@ export default function PageSettingMain() {
         message: false,
         first_reminder: false,
         final_reminder: false,
+        rsvp_deadline: null,
       });
     }
   };
@@ -120,28 +126,22 @@ export default function PageSettingMain() {
 
   const handleSaveChanges = form.handleSubmit((data) => {
     if (!selectedFormat?.id) return;
-    updateFormatMutation.mutate({ id: selectedFormat.id, data: data });
+    updateFormatMutation.mutate({
+      id: selectedFormat.id,
+      data: {
+        ...data,
+        // RSVPs close at the end of the chosen day in the host's timezone
+        rsvp_deadline: data.rsvp_deadline
+          ? new Date(`${data.rsvp_deadline}T23:59:59`).toISOString()
+          : null,
+      },
+    });
   });
-
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const generateViewUrlMutation = useGenerateViewUrl();
 
   const formValues = form.watch();
 
-  useEffect(() => {
-    if (formValues.generated_image) {
-      generateViewUrlMutation
-        .mutateAsync(formValues.generated_image)
-        .then((res) => {
-          if (res.data?.url) {
-            setGeneratedImage(res.data.url);
-          }
-        })
-        .catch(console.error);
-    } else {
-      setGeneratedImage(null);
-    }
-  }, [selectedEventId, formValues.generated_image]);
+  // Signed view URL for the illustration, cached per S3 key
+  const { data: generatedImage = null } = useGetViewUrl(formValues.generated_image);
 
   if (isLoading) {
     return (
@@ -188,7 +188,7 @@ export default function PageSettingMain() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
         <div className="flex flex-wrap gap-2 w-full">
           {events.map((event) => {
-            const sideStyles = getSideBadgeStyles(event.event_side as any);
+            const sideStyles = getSideBadgeStyles(event.event_side);
             const isSelected = selectedEventId === event.id;
 
             return (
@@ -250,12 +250,7 @@ export default function PageSettingMain() {
             key={selectedEventId}
             eventId={selectedEventId}
             generatedImage={generatedImage}
-            setGeneratedImage={(val, key) => {
-              setGeneratedImage(val);
-              if (key !== undefined) {
-                form.setValue("generated_image", key);
-              }
-            }}
+            onGeneratedImageChange={(key) => form.setValue("generated_image", key)}
           />
 
           <PageSettingsGuestQuestions />
