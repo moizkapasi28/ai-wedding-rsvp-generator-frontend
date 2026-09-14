@@ -1,4 +1,5 @@
 import { rsvpService } from "@/api/rsvp.service";
+import { GUEST_QUERY_KEY, WHATSAPP_INVITES_QUERY_KEY } from "@/hooks/use-guest";
 import type { RsvpReply } from "@/models/rsvp.model";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -28,6 +29,27 @@ export const useSubmitRsvp = (token: string) => {
       if ((error as Error & { status?: number }).status === 404) {
         queryClient.invalidateQueries({ queryKey: [...RSVP_QUERY_KEY, token] });
       }
+      toast.error(
+        error.message || "Something went wrong! Please try again later",
+      );
+    },
+  });
+};
+
+// Host portal: set a reply for a guest who couldn't use their link
+export const useSubmitGuestRsvp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ inviteId, reply }: { inviteId: string; reply: RsvpReply }) =>
+      rsvpService.submitGuestRsvp(inviteId, reply),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["wedding-dashboard"] });
+      toast.success(response.message || "RSVP updated");
+    },
+    onError: (error) => {
       toast.error(
         error.message || "Something went wrong! Please try again later",
       );

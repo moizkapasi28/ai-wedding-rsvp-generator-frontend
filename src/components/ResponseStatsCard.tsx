@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,8 +26,6 @@ export default function ResponseStatsCard({ data }: Props) {
       <CardContent className="">
         <ResponseStatsChart data={data} />
       </CardContent>
-
-      <CardFooter className="bg-transparent border-none"></CardFooter>
     </Card>
   );
 }

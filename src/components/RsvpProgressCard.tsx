@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -10,12 +9,13 @@ import type { Event } from "@/models/event.model";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { MultiProgressBar } from "./custom/MultiProgressBar";
+import ScrollFade from "./custom/ScrollFade";
 
 export default function RsvpProgressCard({ events }: { events: Event[] }) {
   const navigate = useNavigate();
 
   return (
-    <Card className="py-5">
+    <Card className="h-full py-5">
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
           <CardTitle>RSVP Progress by Event</CardTitle>
@@ -28,19 +28,20 @@ export default function RsvpProgressCard({ events }: { events: Event[] }) {
         </Button>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent>
         {events.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No events yet. Add events to start tracking RSVPs.
           </p>
         ) : (
-          events.map((event) => (
-            <EventProgressRow key={event.id} event={event} />
-          ))
+          // Rows are ~2.5rem with 1.5rem gaps: five fit, matching the Recent RSVPs list beside it
+          <ScrollFade className="max-h-[18.5rem] space-y-6">
+            {events.map((event) => (
+              <EventProgressRow key={event.id} event={event} />
+            ))}
+          </ScrollFade>
         )}
       </CardContent>
-
-      <CardFooter className="bg-transparent border-none"></CardFooter>
     </Card>
   );
 }

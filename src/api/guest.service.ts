@@ -4,9 +4,12 @@ import type {
   CreateOrUpdateGuestResponse,
   DeleteGuestResponse,
   GetGuestDetailsResponse,
-  GuestImportStatusResponse,
+  GuestImportResult,
   GuestListResponse,
+  JobStatusResponse,
+  MarkInviteSentResponse,
   UploadGuestListResponse,
+  WhatsAppInvitesResponse,
 } from "@/models/guest.model";
 
 class GuestService {
@@ -106,9 +109,28 @@ class GuestService {
     );
   }
 
-  async getImportStatus(jobId: string): Promise<GuestImportStatusResponse> {
-    return this.api.get<GuestImportStatusResponse>(
+  // Status of any guest-queue job (imports and bulk invite sends)
+  async getImportStatus<T = GuestImportResult>(
+    jobId: string,
+  ): Promise<JobStatusResponse<T>> {
+    return this.api.get<JobStatusResponse<T>>(
       `${this.controller}/import-status/${jobId}`,
+    );
+  }
+
+  async getWhatsAppInvites(
+    by: "eventId" | "guestId",
+    id: string,
+  ): Promise<WhatsAppInvitesResponse> {
+    return this.api.get<WhatsAppInvitesResponse>(
+      `${this.controller}/invites/whatsapp?${by}=${id}`,
+    );
+  }
+
+  async markInviteSent(inviteId: string): Promise<MarkInviteSentResponse> {
+    return this.api.post<MarkInviteSentResponse>(
+      `${this.controller}/invites/${inviteId}/mark-sent`,
+      {},
     );
   }
 }

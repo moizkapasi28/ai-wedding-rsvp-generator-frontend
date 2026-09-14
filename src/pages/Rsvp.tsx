@@ -2,10 +2,10 @@ import EventLocationCard from "@/components/EventLocationCard";
 import RsvpForm from "@/components/RsvpForm";
 import Loader from "@/components/ui/loader";
 import { useGetRsvp, useSubmitRsvp } from "@/hooks/use-rsvp";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 export default function Rsvp() {
-  const { token = "" } = useParams();
+  const { slug, token = "" } = useParams();
   const { data, isLoading, isError } = useGetRsvp(token);
   const submitRsvp = useSubmitRsvp(token);
 
@@ -28,6 +28,13 @@ export default function Rsvp() {
   }
 
   const { guest, wedding, event } = rsvp;
+
+  // Old /rsvp/:token links, or ones sent before the wedding was renamed, land on the current slug
+  // (a title with no a-z/0-9 characters has an empty slug; the backend uses the same fallback)
+  const canonicalSlug = wedding.slug || "invite";
+  if (slug !== canonicalSlug) {
+    return <Navigate to={`/rsvp/${canonicalSlug}/${token}`} replace />;
+  }
   const closed =
     !!event.invite.invite_deadline &&
     new Date(event.invite.invite_deadline) < new Date();

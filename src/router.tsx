@@ -67,6 +67,13 @@ const Setup = () => {
               }),
             },
             {
+              path: "/rsvp/:slug/:token",
+              lazy: async () => ({
+                Component: (await import("@/pages/Rsvp")).default,
+              }),
+            },
+            {
+              // Links sent before slugs were added; the page redirects to the slug URL
               path: "/rsvp/:token",
               lazy: async () => ({
                 Component: (await import("@/pages/Rsvp")).default,

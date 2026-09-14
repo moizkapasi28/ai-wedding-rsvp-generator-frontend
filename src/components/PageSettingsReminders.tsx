@@ -12,7 +12,8 @@ export default function PageSettingsReminders() {
     <div className="mt-5">
       <h3 className="text-xl font-semibold">WhatsApp reminders</h3>
       <p className="text-sm text-muted-foreground">
-        Automatic nudges sent to guests who haven't responded yet.
+        Choose which reminders guests who haven't replied should get. Sending
+        reminders isn't available yet; your choices are saved for when it is.
       </p>
       <div className="mt-5 space-y-4">
         <RsvpPageSettingToggleRow className="cursor-pointer">

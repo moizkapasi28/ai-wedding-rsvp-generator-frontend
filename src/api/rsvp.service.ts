@@ -26,6 +26,17 @@ class RsvpService {
       reply,
     );
   }
+
+  // Host portal: same reply payload, addressed by invite id instead of the guest's token
+  async submitGuestRsvp(
+    inviteId: string,
+    reply: RsvpReply,
+  ): Promise<SubmitRsvpResponse> {
+    return this.api.put<SubmitRsvpResponse>(
+      `${this.controller}/invite/${inviteId}`,
+      reply,
+    );
+  }
 }
 
 export const rsvpService = new RsvpService();

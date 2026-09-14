@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
@@ -41,8 +40,6 @@ export default function DietaryBreakDownCard({
           <DietaryBreakDownChart data={data} />
         )}
       </CardContent>
-
-      <CardFooter className="bg-transparent border-none"></CardFooter>
     </Card>
   );
 }

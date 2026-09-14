@@ -2,17 +2,20 @@ import EventLocationCard from "@/components/EventLocationCard";
 import EventSwitcher from "@/components/EventSwitcher";
 import NoEventsState from "@/components/NoEventsState";
 import RsvpForm from "@/components/RsvpForm";
+import { SendInvitesDialogue } from "@/components/SendInvitesDialogue";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGuestEventInviteFormatsInfinite } from "@/hooks/use-pageSetting";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
 import { Loader2, Send } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function GuestPreviewMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sendOpen, setSendOpen] = useState(false);
 
   const {
     data,
@@ -99,12 +102,18 @@ export default function GuestPreviewMain() {
           )}
         </EventSwitcher>
 
-        {/* No bulk-send API exists yet, so keep it visibly inactive */}
-        <Button className="shrink-0" disabled>
+        <Button className="shrink-0" onClick={() => setSendOpen(true)}>
           <Send className="mr-2 h-4 w-4" />
-          Send RSVP in Bulk
+          Send RSVPs on WhatsApp
         </Button>
       </div>
+
+      <SendInvitesDialogue
+        eventId={selectedEvent.id}
+        eventTitle={selectedEvent.title}
+        open={sendOpen}
+        onOpenChange={setSendOpen}
+      />
 
       {/* Guest-facing preview. Keyed by event so form inputs reset on switch. */}
       <div

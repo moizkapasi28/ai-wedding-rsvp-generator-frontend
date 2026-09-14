@@ -1,3 +1,4 @@
+import ScrollFade from "@/components/custom/ScrollFade";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -75,11 +76,13 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
         </span>
       </CardHeader>
 
-      <CardContent className="space-y-1">
+      <CardContent>
         {rsvps.length === 0 ? (
           <p className="text-sm text-muted-foreground">No replies yet</p>
         ) : (
-          rsvps.map((rsvp) => {
+          // Rows are h-14 with 0.25rem gaps, so this height shows exactly five; older replies scroll
+          <ScrollFade className="max-h-[18.5rem] space-y-1">
+          {rsvps.map((rsvp) => {
             const status = STATUS_STYLES[rsvp.status];
             const isNew = now - new Date(rsvp.respondedAt).getTime() < 60_000;
 
@@ -87,7 +90,7 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
               <div
                 key={rsvp.inviteId}
                 className={cn(
-                  "flex items-center justify-between gap-3 rounded-md px-2 py-2 transition-colors",
+                  "flex h-14 items-center justify-between gap-3 rounded-md px-2 transition-colors",
                   isNew && "bg-primary/10",
                 )}
               >
@@ -102,7 +105,8 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
                 </Badge>
               </div>
             );
-          })
+          })}
+          </ScrollFade>
         )}
       </CardContent>
     </Card>

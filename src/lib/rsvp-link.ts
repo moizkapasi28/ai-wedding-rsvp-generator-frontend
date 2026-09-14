@@ -1,10 +1,9 @@
 import toast from "react-hot-toast";
 
-export const copyRsvpLink = async (token: string) => {
+// The URL comes from the backend so it matches the link in the WhatsApp message
+export const copyRsvpLink = async (url: string) => {
   try {
-    await navigator.clipboard.writeText(
-      `${window.location.origin}/rsvp/${token}`,
-    );
+    await navigator.clipboard.writeText(url);
     toast.success("RSVP link copied");
   } catch {
     toast.error("Couldn't copy the link");

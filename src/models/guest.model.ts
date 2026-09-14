@@ -29,6 +29,7 @@ export interface GuestEventInvite {
   message: string | null;
   invite_deadline: string | null;
   responded_at: string | null;
+  invite_sent_at?: string | null;
   event: Event;
   created_at: string;
   updated_at: string;
@@ -74,10 +75,29 @@ export interface GuestImportResult {
 }
 
 // Mirrors BullMQ job state from GET guest/import-status/:jobId
-export type GuestImportStatusResponse = GenericResponse<{
+export type JobStatusResponse<T> = GenericResponse<{
   id: string;
   state: string;
   progress: number;
-  result: GuestImportResult | null;
+  result: T | null;
   failedReason?: string;
 }>;
+
+export type GuestImportStatusResponse = JobStatusResponse<GuestImportResult>;
+
+// wa.me link with the invite message pre-filled; null when the guest has no usable mobile number
+export interface WhatsAppInvite {
+  id: string;
+  guest_id: string;
+  guest_name: string;
+  event_id: string;
+  event_title: string;
+  status: string;
+  invite_sent_at: string | null;
+  rsvp_url: string;
+  whatsapp_url: string | null;
+}
+
+export type WhatsAppInvitesResponse = GenericResponse<WhatsAppInvite[]>;
+
+export type MarkInviteSentResponse = GenericResponse<GuestEventInvite>;

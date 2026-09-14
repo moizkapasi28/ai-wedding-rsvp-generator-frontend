@@ -6,13 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGuest } from "@/hooks/use-guest";
+import GuestInviteCard from "@/components/GuestInviteCard";
+import { useGetGuest, useGetWhatsAppInvites } from "@/hooks/use-guest";
 import { cn } from "@/lib/utils";
-import { copyRsvpLink } from "@/lib/rsvp-link";
 import {
   ArrowLeft,
   Calendar,
-  Link2,
   Mail,
   MapPin,
   Phone,
@@ -20,27 +19,6 @@ import {
   Users,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-
-
-const getStatusBadgeStyles = (status: string) => {
-  const statusColors: Record<string, string> = {
-    attending: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50",
-    declined: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900/50",
-    maybe: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
-    pending: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-900/50"
-  };
-  return statusColors[status.toLowerCase()] || statusColors.pending;
-};
-
-const getEventCardVariantStyles = (status: string) => {
-  const styles: Record<string, string> = {
-    attending: "border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-950/20",
-    declined: "border-rose-200 dark:border-rose-800/50 bg-rose-50/50 dark:bg-rose-950/20",
-    maybe: "border-amber-200 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-950/20",
-    pending: "border-violet-200 dark:border-violet-800/50 bg-violet-50/50 dark:bg-violet-950/20"
-  };
-  return styles[status.toLowerCase()] || styles.pending;
-};
 
 const getGroupBadgeStyles = (group: string) => {
   const groupColors: Record<string, string> = {
@@ -57,15 +35,16 @@ const getGroupBadgeStyles = (group: string) => {
 
 export default function GuestDetails() {
   const { id } = useParams();
+  const { data: whatsAppInvites } = useGetWhatsAppInvites("guestId", id);
+  const { data: guest, isLoading, isPending, isError } = useGetGuest(id);
 
+  // Hooks above must run on every render, so this check comes after them
   if (!id)
     return (
       <div className="p-8 text-center text-muted-foreground">
         Guest Id is required to view guest details...
       </div>
     );
-
-  const { data: guest, isLoading, isPending, isError } = useGetGuest(id);
 
   if (isLoading || isPending) {
     return (
@@ -118,6 +97,11 @@ export default function GuestDetails() {
       </div>
     );
   }
+
+  // Guest-facing links (RSVP + WhatsApp) are built by the backend
+  const shareLinks = new Map(
+    whatsAppInvites?.data.map((w) => [w.id, w] as const) ?? [],
+  );
 
   return (
     <Page>
@@ -275,118 +259,13 @@ export default function GuestDetails() {
                 No events assigned to this guest.
               </p>
             ) : (
-              <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                {guest.data.guestEventInvite.map((invite: any) => (
-                  <div
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {guest.data.guestEventInvite.map((invite) => (
+                  <GuestInviteCard
                     key={invite.id}
-                    className={cn(
-                      "p-4 rounded-lg border space-y-4 flex flex-col transition-colors",
-                      getEventCardVariantStyles(invite.status)
-                    )}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-lg">
-                          {invite.event.title}
-                        </p>
-                        <p className="text-xs text-zinc-500 capitalize mt-1">
-                          {invite.event.date
-                            ? new Date(invite.event.date).toLocaleDateString()
-                            : ""}{" "}
-                          {invite.event.time ? `• ${invite.event.time}` : ""}
-                        </p>
-                        <p className="text-xs text-zinc-500 capitalize mt-1">
-                          Venue: {invite.event.venue}
-                          {invite.event.city && `, ${invite.event.city}`}
-                        </p>
-                        {invite.event.address && (
-                          <p className="text-xs text-zinc-400 mt-1">
-                            {invite.event.address}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge
-                          className={cn(
-                            "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-                            getStatusBadgeStyles(invite.status)
-                          )}
-                        >
-                          {invite.status}
-                        </Badge>
-                        {invite.responded_at ? (
-                          <p className="text-[10px] text-zinc-400">
-                            Responded:{" "}
-                            {new Date(invite.responded_at).toLocaleDateString()}
-                          </p>
-                        ) : invite.invite_deadline ? (
-                          <p className="text-[10px] text-orange-400">
-                            Deadline:{" "}
-                            {new Date(
-                              invite.invite_deadline,
-                            ).toLocaleDateString()}
-                          </p>
-                        ) : null}
-                        {invite.invite_token && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 gap-1 px-2 text-xs"
-                            onClick={() => copyRsvpLink(invite.invite_token)}
-                          >
-                            <Link2 className="h-3 w-3" />
-                            Copy RSVP link
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {invite.event.description && (
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 italic mt-2 border-l-2 border-zinc-200 dark:border-zinc-700 pl-2">
-                        {invite.event.description}
-                      </p>
-                    )}
-
-                    {(invite.plus_ones ||
-                      invite.dietary ||
-                      invite.song_request ||
-                      invite.message) && (
-                        <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 grid grid-cols-2 gap-3 text-sm mt-auto">
-                          {invite.plus_ones && (
-                            <div>
-                              <p className="text-zinc-500 dark:text-zinc-400 text-[11px] uppercase tracking-wider font-semibold mb-1">
-                                Plus Ones
-                              </p>
-                              <p>{invite.plus_ones}</p>
-                            </div>
-                          )}
-                          {invite.dietary && (
-                            <div>
-                              <p className="text-zinc-500 dark:text-zinc-400 text-[11px] uppercase tracking-wider font-semibold mb-1">
-                                Dietary
-                              </p>
-                              <p>{invite.dietary}</p>
-                            </div>
-                          )}
-                          {invite.song_request && (
-                            <div className="col-span-2">
-                              <p className="text-zinc-500 dark:text-zinc-400 text-[11px] uppercase tracking-wider font-semibold mb-1">
-                                Song Request
-                              </p>
-                              <p>{invite.song_request}</p>
-                            </div>
-                          )}
-                          {invite.message && (
-                            <div className="col-span-2">
-                              <p className="text-zinc-500 dark:text-zinc-400 text-[11px] uppercase tracking-wider font-semibold mb-1">
-                                Message
-                              </p>
-                              <p>{invite.message}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                  </div>
+                    invite={invite}
+                    links={shareLinks.get(invite.id)}
+                  />
                 ))}
               </div>
             )}

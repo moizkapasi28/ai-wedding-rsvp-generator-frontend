@@ -1,4 +1,5 @@
 import { guestService } from "@/api/guest.service";
+import type { GuestImportResult } from "@/models/guest.model";
 import type { GuestFormValues } from "@/validations/guest.validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -56,10 +57,11 @@ export const useCreateGuest = () => {
   });
 };
 
-export const useGetGuest = (id: string) => {
+export const useGetGuest = (id: string | undefined) => {
   return useQuery({
     queryKey: [...GUEST_QUERY_KEY, id],
-    queryFn: () => guestService.getGuest(id),
+    queryFn: () => guestService.getGuest(id as string),
+    enabled: !!id,
   });
 };
 
@@ -145,37 +147,68 @@ export const useExportGuestList = () => {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// The backend only queues the work (202 + jobId) and a separate worker runs it,
+// so poll the job until it actually finishes.
+const pollJob = async <T>(jobId: string, label: string) => {
+  const startedAt = Date.now();
+
+  for (;;) {
+    await sleep(1500);
+    const { data: job } = await guestService.getImportStatus<T>(jobId);
+    if (job.state === "completed") return job.result;
+    if (job.state === "failed") {
+      throw new Error(job.failedReason || `${label} failed`);
+    }
+
+    // ponytail: fixed timeouts; make them configurable if huge jobs legitimately run longer
+    const waited = Date.now() - startedAt;
+    if (job.state === "waiting" && waited > 30_000) {
+      throw new Error(
+        `${label} is queued but nothing is processing it. Is the backend worker running?`,
+      );
+    }
+    if (waited > 5 * 60_000) {
+      throw new Error(`${label} is taking too long. Refresh the page in a bit.`);
+    }
+  }
+};
+
+export const WHATSAPP_INVITES_QUERY_KEY = ["whatsapp-invites"] as const;
+
+export const useGetWhatsAppInvites = (
+  by: "eventId" | "guestId",
+  id: string | undefined,
+  enabled: boolean = true,
+) => {
+  return useQuery({
+    queryKey: [...WHATSAPP_INVITES_QUERY_KEY, by, id],
+    queryFn: () => guestService.getWhatsAppInvites(by, id as string),
+    enabled: enabled && !!id,
+  });
+};
+
+export const useMarkInviteSent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (inviteId: string) => guestService.markInviteSent(inviteId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Couldn't mark the invite as sent");
+    },
+  });
+};
+
 export const useUploadGuestList = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // The backend only queues the import (202 + jobId) and a separate worker
-    // parses the file, so poll the job until it actually finishes.
     mutationFn: async ({ id, file }: { id: string; file: File }) => {
       const { data } = await guestService.uploadGuestList(id, file);
-      const startedAt = Date.now();
-
-      for (;;) {
-        await sleep(1500);
-        const { data: job } = await guestService.getImportStatus(data.jobId);
-        if (job.state === "completed") return job.result;
-        if (job.state === "failed") {
-          throw new Error(job.failedReason || "Guest import failed");
-        }
-
-        // ponytail: fixed timeouts; make them configurable if huge imports legitimately run longer
-        const waited = Date.now() - startedAt;
-        if (job.state === "waiting" && waited > 30_000) {
-          throw new Error(
-            "Import is queued but nothing is processing it. Is the backend worker running?",
-          );
-        }
-        if (waited > 5 * 60_000) {
-          throw new Error(
-            "Guest import is taking too long. Refresh the guest list in a bit.",
-          );
-        }
-      }
+      return pollJob<GuestImportResult>(data.jobId, "Guest import");
     },
     onSuccess: (result) => {
       if (!result || result.totalProcessed === 0) {
