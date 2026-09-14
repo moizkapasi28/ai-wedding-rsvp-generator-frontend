@@ -1,42 +1,52 @@
 import type { GenerateAIInviteCardError } from "@/api/aiInviteCard.service";
+import type { AiGenerationStage } from "@/models/aiInviteCard.model";
 import { Button } from "@/components/ui/button";
 import { Loader2, SparklesIcon, Download } from "lucide-react";
-import { useEffect, useState } from "react";
 
 
 interface DesignPreviewCardProps {
   isGenerating: boolean;
+  generationStage?: AiGenerationStage | null;
   generatedImageUrl: string | null;
   error?: GenerateAIInviteCardError | null;
   onRetry?: () => void;
 }
 
+const STAGE_MESSAGES: Record<AiGenerationStage, string> = {
+  DESIGN: "Designing your invitation...",
+  TYPESETTING: "Adding your wedding details...",
+};
 
 
-export default function DesignPreviewCard({ isGenerating, generatedImageUrl, error, onRetry }: DesignPreviewCardProps) {
-  const [loadingMessage, setLoadingMessage] = useState("Generating your invitation...");
 
-  useEffect(() => {
-    let timer1: ReturnType<typeof setTimeout>;
-    let timer2: ReturnType<typeof setTimeout>;
+export default function DesignPreviewCard({ isGenerating, generationStage, generatedImageUrl, error, onRetry }: DesignPreviewCardProps) {
+  // The worker reports which stage it is on, so this reflects real progress
+  const loadingMessage = generationStage
+    ? STAGE_MESSAGES[generationStage]
+    : "Queued — starting shortly...";
 
-    if (isGenerating) {
-      setLoadingMessage("Generating your invitation...");
+  const handleDownload = async () => {
+    if (!generatedImageUrl) return;
 
-      timer1 = setTimeout(() => {
-        setLoadingMessage("Still working on it...");
-      }, 3000);
+    try {
+      // The image is served from S3, where a cross-origin `download` attribute is ignored,
+      // so fetch the bytes and save them from a blob URL instead.
+      const response = await fetch(generatedImageUrl);
+      if (!response.ok) throw new Error(`Download failed with status ${response.status}`);
 
-      timer2 = setTimeout(() => {
-        setLoadingMessage("Taking a little longer than usual — hang tight...");
-      }, 8000);
+      const blobUrl = URL.createObjectURL(await response.blob());
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "ai-wedding-invite.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Failed to download invitation", error);
+      window.open(generatedImageUrl, "_blank", "noopener,noreferrer");
     }
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, [isGenerating]);
+  };
 
   return (
     <div className="flex flex-col w-full h-fit">
@@ -57,15 +67,8 @@ export default function DesignPreviewCard({ isGenerating, generatedImageUrl, err
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute bottom-4 right-4 z-20">
-                <Button 
-                  onClick={() => {
-                    const a = document.createElement("a");
-                    a.href = generatedImageUrl;
-                    a.download = "ai-wedding-invite.png";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                  }}
+                <Button
+                  onClick={handleDownload}
                   className="rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-primary-foreground ring-4 ring-background/50 transition-all duration-300 hover:scale-110 h-12 w-12"
                   size="icon"
                   title="Download Image"

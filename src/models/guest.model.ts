@@ -63,3 +63,21 @@ export type GetGuestDetailsResponse = GenericResponse<Guest>;
 export type CreateOrUpdateGuestResponse = GenericResponse<Guest>;
 
 export type DeleteGuestResponse = GenericResponse<{}>;
+
+export type UploadGuestListResponse = GenericResponse<{ jobId: string }>;
+
+export interface GuestImportResult {
+  totalProcessed: number;
+  successful: number;
+  failed: number;
+  errors: { row: number; error: string }[];
+}
+
+// Mirrors BullMQ job state from GET guest/import-status/:jobId
+export type GuestImportStatusResponse = GenericResponse<{
+  id: string;
+  state: string;
+  progress: number;
+  result: GuestImportResult | null;
+  failedReason?: string;
+}>;

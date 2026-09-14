@@ -1,4 +1,7 @@
-import { DietaryBreakDownChart } from "./DietaryBreakDownChart";
+import {
+  DietaryBreakDownChart,
+  type BreakdownItem,
+} from "./DietaryBreakDownChart";
 import {
   Card,
   CardContent,
@@ -8,19 +11,35 @@ import {
   CardTitle,
 } from "./ui/card";
 
-export default function DietaryBreakDownCard() {
+type Props = {
+  title: string;
+  description: string;
+  data: BreakdownItem[];
+};
+
+export default function DietaryBreakDownCard({
+  title,
+  description,
+  data,
+}: Props) {
   return (
     <Card className="py-5">
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
-          <CardTitle>Dietary breakdown</CardTitle>
+          <CardTitle>{title}</CardTitle>
 
-          <CardDescription>How each function is filling up</CardDescription>
+          <CardDescription>{description}</CardDescription>
         </div>
       </CardHeader>
 
       <CardContent className="">
-        <DietaryBreakDownChart />
+        {data.length === 0 ? (
+          <p className="flex h-[215px] items-center justify-center text-sm text-muted-foreground">
+            Nothing to show yet
+          </p>
+        ) : (
+          <DietaryBreakDownChart data={data} />
+        )}
       </CardContent>
 
       <CardFooter className="bg-transparent border-none"></CardFooter>

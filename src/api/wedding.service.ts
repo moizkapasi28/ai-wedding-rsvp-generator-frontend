@@ -1,6 +1,7 @@
 import type {
   CreateOrUpdateWeddingResponse,
   DeletWeddingResponse,
+  WeddingDashboardResponse,
   WeddingListResponse,
 } from "@/models/wedding.model";
 import type { WeddingFormValues } from "@/validations/wedding.validation";
@@ -38,6 +39,12 @@ class WeddingService {
 
     return this.api.get<WeddingListResponse>(
       `${this.controller}?${params.toString()}`,
+    );
+  }
+
+  async getDashboard(id: string): Promise<WeddingDashboardResponse> {
+    return this.api.get<WeddingDashboardResponse>(
+      `${this.controller}/${id}/dashboard`,
     );
   }
 

@@ -1,3 +1,9 @@
+import type {
+  AiGenerationStatus,
+  AiInviteCardGenerationStatus,
+  AiInviteCardListResponse,
+  AiPhotoPlacement,
+} from "@/models/aiInviteCard.model";
 import { apiService } from "./api.service";
 
 export interface GenerateAIInviteCardError {
@@ -21,6 +27,7 @@ export type GenerateAIInviteCardPayload = {
   custom_message?: string | null;
   reference_image?: string | null;
   couple_raw_image_key?: string | null;
+  photo_placement?: AiPhotoPlacement | null;
   illustration_style?: string | null;
   bride_attire_style?: string | null;
   groom_attire_style?: string | null;
@@ -29,8 +36,15 @@ export type GenerateAIInviteCardPayload = {
 export interface GenerateAIInviteCardResponse {
   message?: string;
   data: {
-    key: string;
+    aiInviteCardId: string;
+    jobId: string | null;
+    status: AiGenerationStatus;
   };
+}
+
+export interface AiInviteCardGenerationStatusResponse {
+  message?: string;
+  data: AiInviteCardGenerationStatus;
 }
 
 class AiInviteCardService {
@@ -50,8 +64,22 @@ class AiInviteCardService {
     );
   }
 
-  async getAiInviteCardsByWedding(weddingId: string) {
-    return this.api.get(`${this.controller}/cards/${weddingId}`);
+  async getAiInviteCardsByWedding(
+    weddingId: string,
+    page: number = 1,
+  ): Promise<AiInviteCardListResponse> {
+    const params = new URLSearchParams({ page: page.toString() });
+    return this.api.get<AiInviteCardListResponse>(
+      `${this.controller}/cards/${weddingId}?${params.toString()}`,
+    );
+  }
+
+  async getGenerationStatus(
+    id: string,
+  ): Promise<AiInviteCardGenerationStatusResponse> {
+    return this.api.get<AiInviteCardGenerationStatusResponse>(
+      `${this.controller}/${id}/generation-status`,
+    );
   }
 
   async updateAiInviteCard(id: string, data: any) {

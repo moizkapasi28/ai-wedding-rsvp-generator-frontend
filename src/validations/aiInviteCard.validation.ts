@@ -15,6 +15,7 @@ export const aiInviteFormSchema = z.object({
     referenceKey: z.string().nullable().optional(),
     characterKey: z.string().nullable().optional(),
     photoType: z.enum(["couple", "bride", "groom"]),
+    photoPlacement: z.enum(["SWAP_IN_PLACE", "FRAMED_INSET"]).nullable().optional(),
     illustrationStyle: z.string().nullable().optional(),
     brideAttireStyle: z.string().optional(),
     groomAttireStyle: z.string().optional(),
@@ -30,11 +31,61 @@ export const aiInviteFormSchema = z.object({
         }
     }
     if (data.activeTab === "describe") {
-        if (!data.designPreset) {
+        // Generation in manual mode needs every design choice, so flag them here
+        // instead of letting the API reject the request.
+        const requiredDesignFields = [
+            ["designPreset", "Design preset is required."],
+            ["textureEmulation", "Texture is required."],
+            ["typographyPairing", "Typography is required."],
+            ["metallicAccents", "Metallic accent is required."],
+            ["negativeSpace", "Padding is required."],
+            ["monogramStyle", "Monogram style is required."],
+            ["textAlignment", "Text alignment is required."],
+            ["edgeStyling", "Border style is required."],
+        ] as const;
+
+        for (const [field, message] of requiredDesignFields) {
+            if (!data[field]) {
+                ctx.addIssue({ code: "custom", message, path: [field] });
+            }
+        }
+    }
+    if (data.characterKey) {
+        if (data.activeTab === "upload" && !data.photoPlacement) {
             ctx.addIssue({
                 code: "custom",
-                message: "Design preset is required.",
-                path: ["designPreset"],
+                message: "Choose how your photo should be used.",
+                path: ["photoPlacement"],
+            });
+        }
+
+        // A face swap keeps the example's own outfits, so attire only matters
+        // when we compose a new portrait.
+        const composesNewPortrait =
+            data.activeTab === "describe" || data.photoPlacement === "FRAMED_INSET";
+
+        if (!composesNewPortrait) return;
+
+        if (data.photoType === "couple") {
+            if (!data.brideAttireStyle) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Bride attire style is required.",
+                    path: ["brideAttireStyle"],
+                });
+            }
+            if (!data.groomAttireStyle) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Groom attire style is required.",
+                    path: ["groomAttireStyle"],
+                });
+            }
+        } else if (!data.singleAttireStyle) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Attire style is required.",
+                path: ["singleAttireStyle"],
             });
         }
     }

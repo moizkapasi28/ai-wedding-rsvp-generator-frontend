@@ -1,3 +1,4 @@
+import type { Event } from "./event.model";
 import type { GenericResponse } from "./generic";
 
 export interface Wedding {
@@ -20,6 +21,32 @@ export interface Wedding {
   tag?: string;
 }
 
+export interface LiveRsvp {
+  inviteId: string;
+  guestName: string;
+  eventTitle: string;
+  status: "ATTENDING" | "MAYBE" | "DECLINED";
+  plusOnes: number | null;
+  respondedAt: string;
+}
+
+export interface WeddingDashboard {
+  stats: {
+    totalGuests: number;
+    guestsThisWeek: number;
+    accommodationRequired: number;
+    attending: number;
+    pending: number;
+    confirmationRate: number;
+    responsesThisWeek: number;
+  };
+  events: Event[];
+  dietary: { dietary: string; count: number }[];
+  sides: { side: string; count: number }[];
+  dailyResponses: { date: string; count: number }[];
+  recentRsvps: LiveRsvp[];
+}
+
 export type WeddingListResponse = GenericResponse<{
   weddings: Wedding[];
   totalCount: number;
@@ -30,3 +57,5 @@ export type WeddingListResponse = GenericResponse<{
 export type CreateOrUpdateWeddingResponse = GenericResponse<Wedding>;
 
 export type DeletWeddingResponse = GenericResponse<{}>;
+
+export type WeddingDashboardResponse = GenericResponse<WeddingDashboard>;

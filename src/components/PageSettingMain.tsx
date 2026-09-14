@@ -1,3 +1,4 @@
+import NoEventsState from "@/components/NoEventsState";
 import RsvpPhonePreview from "@/components/RsvpPreviewCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -179,9 +180,7 @@ export default function PageSettingMain() {
 
   if (events.length === 0 && data?.pages.length === 1) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        No page settings found.
-      </div>
+      <NoEventsState description="Create an event to set up its RSVP page." />
     );
   }
   return (

@@ -188,7 +188,7 @@ export default function EventCard({ event }: EventCardProps) {
           <Button 
             variant="outline" 
             className="flex-1 p-2"
-            onClick={() => navigate(`/weddings/page-settings?event=${event.id}`)}
+            onClick={() => navigate(`/page-settings?event=${event.id}`)}
           >
             <SettingsIcon />
             <span>RSVP Settings</span>
@@ -197,7 +197,7 @@ export default function EventCard({ event }: EventCardProps) {
           <Button 
             variant="outline" 
             className="flex-1 p-2"
-            onClick={() => navigate(`/weddings/guests?event=${event.id}`)}
+            onClick={() => navigate(`/guests?event=${event.id}`)}
           >
             <UsersIcon />
             <span>Guest List</span>

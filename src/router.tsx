@@ -67,6 +67,12 @@ const Setup = () => {
               }),
             },
             {
+              path: "/rsvp/:token",
+              lazy: async () => ({
+                Component: (await import("@/pages/Rsvp")).default,
+              }),
+            },
+            {
               path: "/verification-pending",
               lazy: async () => ({
                 Component: (await import("@/pages/EmailVerificationPending"))
@@ -87,7 +93,8 @@ const Setup = () => {
               },
             },
             {
-              path: "/weddings",
+              // Pathless app shell: only All Weddings lives under /weddings,
+              // every other page sits at the root (/guests, /events, ...)
               lazy: async () => {
                 const AppShell = await import("@/layout/AppLayout");
                 return { Component: AppShell.default };
@@ -101,7 +108,7 @@ const Setup = () => {
               },
               children: [
                 {
-                  index: true,
+                  path: "weddings",
                   lazy: async () => ({
                     Component: (await import("@/pages/AllWeddings")).default,
                   }),

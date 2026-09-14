@@ -4,26 +4,27 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import type { WeddingDashboard } from "@/models/wedding.model";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 const chartConfig = {
-  desktop: {
-    label: "Response",
+  count: {
+    label: "Responses",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-const chartData = [
-  { month: "Sunday", desktop: 186 },
-  { month: "Monday", desktop: 305 },
-  { month: "Tuesday", desktop: 237 },
-  { month: "Wednesday", desktop: 73 },
-  { month: "Thrusday", desktop: 209 },
-  { month: "Friday", desktop: 214 },
-  { month: "Saturday", desktop: 214 },
-];
+type Props = { data: WeddingDashboard["dailyResponses"] };
 
-export default function ResponseStatsChart() {
+export default function ResponseStatsChart({ data }: Props) {
+  // Dates are local YYYY-MM-DD; appending a time stops them parsing as UTC
+  const chartData = data.map(({ date, count }) => ({
+    day: new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+      weekday: "short",
+    }),
+    count,
+  }));
+
   return (
     <ChartContainer
       config={chartConfig}
@@ -33,17 +34,16 @@ export default function ResponseStatsChart() {
       <BarChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis
-          dataKey="month"
+          dataKey="day"
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(value) => value.slice(0, 3)}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
+        <Bar dataKey="count" fill="var(--color-count)" radius={8} />
       </BarChart>
     </ChartContainer>
   );

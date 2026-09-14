@@ -18,6 +18,7 @@ import {
 import {
   ATTIRE_STYLE_OPTIONS,
   ILLUSTRATION_STYLE_OPTIONS,
+  PHOTO_PLACEMENT_OPTIONS,
 } from "@/constants";
 import { CheckIcon, ImageIcon, InfoIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
@@ -39,6 +40,16 @@ export default function CharacterPhotoForm({
 }: CharacterPhotoFormProps) {
   const form = useFormContext<AiInviteFormValues>();
   const photoType = form.watch("photoType");
+  const activeTab = form.watch("activeTab");
+  const photoPlacement = form.watch("photoPlacement");
+
+  // Only a reference design can already contain figures to swap faces onto;
+  // describing a design from scratch always composes a fresh portrait.
+  const canSwapOntoReference = activeTab === "upload";
+  const composesNewPortrait = !canSwapOntoReference || photoPlacement === "FRAMED_INSET";
+
+  // The placement question only appears in reference mode, shifting the steps after it
+  const step = (n: number) => (canSwapOntoReference ? n + 1 : n);
 
 
   return (
@@ -138,13 +149,57 @@ export default function CharacterPhotoForm({
                 )}
               />
 
+              {canSwapOntoReference && (
+                <FormField
+                  control={form.control}
+                  name="photoPlacement"
+                  render={({ field }) => (
+                    <FormItem className="pt-2">
+                      <Label className="text-sm font-medium mb-2 block">
+                        3. How should we use your photo? <span className="text-destructive">*</span>
+                      </Label>
+                      <FormControl>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl">
+                          {PHOTO_PLACEMENT_OPTIONS.map((option) => (
+                            <button
+                              key={option.id}
+                              type="button"
+                              onClick={() => field.onChange(option.id)}
+                              className={`text-left rounded-lg border-2 p-3 transition-all ${field.value === option.id
+                                ? "border-primary ring-2 ring-primary/20 bg-primary/5"
+                                : "border-muted-foreground/20 hover:border-muted-foreground/40"
+                                }`}
+                            >
+                              <span className="block text-sm font-medium">{option.name}</span>
+                              <span className="block text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                                {option.description}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {canSwapOntoReference && photoPlacement === "SWAP_IN_PLACE" && (
+                <p className="text-[11px] text-muted-foreground bg-muted/40 rounded-md p-2 leading-snug">
+                  Your example's existing outfits, poses and art style are kept as they
+                  are — only the faces change — so attire and illustration style don't
+                  apply here.
+                </p>
+              )}
+
+              {composesNewPortrait && (
               <FormField
                 control={form.control}
                 name="illustrationStyle"
                 render={({ field }) => (
                   <FormItem className="pt-2">
                     <Label className="text-sm font-medium mb-2 block">
-                      3. Illustration Style (Optional)
+                      {step(3)}. Illustration Style (Optional)
                     </Label>
                     <FormControl>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2">
@@ -179,8 +234,9 @@ export default function CharacterPhotoForm({
                   </FormItem>
                 )}
               />
+              )}
 
-              {photoType === "couple" ? (
+              {composesNewPortrait && (photoType === "couple" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl pt-2">
                   <FormField
                     control={form.control}
@@ -188,7 +244,7 @@ export default function CharacterPhotoForm({
                     render={({ field }) => (
                       <FormItem>
                         <Label className="text-sm font-medium mb-2 block">
-                          4. Bride Attire Style <span className="text-destructive">*</span>
+                          {step(4)}. Bride Attire Style <span className="text-destructive">*</span>
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
@@ -214,7 +270,7 @@ export default function CharacterPhotoForm({
                     render={({ field }) => (
                       <FormItem>
                         <Label className="text-sm font-medium mb-2 block">
-                          5. Groom Attire Style <span className="text-destructive">*</span>
+                          {step(5)}. Groom Attire Style <span className="text-destructive">*</span>
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
@@ -243,7 +299,7 @@ export default function CharacterPhotoForm({
                     render={({ field }) => (
                       <FormItem>
                         <Label className="text-sm font-medium mb-2 block">
-                          4. Attire Style <span className="text-destructive">*</span>
+                          {step(4)}. Attire Style <span className="text-destructive">*</span>
                         </Label>
                         <Select required onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
@@ -264,7 +320,7 @@ export default function CharacterPhotoForm({
                     )}
                   />
                 </div>
-              )}
+              ))}
             </>
           )}
         </div>

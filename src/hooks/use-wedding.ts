@@ -168,3 +168,11 @@ export const useDeleteWedding = () => {
     },
   });
 };
+
+export const useGetWeddingDashboard = (weddingId: string | null) => {
+  return useQuery({
+    queryKey: ["wedding-dashboard", weddingId],
+    queryFn: () => weddingService.getDashboard(weddingId as string),
+    enabled: !!weddingId,
+  });
+};

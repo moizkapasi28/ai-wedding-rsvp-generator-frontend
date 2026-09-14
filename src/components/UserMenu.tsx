@@ -92,7 +92,7 @@ export default function UserMenu() {
           {APP_SIDEBAR.userMenu.itemsPrimary.map((item, index) => (
             <DropdownMenuItem key={index} onClick={() => {
               if (item.title === "View profile") {
-                navigate("/weddings/profile");
+                navigate("/profile");
               }
             }}>
               <item.Icon />

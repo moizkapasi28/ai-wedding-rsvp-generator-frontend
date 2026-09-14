@@ -36,7 +36,7 @@ export default function WeddingCard({ wedding }: { wedding: Wedding }) {
     }
     setActiveWeddingId(wedding.id);
     setActiveWeddingStore(wedding);
-    navigate("/weddings/wedding-dashboard");
+    navigate("/wedding-dashboard");
   };
 
   return (

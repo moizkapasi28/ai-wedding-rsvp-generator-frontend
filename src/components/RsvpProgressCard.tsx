@@ -6,9 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { Event } from "@/models/event.model";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { MultiProgressBar } from "./custom/MultiProgressBar";
-export default function RsvpProgressCard() {
+
+export default function RsvpProgressCard({ events }: { events: Event[] }) {
+  const navigate = useNavigate();
+
   return (
     <Card className="py-5">
       <CardHeader className="flex flex-row items-start justify-between">
@@ -18,16 +23,21 @@ export default function RsvpProgressCard() {
           <CardDescription>How each function is filling up</CardDescription>
         </div>
 
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/events")}>
           View all events
         </Button>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <EventProgressRow />
-        <EventProgressRow />
-        <EventProgressRow />
-        <EventProgressRow />
+        {events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No events yet. Add events to start tracking RSVPs.
+          </p>
+        ) : (
+          events.map((event) => (
+            <EventProgressRow key={event.id} event={event} />
+          ))
+        )}
       </CardContent>
 
       <CardFooter className="bg-transparent border-none"></CardFooter>
@@ -35,25 +45,34 @@ export default function RsvpProgressCard() {
   );
 }
 
-export function EventProgressRow() {
+export function EventProgressRow({ event }: { event: Event }) {
+  const { stats } = event;
+
   return (
     <div>
-      <div className="mb-2 flex items-start justify-between">
-        <div className="flex flex-row gap-2">
-          <p className="font-medium">Mehndi</p>
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <div className="flex flex-row flex-wrap gap-x-2">
+          <p className="font-medium">{event.title}</p>
 
           <p className="text-sm text-muted-foreground">
-            12 Dec · Agarwal Residence
+            {new Date(event.date).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+            })}{" "}
+            · {event.venue}
           </p>
         </div>
 
-        <div className="text-sm">
-          <span className="font-medium">50</span>
-          <span className="text-muted-foreground"> / 100 invited</span>
+        <div className="text-sm shrink-0">
+          <span className="font-medium">{stats.attendingGuests}</span>
+          <span className="text-muted-foreground">
+            {" "}
+            / {stats.totalGuests} invited
+          </span>
         </div>
       </div>
 
-      <MultiProgressBar confirmed={50} maybe={10} declined={5} pending={35} />
+      <MultiProgressBar {...stats.progressBar} />
     </div>
   );
 }

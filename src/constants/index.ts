@@ -45,40 +45,40 @@ export const APP_SIDEBAR = {
     },
     {
       title: "Wedding Dashboard",
-      path: "/weddings/wedding-dashboard",
+      path: "/wedding-dashboard",
       url: "#",
       Icon: GaugeIcon,
     },
     {
       title: "Guests",
       url: "#",
-      path: "/weddings/guests",
+      path: "/guests",
       Icon: Users2Icon,
     },
     {
       title: "Events",
       url: "#",
-      path: "/weddings/events",
+      path: "/events",
       Icon: CalendarIcon,
     },
     {
       title: "RSVP Page Settings",
       url: "#",
-      path: "/weddings/page-settings",
+      path: "/page-settings",
       Icon: SettingsIcon,
       badge: "Beta",
     },
     {
       title: "AI Invite Card",
       url: "#",
-      path: "/weddings/ai-invite-card",
+      path: "/ai-invite-card",
       Icon: SparklesIcon,
       badge: "Beta",
     },
     {
       title: "Guest Preview",
       url: "#",
-      path: "/weddings/guest-preview",
+      path: "/guest-preview",
       Icon: EyeIcon,
     },
   ],
@@ -228,6 +228,22 @@ export const ATTIRE_STYLE_OPTIONS = [
   { id: "surprise_me", name: "Surprise me" },
 ];
 
+// How an uploaded couple photo is used when generating from a reference design
+export const PHOTO_PLACEMENT_OPTIONS = [
+  {
+    id: "SWAP_IN_PLACE",
+    name: "Put our faces on the example's couple",
+    description:
+      "My example already shows people — keep their outfits and poses, change only the faces.",
+  },
+  {
+    id: "FRAMED_INSET",
+    name: "Add us as a framed portrait",
+    description:
+      "My example has no people, or I want our portrait added to the design.",
+  },
+] as const;
+
 export const ILLUSTRATION_STYLE_OPTIONS = [
   { id: "royal_regal_portrait", name: "Royal Portrait", icon: Crown },
   { id: "watercolor_fine_art", name: "Watercolor Dream", icon: Palette },
@@ -254,4 +270,15 @@ export const TEXT_ALIGNMENT_OPTIONS = [
   { value: 'strict', label: 'Strict Center-Aligned (Classic)' },
   { value: 'cascading', label: 'Cascading Center' },
   { value: 'geometric', label: 'Geometric Centered' },
+];
+
+// Values mirror the backend Dietary enum (including its NON_VEGETARAIN spelling)
+export const DIETARY_OPTIONS = [
+  { value: "VEGETARIAN", label: "Vegetarian" },
+  { value: "NON_VEGETARAIN", label: "Non-vegetarian" },
+  { value: "VEGAN", label: "Vegan" },
+  { value: "EGGETARIAN", label: "Eggetarian" },
+  { value: "LACTOSE_FREE", label: "Lactose free" },
+  { value: "GLUTEN_FREE", label: "Gluten free" },
+  { value: "OTHER", label: "Other" },
 ];

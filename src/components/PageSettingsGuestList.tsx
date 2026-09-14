@@ -19,9 +19,9 @@ export default function PageSettingsGuestList({
 
   const handleClick = () => {
     if (eventId) {
-      navigate(`/weddings/guests?event=${eventId}`);
+      navigate(`/guests?event=${eventId}`);
     } else {
-      navigate(`/weddings/guests`);
+      navigate(`/guests`);
     }
   };
 

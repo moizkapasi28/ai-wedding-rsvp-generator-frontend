@@ -8,9 +8,11 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGuest } from "@/hooks/use-guest";
 import { cn } from "@/lib/utils";
+import { copyRsvpLink } from "@/lib/rsvp-link";
 import {
   ArrowLeft,
   Calendar,
+  Link2,
   Mail,
   MapPin,
   Phone,
@@ -124,7 +126,7 @@ export default function GuestDetails() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
         <ToolBar>
           <Button variant="outline" size="sm" asChild className="gap-2">
-            <Link to="/weddings/guests">
+            <Link to="/guests">
               <ArrowLeft className="h-4 w-4" />
               Back to Guests
             </Link>
@@ -325,6 +327,17 @@ export default function GuestDetails() {
                             ).toLocaleDateString()}
                           </p>
                         ) : null}
+                        {invite.invite_token && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 gap-1 px-2 text-xs"
+                            onClick={() => copyRsvpLink(invite.invite_token)}
+                          >
+                            <Link2 className="h-3 w-3" />
+                            Copy RSVP link
+                          </Button>
+                        )}
                       </div>
                     </div>
 

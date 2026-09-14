@@ -4,7 +4,9 @@ import type {
   CreateOrUpdateGuestResponse,
   DeleteGuestResponse,
   GetGuestDetailsResponse,
+  GuestImportStatusResponse,
   GuestListResponse,
+  UploadGuestListResponse,
 } from "@/models/guest.model";
 
 class GuestService {
@@ -92,12 +94,21 @@ class GuestService {
     await this.api.download(url, "guest-list.xlsx");
   }
 
-  async uploadGuestList(id: string, file: File): Promise<any> {
+  async uploadGuestList(
+    id: string,
+    file: File,
+  ): Promise<UploadGuestListResponse> {
     const formData = new FormData();
     formData.append("file", file);
-    return this.api.post<any>(
+    return this.api.post<UploadGuestListResponse>(
       `${this.controller}/template/upload/${id}`,
       formData,
+    );
+  }
+
+  async getImportStatus(jobId: string): Promise<GuestImportStatusResponse> {
+    return this.api.get<GuestImportStatusResponse>(
+      `${this.controller}/import-status/${jobId}`,
     );
   }
 }

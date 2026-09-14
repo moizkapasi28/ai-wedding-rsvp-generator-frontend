@@ -3,6 +3,7 @@ import { generalService } from "@/api/general.service";
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -112,5 +113,18 @@ export const useGenerateImage = () => {
         error.message || "Failed to generate image. Please try again.",
       );
     },
+  });
+};
+
+// Cached signed view URL for an object key. Keyed by the key itself, so switching
+// events never shows a stale/out-of-order image the way a mutation in an effect can.
+export const useGetViewUrl = (objectKey: string | null | undefined) => {
+  return useQuery({
+    queryKey: ["view-url", objectKey],
+    queryFn: () => generalService.generateViewUrl(objectKey as string),
+    enabled: !!objectKey,
+    // ponytail: assumes signed URLs live longer than 5 min; tie to real expiry if shorter
+    staleTime: 5 * 60 * 1000,
+    select: (res) => res.data?.url ?? null,
   });
 };
