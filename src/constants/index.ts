@@ -34,81 +34,51 @@ import {
 } from "lucide-react";
 
 export const APP_SIDEBAR = {
-  primaryNav: [
+  // Grouped so the nav says out loud what RequireWedding enforces: All
+  // weddings is global, everything below it is scoped to the active wedding.
+  nav: [
     {
-      title: "All Weddings",
-      path: "/weddings",
-      url: "#",
-      Icon: LayoutListIcon,
+      items: [
+        { title: "All weddings", path: "/weddings", Icon: LayoutListIcon },
+      ],
     },
     {
-      title: "Wedding Dashboard",
-      path: "/wedding-dashboard",
-      url: "#",
-      Icon: GaugeIcon,
+      label: "This wedding",
+      items: [
+        { title: "Dashboard", path: "/wedding-dashboard", Icon: GaugeIcon },
+        { title: "Guests", path: "/guests", Icon: Users2Icon },
+        { title: "Events", path: "/events", Icon: CalendarIcon },
+      ],
     },
     {
-      title: "Guests",
-      url: "#",
-      path: "/guests",
-      Icon: Users2Icon,
-    },
-    {
-      title: "Events",
-      url: "#",
-      path: "/events",
-      Icon: CalendarIcon,
-    },
-    {
-      title: "RSVP Page Settings",
-      url: "#",
-      path: "/page-settings",
-      Icon: SettingsIcon,
-      badge: "Beta",
-    },
-    {
-      title: "AI Invite Card",
-      url: "#",
-      path: "/ai-invite-card",
-      Icon: SparklesIcon,
-      badge: "Beta",
-    },
-    {
-      title: "Guest Preview",
-      url: "#",
-      path: "/guest-preview",
-      Icon: EyeIcon,
-    },
-  ],
-  curProfile: {
-    src: "https://randomuser.me/api/portraits/men/47.jpg",
-    name: "Salvador Pearson",
-    email: "salvador.pearson@example.com",
-  },
-  allProfiles: [
-    {
-      src: "https://randomuser.me/api/portraits/men/47.jpg",
-      name: "Salvador Pearson",
-      email: "salvador.pearson@example.com",
-    },
-    {
-      src: "https://randomuser.me/api/portraits/women/43.jpg",
-      name: "Violet Hicks",
-      email: "violet.hicks@example.com",
+      label: "Invitation",
+      items: [
+        {
+          title: "RSVP page",
+          path: "/page-settings",
+          Icon: SettingsIcon,
+          badge: "Beta",
+        },
+        {
+          title: "Invite card",
+          path: "/ai-invite-card",
+          Icon: SparklesIcon,
+          badge: "Beta",
+        },
+        { title: "Guest preview", path: "/guest-preview", Icon: EyeIcon },
+      ],
     },
   ],
   userMenu: {
     itemsPrimary: [
       {
         title: "View profile",
-        url: "#",
         Icon: UserIcon,
       },
     ],
     itemsSecondary: [
       {
         title: "Sign out",
-        url: "#",
         Icon: LogOutIcon,
       },
     ],

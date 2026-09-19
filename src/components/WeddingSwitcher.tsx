@@ -2,6 +2,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { WeddingActionDialogue } from "@/components/WeddingActionDialogue";
 import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { cn } from "@/lib/utils";
+import { formatWeddingDate } from "@/lib/weddingDate";
 import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
 import { useAtom } from "jotai";
 import {
@@ -165,9 +166,9 @@ export default function WeddingSwitcher() {
         {/* Avatar/Badge */}
         <div
           className={cn(
-            "flex items-center justify-center shrink-0 rounded-md font-bold text-white shadow-sm transition-transform duration-200 bg-linear-to-br",
+            "flex shrink-0 items-center justify-center rounded-md bg-linear-to-br font-bold text-white shadow-sm",
             getWeddingColor(activeWedding.id),
-            isCollapsed ? "h-7 w-7 text-xs" : "h-9 w-9 text-sm",
+            isCollapsed ? "size-7 text-[0.6875rem]" : "size-9 text-xs",
           )}
         >
           {getInitials(activeWedding.bride_name, activeWedding.groom_name)}
@@ -179,11 +180,9 @@ export default function WeddingSwitcher() {
             <span className="text-xs font-semibold truncate leading-tight text-sidebar-foreground">
               {activeWedding.title}
             </span>
-            <span className="text-xs text-muted-foreground truncate mt-0.5 flex items-center gap-1 font-medium">
-              <Calendar className="h-2.5 w-2.5 shrink-0" />
-              {activeWedding.date
-                ? new Date(activeWedding.date).toLocaleDateString()
-                : "No Date"}
+            <span className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+              <Calendar className="size-3 shrink-0" />
+              {formatWeddingDate(activeWedding.date)}
             </span>
           </div>
         )}
@@ -198,7 +197,7 @@ export default function WeddingSwitcher() {
       {isOpen && (
         <div
           className={cn(
-            "absolute z-50 rounded-xl border border-sidebar-border bg-popover/95 backdrop-blur-md text-popover-foreground shadow-lg flex flex-col p-1.5 overflow-hidden animate-in fade-in-50 zoom-in-95 duration-150",
+            "absolute z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl shadow-black/30",
             isCollapsed
               ? "left-12 top-1.5 w-72 origin-top-left"
               : "left-1 right-1 top-full mt-1.5 origin-top",
@@ -218,8 +217,8 @@ export default function WeddingSwitcher() {
           </div>
 
           {/* List Header */}
-          <div className="px-2 py-1 text-[10px] uppercase font-bold text-muted-foreground tracking-wider select-none">
-            Select Wedding
+          <div className="select-none px-2 py-1 text-xs text-muted-foreground">
+            Switch to
           </div>
 
           {/* Scrollable list */}
@@ -239,7 +238,7 @@ export default function WeddingSwitcher() {
                   {/* Badge */}
                   <div
                     className={cn(
-                      "flex items-center justify-center h-7 w-7 rounded-md font-bold text-[11px] text-white shadow-xs shrink-0 bg-linear-to-br",
+                      "flex size-7 shrink-0 items-center justify-center rounded-md bg-linear-to-br text-[0.6875rem] font-bold text-white shadow-xs",
                       getWeddingColor(w.id),
                     )}
                   >
@@ -251,12 +250,12 @@ export default function WeddingSwitcher() {
                     <span className="text-xs font-semibold text-sidebar-foreground truncate flex items-center gap-1">
                       {w.title}
                       {w.id === activeWeddingId && (
-                        <Heart className="h-2.5 w-2.5 text-pink-500 fill-pink-500 shrink-0 inline" />
+                        <Heart className="h-2.5 w-2.5 shrink-0 fill-pink-500 text-pink-500" />
                       )}
                     </span>
                     <span className="text-[10px] text-muted-foreground truncate font-medium">
                       {w.date ? new Date(w.date).toLocaleDateString() : ""}{" "}
-                      {w.city ? `• ${w.city}` : ""}
+                      {w.city ? `, ${w.city}` : ""}
                     </span>
                   </div>
 

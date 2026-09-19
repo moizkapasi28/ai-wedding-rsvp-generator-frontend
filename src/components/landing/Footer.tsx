@@ -1,4 +1,5 @@
 import { postsNewestFirst } from "@/content/posts";
+import { Logo } from "@/components/Logo";
 import { Link } from "react-router-dom";
 
 // Anchors are root-relative so they also work from /blog, where a bare "#specs"
@@ -45,11 +46,8 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-[1440px]">
         <div className="grid gap-x-16 gap-y-12 sm:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <Link
-              to="/"
-              className="text-2xl font-semibold tracking-[-0.03em]"
-            >
-              WeddlyAI
+            <Link to="/">
+              <Logo markClassName="h-9" />
             </Link>
             <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-muted-foreground">
               Invitation cards, a guest list per ceremony, and a headcount that

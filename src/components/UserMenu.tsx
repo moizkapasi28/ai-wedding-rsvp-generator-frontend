@@ -21,8 +21,10 @@ export default function UserMenu() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const userName = user ? `${user.first_name} ${user.last_name}` : APP_SIDEBAR.curProfile.name;
-  const userEmail = user?.email || APP_SIDEBAR.curProfile.email;
+  const userName = user
+    ? `${user.first_name} ${user.last_name}`.trim()
+    : "Your account";
+  const userEmail = user?.email ?? "";
   
   // Stored profile pictures are S3 object keys; older ones may be full URLs
   const picture = user?.profile_picture ?? null;
@@ -45,7 +47,7 @@ export default function UserMenu() {
               round={true}
               src={actualImageUrl}
             />
-            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 dark:bg-green-400 ring-sidebar ring-1"></div>
+            <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-1 ring-sidebar dark:bg-green-400"></div>
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">{userName}</span>

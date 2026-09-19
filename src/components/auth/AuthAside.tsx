@@ -23,11 +23,11 @@ export default function AuthAside() {
               <p className="text-xs text-muted-foreground">
                 together with their families
               </p>
-              <p className="mt-6 text-[2.5rem] font-medium leading-none tracking-[-0.03em]">
+              <p className="mt-6 font-display text-[2.5rem] font-medium leading-none tracking-[-0.03em]">
                 Ananya
               </p>
               <p className="my-2.5 text-sm text-muted-foreground">and</p>
-              <p className="text-[2.5rem] font-medium leading-none tracking-[-0.03em]">
+              <p className="font-display text-[2.5rem] font-medium leading-none tracking-[-0.03em]">
                 Rohan
               </p>
               <p className="mt-6 text-[0.8rem] text-muted-foreground">

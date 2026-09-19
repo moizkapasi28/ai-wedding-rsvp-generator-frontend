@@ -56,11 +56,11 @@ export default function HeroSection() {
                   <p className="text-xs tracking-wide text-muted-foreground">
                     together with their families
                   </p>
-                  <p className="mt-6 text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
+                  <p className="mt-6 font-display text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
                     Ananya
                   </p>
                   <p className="my-2.5 text-sm text-muted-foreground">and</p>
-                  <p className="text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
+                  <p className="font-display text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
                     Rohan
                   </p>
                   <p className="mt-6 text-[0.8rem] text-muted-foreground">

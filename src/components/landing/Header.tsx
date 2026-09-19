@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -31,11 +32,11 @@ export default function Header() {
       }`}
     >
       <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between py-4 md:py-5">
-        <Link to="/" className="text-2xl font-semibold tracking-[-0.03em]">
-          WeddlyAI
+        <Link to="/">
+          <Logo markClassName="h-9" />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 lg:flex">
           {navLinks.map((link) => (
             <a
               key={link.name}
@@ -53,7 +54,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           <Link
             to="/signin"
             className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
@@ -70,7 +71,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="-mr-2 p-2 md:hidden"
+          className="-mr-2 p-2 lg:hidden"
           aria-expanded={menuOpen}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((open) => !open)}
@@ -80,7 +81,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <div className="-mx-6 border-t border-border bg-background px-6 pb-6 pt-2 md:-mx-10 md:px-10 md:hidden">
+        <div className="-mx-6 border-t border-border bg-background px-6 pb-6 pt-2 md:-mx-10 md:px-10 lg:hidden">
           <nav className="flex flex-col">
             {navLinks.map((link) => (
               <a

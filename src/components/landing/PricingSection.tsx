@@ -78,7 +78,7 @@ export default function PricingSection() {
               </p>
 
               <p className="mt-7 flex items-baseline gap-2">
-                <span className="text-4xl font-medium tracking-[-0.03em]">
+                <span className="font-display text-4xl font-medium tracking-[-0.03em]">
                   {plan.price}
                 </span>
                 <span className="text-sm text-muted-foreground">

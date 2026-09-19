@@ -1,61 +1,33 @@
-import { Button } from "@/components/ui/button";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { Logo } from "@/assets/Logo";
-import { MenuIcon, SearchIcon } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useHeader } from "@/contexts/HeaderContext";
 import { activeWeddingAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
 
 export default function Header() {
-  const { toggleSidebar, isMobile } = useSidebar();
   const { title } = useHeader();
   const activeWedding = useAtomValue(activeWeddingAtom);
 
   const showWeddingTitle = title !== "All Weddings" && activeWedding;
 
   return (
-    <header className="sticky top-0 z-30 flex flex-col bg-background border-0">
-      {/* Mobile Top Bar */}
-      {isMobile && (
-        <div className="flex justify-between items-center py-3 px-4 border-b lg:hidden">
-          <Logo />
-          <div className="ml-auto flex items-center gap-2">
-            <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              aria-label="toggle mobile menu"
-            >
-              <MenuIcon />
-            </Button>
-          </div>
-        </div>
-      )}
+    // One bar at every width. SidebarTrigger opens the drawer on a phone and
+    // collapses the rail on anything larger, so there's no separate mobile
+    // top bar stealing a second row of height.
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background px-3 sm:px-4">
+      <SidebarTrigger className="-ml-1 shrink-0" />
 
-      {/* Main Header Area (Title) */}
-      <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:justify-between lg:items-center">
-        <div className="flex items-center gap-2">
-          {!isMobile && <SidebarTrigger className="-ml-2" />}
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            {title}
-            {showWeddingTitle && (
-              <span className="text-muted-foreground text-sm font-medium">
-                / {activeWedding.title}
-              </span>
-            )}
-          </h1>
-        </div>
+      <h1 className="flex min-w-0 items-baseline gap-2 text-base font-medium tracking-[-0.01em] sm:text-lg">
+        <span className="truncate">{title}</span>
+        {showWeddingTitle && (
+          <span className="hidden min-w-0 truncate text-sm font-normal text-muted-foreground sm:inline">
+            {activeWedding.title}
+          </span>
+        )}
+      </h1>
 
-        <div className="flex gap-3 items-center">
-          <div className="flex max-lg:hidden items-center">
-            <ThemeToggle />
-            <Button variant="ghost" size="icon" aria-label="Search">
-              <SearchIcon />
-            </Button>
-          </div>
-        </div>
+      <div className="ml-auto flex shrink-0 items-center gap-1">
+        <ThemeToggle />
       </div>
     </header>
   );

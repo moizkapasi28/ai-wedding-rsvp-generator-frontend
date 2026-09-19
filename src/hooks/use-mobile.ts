@@ -1,6 +1,8 @@
 import * as React from "react";
 
-const MOBILE_BREAKPOINT = 1024;
+// Phones get the drawer; tablets from 768px up get a real sidebar (an icon
+// rail by default, see AppLayout) rather than a sheet they must open each time.
+const MOBILE_BREAKPOINT = 768;
 const MOBILE_QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`;
 
 const subscribe = (onChange: () => void) => {

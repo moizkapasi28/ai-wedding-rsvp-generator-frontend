@@ -1,4 +1,5 @@
 import AuthAside from "@/components/auth/AuthAside";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
@@ -33,11 +34,8 @@ export default function AuthLayout({
   return (
     <div className="min-h-dvh bg-background lg:grid lg:h-screen lg:grid-cols-12 lg:overflow-hidden">
       <div className="flex min-h-dvh flex-col px-6 py-6 md:px-10 lg:col-span-7 lg:h-screen lg:min-h-0 lg:overflow-y-auto lg:px-16 lg:py-8">
-        <Link
-          to="/"
-          className="shrink-0 self-start text-xl font-semibold tracking-[-0.03em]"
-        >
-          WeddlyAI
+        <Link to="/" className="shrink-0 self-start">
+          <Logo markClassName="h-8" />
         </Link>
 
         <main className="flex flex-1 items-center py-8">

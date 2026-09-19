@@ -76,7 +76,7 @@ export default function DashboardSection() {
             <div className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
               {tiles.map((tile) => (
                 <div key={tile.label}>
-                  <p className="text-2xl font-medium tracking-[-0.03em] tabular-nums sm:text-3xl">
+                  <p className="font-display text-2xl font-medium tracking-[-0.03em] tabular-nums sm:text-3xl">
                     {tile.value}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">

@@ -9,6 +9,15 @@ import { useAtom } from "jotai";
 import { useEffect, useMemo } from "react";
 import Loader from "@/components/ui/loader";
 
+// Tablets (768-1023px) start as an icon rail so the content keeps its width;
+// desktops start expanded. Once the user toggles it, SidebarProvider's own
+// cookie wins, so their choice sticks across reloads.
+const initialSidebarOpen = () => {
+  const saved = document.cookie.match(/(?:^|;\s*)sidebar_state=([^;]+)/);
+  if (saved) return saved[1] === "true";
+  return window.innerWidth >= 1024;
+};
+
 export default function AppLayout() {
   const { data, isLoading } = useGetWeddingsInfinite(20);
   const weddings = useMemo(
@@ -33,13 +42,13 @@ export default function AppLayout() {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={initialSidebarOpen()}>
       <HeaderProvider>
         <AppSidebar />
         {/* min-w-0 stops wide content (e.g. the guest table) from stretching the page; it scrolls in its own container instead */}
         <SidebarInset className="min-w-0">
           <Header />
-          <main>
+          <main className="min-w-0 flex-1">
             <Outlet />
           </main>
         </SidebarInset>

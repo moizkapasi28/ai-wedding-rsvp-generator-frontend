@@ -28,7 +28,7 @@ export default function ProgrammeSection() {
         <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {steps.map((step, index) => (
             <li key={step.title} className="border-t border-border pt-5">
-              <p className="text-3xl font-medium tracking-tight text-muted-foreground">
+              <p className="font-display text-3xl font-medium tracking-tight text-muted-foreground">
                 {index + 1}
               </p>
               <h3 className="mt-6 font-medium">{step.title}</h3>
