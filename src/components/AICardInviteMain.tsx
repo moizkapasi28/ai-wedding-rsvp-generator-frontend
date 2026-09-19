@@ -1,4 +1,7 @@
-import { aiInviteCardService, type GenerateAIInviteCardError } from "@/api/aiInviteCard.service";
+import {
+  aiInviteCardService,
+  type GenerateAIInviteCardError,
+} from "@/api/aiInviteCard.service";
 import { generalService } from "@/api/general.service";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,12 +32,14 @@ import ReferenceUploadForm from "./ReferenceUploadForm";
 import CustomMessageForm from "./CustomMessageForm";
 import CharacterPhotoForm from "./CharacterPhotoForm";
 import DesignPreviewCard from "./DesignPreviewCard";
-import { aiInviteFormSchema, type AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+import {
+  aiInviteFormSchema,
+  type AiInviteFormValues,
+} from "@/validations/aiInviteCard.validation";
 import {
   IN_FLIGHT_GENERATION_STATUSES,
   type AiEventInviteCard,
 } from "@/models/aiInviteCard.model";
-
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -81,7 +86,8 @@ const cardToFormValues = (
 ): AiInviteFormValues => {
   if (!card) return EMPTY_FORM_VALUES;
 
-  const photoType: AiInviteFormValues["photoType"] = card.photo_type || "couple";
+  const photoType: AiInviteFormValues["photoType"] =
+    card.photo_type || "couple";
   const isCouple = photoType === "couple";
 
   return {
@@ -115,13 +121,8 @@ export default function AiCardInviteMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const queryClient = useQueryClient();
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useGetAiInviteCardsByWeddingInfinite(activeWeddingId);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useGetAiInviteCardsByWeddingInfinite(activeWeddingId);
 
   // Each page returns events with their AI invite card, so cards load page-by-page alongside events
   const events = useMemo(
@@ -130,7 +131,7 @@ export default function AiCardInviteMain() {
   );
 
   const [selectedEventId, setSelectedEventId] = useState<string>(
-    events?.[0]?.id || ""
+    events?.[0]?.id || "",
   );
 
   const selectedCard = events.find((event) => event.id === selectedEventId)
@@ -150,8 +151,11 @@ export default function AiCardInviteMain() {
   const [characterImage, setCharacterImage] = useState<string | null>(null);
   const [isUploadingCharacter, setIsUploadingCharacter] = useState(false);
 
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [generationError, setGenerationError] = useState<GenerateAIInviteCardError | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
+    null,
+  );
+  const [generationError, setGenerationError] =
+    useState<GenerateAIInviteCardError | null>(null);
 
   const form = useForm<AiInviteFormValues>({
     resolver: zodResolver(aiInviteFormSchema),
@@ -163,7 +167,8 @@ export default function AiCardInviteMain() {
   const hydratedEventIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!selectedEventId || hydratedEventIdRef.current === selectedEventId) return;
+    if (!selectedEventId || hydratedEventIdRef.current === selectedEventId)
+      return;
 
     hydratedEventIdRef.current = selectedEventId;
     form.reset(cardToFormValues(selectedCard));
@@ -208,7 +213,12 @@ export default function AiCardInviteMain() {
     };
     // selectedEventId is a dependency so switching events also clears previews of
     // images that were uploaded but not yet saved.
-  }, [selectedEventId, generatedImageKey, referenceImageKey, characterImageKey]);
+  }, [
+    selectedEventId,
+    generatedImageKey,
+    referenceImageKey,
+    characterImageKey,
+  ]);
 
   const activeTab = form.watch("activeTab");
 
@@ -221,7 +231,8 @@ export default function AiCardInviteMain() {
 
   const { data: statusResponse } = useAiInviteCardGenerationStatus(
     selectedCard?.id ?? null,
-    cardHasRunInFlight || (!!selectedCard?.id && pollingCardId === selectedCard.id),
+    cardHasRunInFlight ||
+      (!!selectedCard?.id && pollingCardId === selectedCard.id),
   );
 
   const generationStatus = statusResponse?.data;
@@ -267,10 +278,14 @@ export default function AiCardInviteMain() {
         ? formData.illustrationStyle || null
         : null,
       bride_attire_style: composesNewPortrait
-        ? emptyToNull(isCouple ? formData.brideAttireStyle : formData.singleAttireStyle)
+        ? emptyToNull(
+            isCouple ? formData.brideAttireStyle : formData.singleAttireStyle,
+          )
         : null,
       groom_attire_style: composesNewPortrait
-        ? emptyToNull(isCouple ? formData.groomAttireStyle : formData.singleAttireStyle)
+        ? emptyToNull(
+            isCouple ? formData.groomAttireStyle : formData.singleAttireStyle,
+          )
         : null,
     };
   };
@@ -291,7 +306,9 @@ export default function AiCardInviteMain() {
     onSuccess: (res) => {
       // The worker does the generating; follow it through the status endpoint
       setPollingCardId(res.data.aiInviteCardId);
-      queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [...AI_INVITE_CARD_QUERY_KEY],
+      });
       toast.success("Generating your invitation — you can leave this page.");
     },
     onError: (error: Error & { status?: number }) => {
@@ -305,7 +322,7 @@ export default function AiCardInviteMain() {
 
       setGenerationError({ code: "UNKNOWN" });
       toast.error("Failed to start generation.");
-    }
+    },
   });
 
   const isGenerating =
@@ -323,7 +340,10 @@ export default function AiCardInviteMain() {
     IN_FLIGHT_GENERATION_STATUSES.includes(generationStatus.status) &&
     generationStatus.error_code &&
     generationStatus.attempt
-      ? { attempt: generationStatus.attempt, maxAttempts: generationStatus.max_attempts }
+      ? {
+          attempt: generationStatus.attempt,
+          maxAttempts: generationStatus.max_attempts,
+        }
       : null;
 
   // Report a finished run once — polling stops as soon as the status settles
@@ -358,7 +378,8 @@ export default function AiCardInviteMain() {
 
     if (generationStatus.status === "COMPLETED")
       toast.success("Invitation generated successfully!");
-    if (generationStatus.status === "FAILED") toast.error("Failed to generate invitation.");
+    if (generationStatus.status === "FAILED")
+      toast.error("Failed to generate invitation.");
   }, [generationStatus, queryClient]);
 
   const onSubmit = (data: AiInviteFormValues) => {
@@ -376,7 +397,9 @@ export default function AiCardInviteMain() {
     });
   };
 
-  const handleReferenceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReferenceUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
@@ -389,9 +412,14 @@ export default function AiCardInviteMain() {
       setIsUploadingReference(true);
       try {
         const objectKey = `ai-invite-cards/raw-images/invitation-reference/${Date.now()}-${file.name}`;
-        const urlRes = await generalService.generateUploadUrl(objectKey, file.type);
+        const urlRes = await generalService.generateUploadUrl(
+          objectKey,
+          file.type,
+        );
         await generalService.uploadFileToS3(urlRes.data.url, file);
-        form.setValue("referenceKey", urlRes.data.object_key, { shouldValidate: true });
+        form.setValue("referenceKey", urlRes.data.object_key, {
+          shouldValidate: true,
+        });
       } catch (err) {
         console.error("Upload failed", err);
         toast.error("Failed to upload reference image.");
@@ -401,7 +429,9 @@ export default function AiCardInviteMain() {
     }
   };
 
-  const handleCharacterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCharacterUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
@@ -414,9 +444,14 @@ export default function AiCardInviteMain() {
       setIsUploadingCharacter(true);
       try {
         const objectKey = `ai-invite-cards/raw-images/invitation-character/${Date.now()}-${file.name}`;
-        const urlRes = await generalService.generateUploadUrl(objectKey, file.type);
+        const urlRes = await generalService.generateUploadUrl(
+          objectKey,
+          file.type,
+        );
         await generalService.uploadFileToS3(urlRes.data.url, file);
-        form.setValue("characterKey", urlRes.data.object_key, { shouldValidate: true });
+        form.setValue("characterKey", urlRes.data.object_key, {
+          shouldValidate: true,
+        });
       } catch (err) {
         console.error("Upload failed", err);
         toast.error("Failed to upload character photo.");
@@ -443,17 +478,15 @@ export default function AiCardInviteMain() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
           <div className="space-y-4 md:col-span-6 lg:col-span-6">
             <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-[400px] w-full rounded-xl" />
+            <Skeleton className="h-100 w-full rounded-xl" />
           </div>
           <div className="md:col-span-6 lg:col-span-6">
-            <Skeleton className="h-[600px] w-full rounded-xl" />
+            <Skeleton className="h-150 w-full rounded-xl" />
           </div>
         </div>
       </div>
     );
   }
-
-
 
   if (events.length === 0 && data?.pages?.length === 1) {
     return (
@@ -481,15 +514,27 @@ export default function AiCardInviteMain() {
           {/* Left Column: Form Controls */}
           <div className="space-y-4 md:col-span-7 lg:col-span-8">
             <div className="mb-2">
-              <h3 className="text-xl font-semibold">AI Invitation Card Builder</h3>
+              <h3 className="text-xl font-semibold">
+                AI Invitation Card Builder
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Select an event to generate a beautiful AI-powered luxury invitation card.
+                Select an event to generate a beautiful AI-powered luxury
+                invitation card.
               </p>
             </div>
 
-            <Tabs value={activeTab} onValueChange={(v) => form.setValue("activeTab", v as "describe" | "upload")} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) =>
+                form.setValue("activeTab", v as "describe" | "upload")
+              }
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="describe" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="describe"
+                  className="flex items-center gap-2"
+                >
                   <SparklesIcon className="w-4 h-4" />
                   Describe with AI
                 </TabsTrigger>
@@ -499,18 +544,26 @@ export default function AiCardInviteMain() {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="describe" className="space-y-3 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent
+                value="describe"
+                className="space-y-3 focus-visible:outline-none focus-visible:ring-0"
+              >
                 <DesignConfigForm />
               </TabsContent>
 
-              <TabsContent value="upload" className="space-y-4 focus-visible:outline-none focus-visible:ring-0">
+              <TabsContent
+                value="upload"
+                className="space-y-4 focus-visible:outline-none focus-visible:ring-0"
+              >
                 <ReferenceUploadForm
                   uploadedImage={uploadedImage}
                   isUploadingReference={isUploadingReference}
                   handleReferenceUpload={handleReferenceUpload}
                   onRemoveImage={() => {
                     setUploadedImage(null);
-                    form.setValue("referenceKey", null, { shouldValidate: true });
+                    form.setValue("referenceKey", null, {
+                      shouldValidate: true,
+                    });
                   }}
                 />
               </TabsContent>
@@ -540,7 +593,7 @@ export default function AiCardInviteMain() {
                   isUploadingReference ||
                   isUploadingCharacter
                 }
-                className="w-full h-11 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2 group rounded-xl"
+                className="w-full h-11 text-base font-medium bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2 group rounded-xl"
               >
                 {isGenerating ? (
                   <>
@@ -550,7 +603,9 @@ export default function AiCardInviteMain() {
                 ) : (
                   <>
                     <SparklesIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    {activeTab === "describe" ? "Generate Luxury Invitation" : "Generate from Reference Image"}
+                    {activeTab === "describe"
+                      ? "Generate Luxury Invitation"
+                      : "Generate from Reference Image"}
                   </>
                 )}
               </Button>
@@ -560,16 +615,20 @@ export default function AiCardInviteMain() {
           <div className="md:col-span-5 lg:col-span-4 h-full flex justify-center items-start">
             <div className="w-full max-w-sm lg:max-w-none md:sticky md:top-6">
               <DesignPreviewCard
-              isGenerating={isGenerating}
-              generationStage={generationStatus?.stage ?? selectedCard?.generation_stage ?? null}
-              generatedImageUrl={generatedImageUrl}
-              error={generationError}
-              retrying={retrying}
-              onRetry={() => {
-                setGenerationError(null);
-                form.handleSubmit(onSubmit)();
-              }}
-            />
+                isGenerating={isGenerating}
+                generationStage={
+                  generationStatus?.stage ??
+                  selectedCard?.generation_stage ??
+                  null
+                }
+                generatedImageUrl={generatedImageUrl}
+                error={generationError}
+                retrying={retrying}
+                onRetry={() => {
+                  setGenerationError(null);
+                  form.handleSubmit(onSubmit)();
+                }}
+              />
             </div>
           </div>
         </div>
