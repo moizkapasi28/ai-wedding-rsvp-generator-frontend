@@ -47,7 +47,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Design Preset</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Design Preset</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -78,7 +78,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Texture</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Texture</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -109,7 +109,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Typography</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Typography</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -140,7 +140,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Metallic Accents</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Metallic Accents</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -171,7 +171,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Padding</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Padding</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -202,7 +202,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Monogram Style</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Monogram Style</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -233,7 +233,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Text Alignment</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Text Alignment</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
@@ -264,7 +264,7 @@ export default function DesignConfigForm() {
             render={({ field }) => (
               <FormItem className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <FormLabel className="whitespace-nowrap text-[13px] truncate">Border Style</FormLabel>
+                  <FormLabel required className="whitespace-nowrap text-[13px] truncate">Border Style</FormLabel>
                   <Tooltip>
                     <TooltipTrigger type="button">
                       <InfoIcon className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />

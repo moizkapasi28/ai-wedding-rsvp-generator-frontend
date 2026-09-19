@@ -1,5 +1,5 @@
 import type { GenerateAIInviteCardError } from "@/api/aiInviteCard.service";
-import type { AiGenerationStage } from "@/models/aiInviteCard.model";
+import type { AiGenerationErrorCode, AiGenerationStage } from "@/models/aiInviteCard.model";
 import { Button } from "@/components/ui/button";
 import { Loader2, SparklesIcon, Download } from "lucide-react";
 
@@ -9,6 +9,7 @@ interface DesignPreviewCardProps {
   generationStage?: AiGenerationStage | null;
   generatedImageUrl: string | null;
   error?: GenerateAIInviteCardError | null;
+  retrying?: { attempt: number; maxAttempts: number } | null;
   onRetry?: () => void;
 }
 
@@ -17,13 +18,30 @@ const STAGE_MESSAGES: Record<AiGenerationStage, string> = {
   TYPESETTING: "Adding your wedding details...",
 };
 
+const GENERIC_FAILURE = "Something went wrong while creating your invite.";
+
+const ERROR_MESSAGES: Record<AiGenerationErrorCode, string> = {
+  SAFETY_BLOCKED:
+    "The AI's safety filter blocked this design. Try a different photo or simplify the extra details.",
+  BILLING: "Invite generation is unavailable right now. Please try again later.",
+  INVALID_INPUT:
+    "One of your uploaded images couldn't be read. Upload it again as a JPG or PNG.",
+  OVERLOADED: GENERIC_FAILURE,
+  RATE_LIMITED: GENERIC_FAILURE,
+  TIMEOUT: GENERIC_FAILURE,
+  NO_IMAGE: GENERIC_FAILURE,
+  UNKNOWN: GENERIC_FAILURE,
+};
 
 
-export default function DesignPreviewCard({ isGenerating, generationStage, generatedImageUrl, error, onRetry }: DesignPreviewCardProps) {
+
+export default function DesignPreviewCard({ isGenerating, generationStage, generatedImageUrl, error, retrying, onRetry }: DesignPreviewCardProps) {
   // The worker reports which stage it is on, so this reflects real progress
-  const loadingMessage = generationStage
-    ? STAGE_MESSAGES[generationStage]
-    : "Queued — starting shortly...";
+  const loadingMessage = retrying
+    ? "The AI service is busy. Retrying automatically…"
+    : generationStage
+      ? STAGE_MESSAGES[generationStage]
+      : "Queued — starting shortly...";
 
   const handleDownload = async () => {
     if (!generatedImageUrl) return;
@@ -87,6 +105,11 @@ export default function DesignPreviewCard({ isGenerating, generationStage, gener
                   <p className="text-muted-foreground text-sm max-w-[200px] mx-auto animate-pulse font-medium">
                     {loadingMessage}
                   </p>
+                  {retrying && (
+                    <p className="text-xs text-muted-foreground">
+                      Attempt {retrying.attempt} of {retrying.maxAttempts}
+                    </p>
+                  )}
                 </div>
               ) : error ? (
                 <div className="text-center space-y-4 relative z-10">
@@ -94,13 +117,12 @@ export default function DesignPreviewCard({ isGenerating, generationStage, gener
                     <SparklesIcon className="w-8 h-8 text-destructive" />
                   </div>
                   <p className="text-destructive font-medium text-sm max-w-[250px] mx-auto">
-                    {error.type === "transient" || error.type === "timeout"
-                      ? "Something went wrong. This usually resolves quickly."
-                      : "We couldn't generate your invitation. Please try again."}
+                    {ERROR_MESSAGES[error.code]}
                   </p>
-                  {onRetry && (
-                    <Button onClick={onRetry} variant={error.type === "permanent" ? "outline" : "default"} className="mt-4 shadow-sm w-full rounded-xl">
-                      Try Again
+                  {/* The couple can't fix a billing problem, so a retry would only fail again */}
+                  {onRetry && error.code !== "BILLING" && (
+                    <Button onClick={onRetry} className="mt-4 shadow-sm w-full rounded-xl">
+                      Try again
                     </Button>
                   )}
                 </div>

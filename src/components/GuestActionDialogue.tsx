@@ -194,7 +194,7 @@ export function GuestActionDialogue({
                 name="eventIds"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>
+                    <FormLabel required>
                       {isEdit ? "Event Invitations" : "Events"}
                     </FormLabel>
                     <FormControl>
@@ -238,7 +238,7 @@ export function GuestActionDialogue({
                 name="name"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel required>Name</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -259,7 +259,7 @@ export function GuestActionDialogue({
                 name="mobile_number"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Mobile Number</FormLabel>
+                    <FormLabel required>Mobile Number</FormLabel>
                     <FormControl>
                       <PhoneInput {...field} />
                     </FormControl>
@@ -272,7 +272,7 @@ export function GuestActionDialogue({
                 name="email"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel required>Email</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -294,7 +294,7 @@ export function GuestActionDialogue({
                 name="side"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Side</FormLabel>
+                    <FormLabel required>Side</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
@@ -322,7 +322,7 @@ export function GuestActionDialogue({
                 name="group"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Group</FormLabel>
+                    <FormLabel required>Group</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Contact className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
@@ -393,7 +393,7 @@ export function GuestActionDialogue({
                 name="accomodation_address"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Accommodation Address</FormLabel>
+                    <FormLabel required={isAccommodationRequired}>Accommodation Address</FormLabel>
                     <FormControl>
                       <AddressAutocomplete
                         disabled={!isAccommodationRequired}

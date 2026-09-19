@@ -159,7 +159,7 @@ export function WeddingActionDialogue({
                 name="title"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel required>Title</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Type className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -180,7 +180,7 @@ export function WeddingActionDialogue({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel required>Date</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -202,7 +202,7 @@ export function WeddingActionDialogue({
                 name="bride_name"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Bride Name</FormLabel>
+                    <FormLabel required>Bride Name</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -223,7 +223,7 @@ export function WeddingActionDialogue({
                 name="groom_name"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Groom Name</FormLabel>
+                    <FormLabel required>Groom Name</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -244,7 +244,7 @@ export function WeddingActionDialogue({
                 name="venue"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Venue</FormLabel>
+                    <FormLabel required>Venue</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <LandmarkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -265,7 +265,7 @@ export function WeddingActionDialogue({
                 name="city"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>City</FormLabel>
+                    <FormLabel required>City</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -288,7 +288,7 @@ export function WeddingActionDialogue({
                 name="address"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel required>Address</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <AddressAutocomplete

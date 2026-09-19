@@ -276,7 +276,7 @@ export default function ViewProfile() {
                       render={({ field }) => (
                         <FormItem>
                           <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            First Name
+                            First Name <span className="text-destructive">*</span>
                           </p>
                           <FormControl>
                             <Input placeholder="First Name" {...field} className="h-9" />
@@ -294,7 +294,7 @@ export default function ViewProfile() {
                       render={({ field }) => (
                         <FormItem>
                           <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            Last Name
+                            Last Name <span className="text-destructive">*</span>
                           </p>
                           <FormControl>
                             <Input placeholder="Last Name" {...field} className="h-9" />
@@ -312,7 +312,7 @@ export default function ViewProfile() {
                       render={({ field }) => (
                         <FormItem>
                           <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            Mobile Number
+                            Mobile Number <span className="text-destructive">*</span>
                           </p>
                           <FormControl>
                             <Input placeholder="+1234567890" {...field} className="h-9" />

@@ -1,4 +1,5 @@
 import type {
+  AiGenerationErrorCode,
   AiGenerationStatus,
   AiInviteCardGenerationStatus,
   AiInviteCardListResponse,
@@ -6,10 +7,7 @@ import type {
 } from "@/models/aiInviteCard.model";
 import { apiService } from "./api.service";
 
-export interface GenerateAIInviteCardError {
-  type: "transient" | "timeout" | "permanent";
-  message: string;
-}
+export type GenerateAIInviteCardError = { code: AiGenerationErrorCode };
 
 export type GenerateAIInviteCardPayload = {
   eventId: string;

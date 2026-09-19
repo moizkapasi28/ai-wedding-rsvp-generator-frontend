@@ -55,7 +55,7 @@ export default function ResetPasswordForm({
               name="newPassword"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel required>New Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <LockIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -76,7 +76,7 @@ export default function ResetPasswordForm({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel required>Confirm Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <LockIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />

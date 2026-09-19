@@ -10,6 +10,16 @@ export type AiGenerationStatus =
 
 export type AiGenerationStage = "DESIGN" | "TYPESETTING";
 
+export type AiGenerationErrorCode =
+  | "OVERLOADED"
+  | "RATE_LIMITED"
+  | "TIMEOUT"
+  | "NO_IMAGE"
+  | "SAFETY_BLOCKED"
+  | "BILLING"
+  | "INVALID_INPUT"
+  | "UNKNOWN";
+
 export type AiPhotoPlacement = "SWAP_IN_PLACE" | "FRAMED_INSET";
 
 export const IN_FLIGHT_GENERATION_STATUSES: AiGenerationStatus[] = [
@@ -23,6 +33,9 @@ export interface AiInviteCardGenerationStatus {
   status: AiGenerationStatus;
   stage: AiGenerationStage | null;
   error: string | null;
+  error_code: AiGenerationErrorCode | null;
+  attempt: number | null;
+  max_attempts: number;
   job_id: string | null;
   generated_invite_image_url: string | null;
   started_at: string | null;
@@ -57,6 +70,10 @@ export interface AiEventInviteCard {
   generation_stage: AiGenerationStage | null;
   generation_job_id: string | null;
   generation_error: string | null;
+  generation_error_code: AiGenerationErrorCode | null;
+  generation_attempt: number | null;
+  generation_heartbeat_at: string | null;
+  design_fingerprint: string | null;
   generation_started_at: string | null;
   generation_completed_at: string | null;
   created_at: string;

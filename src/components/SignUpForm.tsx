@@ -54,7 +54,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel required>First Name</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300" />
@@ -75,7 +75,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel required>Last Name</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300" />
@@ -97,7 +97,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel required>Email Address</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300" />
@@ -118,7 +118,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="mobileNumber"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Mobile Number</FormLabel>
+                  <FormLabel required>Mobile Number</FormLabel>
                   <FormControl>
                     <PhoneInput {...field} />
                   </FormControl>
@@ -131,7 +131,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel required>Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <Lock className="absolute left-3.5 top-[18px] -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -152,7 +152,7 @@ export default function SignUpForm({ className, ...props }: SignUpFormProps) {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel required>Confirm Password</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <Lock className="absolute left-3.5 top-[18px] -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />

@@ -36,6 +36,24 @@ import {
 } from "@/models/aiInviteCard.model";
 
 
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+
+// The generator can't read HEIC and skips sources over 20 MB, so stop those before uploading
+const rejectUnsupportedImage = (file: File) => {
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    toast.error("Upload a JPG, PNG or WebP image.");
+    return true;
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    toast.error("Images must be 20 MB or smaller.");
+    return true;
+  }
+
+  return false;
+};
+
 const EMPTY_FORM_VALUES: AiInviteFormValues = {
   activeTab: "describe",
   designPreset: "",
@@ -276,7 +294,7 @@ export default function AiCardInviteMain() {
       queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
       toast.success("Generating your invitation — you can leave this page.");
     },
-    onError: (error: Error & { status?: number; type?: string }) => {
+    onError: (error: Error & { status?: number }) => {
       console.error("Failed to start generation", error);
 
       // 409 means a run is already in flight for this card, so follow that one instead
@@ -285,13 +303,7 @@ export default function AiCardInviteMain() {
         return;
       }
 
-      const type = error?.type;
-      if (type === "transient" || type === "timeout" || type === "permanent") {
-        setGenerationError({ type, message: error.message });
-      } else {
-        setGenerationError({ type: "permanent", message: error?.message || "An unexpected error occurred." });
-      }
-
+      setGenerationError({ code: "UNKNOWN" });
       toast.error("Failed to start generation.");
     }
   });
@@ -303,33 +315,50 @@ export default function AiCardInviteMain() {
       generationStatus.id === selectedCard?.id &&
       IN_FLIGHT_GENERATION_STATUSES.includes(generationStatus.status));
 
+  // A failed attempt with more to come leaves its error code on the still in-flight status
+  const retrying =
+    isGenerating &&
+    !!generationStatus &&
+    generationStatus.id === selectedCard?.id &&
+    IN_FLIGHT_GENERATION_STATUSES.includes(generationStatus.status) &&
+    generationStatus.error_code &&
+    generationStatus.attempt
+      ? { attempt: generationStatus.attempt, maxAttempts: generationStatus.max_attempts }
+      : null;
+
   // Report a finished run once — polling stops as soon as the status settles
   const settledGenerationRef = useRef<string | null>(null);
+  // A run that was already over when this page mounted is history, not news: announcing it
+  // would toast again on every visit back to the page.
+  const watchedRunRef = useRef(false);
 
   useEffect(() => {
     if (!generationStatus) return;
-    if (IN_FLIGHT_GENERATION_STATUSES.includes(generationStatus.status)) return;
+
+    if (IN_FLIGHT_GENERATION_STATUSES.includes(generationStatus.status)) {
+      watchedRunRef.current = true;
+      return;
+    }
 
     const settledKey = `${generationStatus.id}:${generationStatus.status}:${generationStatus.completed_at ?? ""}`;
     if (settledGenerationRef.current === settledKey) return;
     settledGenerationRef.current = settledKey;
 
     setPollingCardId(null);
+    // Refresh the card either way: it still holds the in-flight status this page reads to
+    // decide whether a run is going, and on success the new image key feeds the preview.
+    queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
 
-    if (generationStatus.status === "COMPLETED") {
-      setGenerationError(null);
+    if (generationStatus.status === "COMPLETED") setGenerationError(null);
+    if (generationStatus.status === "FAILED")
+      setGenerationError({ code: generationStatus.error_code ?? "UNKNOWN" });
+
+    if (!watchedRunRef.current) return;
+    watchedRunRef.current = false;
+
+    if (generationStatus.status === "COMPLETED")
       toast.success("Invitation generated successfully!");
-      // Refresh the card so the new image key flows into the preview effect
-      queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
-    }
-
-    if (generationStatus.status === "FAILED") {
-      setGenerationError({
-        type: "transient",
-        message: generationStatus.error || "Generation failed. Please try again.",
-      });
-      toast.error("Failed to generate invitation.");
-    }
+    if (generationStatus.status === "FAILED") toast.error("Failed to generate invitation.");
   }, [generationStatus, queryClient]);
 
   const onSubmit = (data: AiInviteFormValues) => {
@@ -350,6 +379,12 @@ export default function AiCardInviteMain() {
   const handleReferenceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      if (rejectUnsupportedImage(file)) {
+        e.target.value = "";
+        return;
+      }
+
       setUploadedImage(URL.createObjectURL(file));
       setIsUploadingReference(true);
       try {
@@ -369,6 +404,12 @@ export default function AiCardInviteMain() {
   const handleCharacterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      if (rejectUnsupportedImage(file)) {
+        e.target.value = "";
+        return;
+      }
+
       setCharacterImage(URL.createObjectURL(file));
       setIsUploadingCharacter(true);
       try {
@@ -523,6 +564,7 @@ export default function AiCardInviteMain() {
               generationStage={generationStatus?.stage ?? selectedCard?.generation_stage ?? null}
               generatedImageUrl={generatedImageUrl}
               error={generationError}
+              retrying={retrying}
               onRetry={() => {
                 setGenerationError(null);
                 form.handleSubmit(onSubmit)();

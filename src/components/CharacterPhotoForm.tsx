@@ -87,7 +87,7 @@ export default function CharacterPhotoForm({
             </Label>
             {!characterImage ? (
               <label className="w-full border-2 border-dashed border-muted-foreground/30 bg-background rounded-xl p-4 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors cursor-pointer group">
-                <Input type="file" className="hidden" accept="image/*" onChange={handleCharacterUpload} />
+                <Input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleCharacterUpload} />
                 <ImageIcon className="w-5 h-5 text-muted-foreground mb-1" />
                 <span className="text-sm font-medium">Click to Upload</span>
                 <span className="text-[11px] text-muted-foreground mt-0.5">Upload a clear front-facing photo</span>

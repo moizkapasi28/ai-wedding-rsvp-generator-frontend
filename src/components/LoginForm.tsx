@@ -45,7 +45,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel required>Email Address</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300" />
@@ -67,7 +67,7 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
                   <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel required>Password</FormLabel>
                     <Link
                       to="/forgot-password"
                       className="text-sm text-primary hover:text-primary/80 hover:underline font-medium transition-colors"

@@ -34,7 +34,7 @@ export default function ReferenceUploadForm({
       <CardHeader className="py-3">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-base">Reference an Example</CardTitle>
+            <CardTitle className="text-base">Reference an Example <span className="text-destructive">*</span></CardTitle>
             <CardDescription className="text-xs">
               Upload an existing invitation design you like, and we'll use it as inspiration.
             </CardDescription>
@@ -56,7 +56,7 @@ export default function ReferenceUploadForm({
         <div>
           {!uploadedImage ? (
             <label className={`w-full border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-colors cursor-pointer group ${error ? "border-destructive/50 hover:bg-destructive/10" : "border-muted-foreground/25 hover:bg-muted/50"}`}>
-              <Input type="file" className="hidden" accept="image/*" onChange={handleReferenceUpload} />
+              <Input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleReferenceUpload} />
               <div className="bg-primary/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
                 <ImageIcon className="w-6 h-6 text-primary" />
               </div>

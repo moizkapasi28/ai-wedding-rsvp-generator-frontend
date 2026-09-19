@@ -187,7 +187,7 @@ export function EventActionDialogue({
                 name="title"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel required>Title</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Type className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -208,7 +208,7 @@ export function EventActionDialogue({
                 name="event_side"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Event Side</FormLabel>
+                    <FormLabel required>Event Side</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
@@ -240,7 +240,7 @@ export function EventActionDialogue({
                 name="date"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Date</FormLabel>
+                    <FormLabel required>Date</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -263,7 +263,7 @@ export function EventActionDialogue({
                 name="time"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Time</FormLabel>
+                    <FormLabel required>Time</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -285,7 +285,7 @@ export function EventActionDialogue({
                 name="venue"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Venue</FormLabel>
+                    <FormLabel required>Venue</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <LandmarkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -306,7 +306,7 @@ export function EventActionDialogue({
                 name="city"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>City</FormLabel>
+                    <FormLabel required>City</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
@@ -327,7 +327,7 @@ export function EventActionDialogue({
                 name="address"
                 render={({ field }) => (
                   <FormItem className="col-span-2">
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel required>Address</FormLabel>
                     <FormControl>
                       <div className="relative group">
                         <AddressAutocomplete
@@ -348,7 +348,7 @@ export function EventActionDialogue({
                 name="description"
                 render={({ field }) => (
                   <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Message</FormLabel>
+                    <FormLabel required>Message</FormLabel>
                     <FormControl>
                       <InputGroup>
                         <InputGroupTextarea

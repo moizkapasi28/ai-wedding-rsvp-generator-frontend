@@ -49,7 +49,7 @@ export default function ForgotPasswordForm({
               name="email"
               render={({ field }) => (
                 <FormItem className="space-y-1 flex flex-col">
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel required>Email Address</FormLabel>
                   <FormControl>
                     <div className="relative group">
                       <MailIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300" />
