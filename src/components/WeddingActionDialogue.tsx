@@ -21,7 +21,6 @@ import {
   type WeddingFormValues,
 } from "@/validations/wedding.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building, Calendar, LandmarkIcon, Type, User } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { AddressAutocomplete } from "./custom/AddressAutocomplete";
@@ -161,15 +160,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Title</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Type className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter the wedding title"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter the wedding title"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,16 +177,13 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Date</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          type="date"
-                          placeholder="Select date"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        type="date"
+                        placeholder="Select date"
+                        autoComplete="off"
+                        className="[&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -204,15 +196,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Bride Name</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter bride name"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter bride name"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -225,15 +213,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Groom Name</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter groom name"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter groom name"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -246,15 +230,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Venue</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <LandmarkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter the venue"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter the venue"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -267,15 +247,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>City</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Building className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter the city"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter the city"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -290,13 +266,11 @@ export function WeddingActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Address</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <AddressAutocomplete
-                          placeholder="Enter the address"
-                          onPlaceSelected={handlePlaceSelected}
-                          {...field}
-                        />
-                      </div>
+                      <AddressAutocomplete
+                        placeholder="Enter the address"
+                        onPlaceSelected={handlePlaceSelected}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,7 +289,7 @@ export function WeddingActionDialogue({
                         <InputGroupTextarea
                           placeholder="Enter the message for the wedding"
                           rows={6}
-                          className="min-h-24 resize-none bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          className="min-h-24 resize-none"
                           {...field}
                         />
                         <InputGroupAddon align="block-end">

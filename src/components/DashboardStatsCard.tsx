@@ -19,7 +19,7 @@ export default function DashboardStatsCard({ Icon, value, label, badge }: Props)
         )}
 
         <Icon
-          className="text-primary-foreground  p-1 rounded-md bg-white/20 "
+          className="text-primary-foreground  p-1 rounded-md bg-white/20"
           size={40}
         />
       </CardHeader>

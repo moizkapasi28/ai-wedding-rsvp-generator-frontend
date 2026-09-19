@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { PasswordIndicator } from "./PasswordIndicator";
@@ -40,16 +41,16 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
 
     return (
       <TooltipProvider>
-        <div className="relative rounded-md">
+        <div className="relative">
           <Tooltip open={tooltipVisible}>
             <TooltipTrigger asChild>
               <div>
-                <input
+                {/* Renders the shared <Input> so height, radius, focus ring and
+                    invalid state match every other field. pr-9 leaves room for
+                    the reveal button. */}
+                <Input
                   type={showPassword ? "text" : "password"}
-                  className={cn(
-                    "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
-                    className,
-                  )}
+                  className={cn("pr-9", className)}
                   ref={ref}
                   {...props}
                   value={value}
@@ -60,27 +61,25 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
                   type="button"
                   size="icon"
                   variant="ghost"
-                  className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-md text-muted-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute top-1/2 right-1 size-6 -translate-y-1/2 text-muted-foreground"
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? (
-                    <EyeIcon size={18} />
+                    <EyeIcon className="size-4" />
                   ) : (
-                    <EyeOffIcon size={18} />
+                    <EyeOffIcon className="size-4" />
                   )}
                 </Button>
               </div>
             </TooltipTrigger>
-            <TooltipContent
-              side="left"
-              className="hidden max-w-xs rounded-md bg-white py-2 shadow-lg md:block"
-            >
+            <TooltipContent side="left" className="hidden max-w-xs md:block">
               <PasswordIndicator value={value as string} />
             </TooltipContent>
           </Tooltip>
         </div>
         {tooltipVisible && (
-          <div className="block text-sm text-gray-500 md:hidden mt-2">
+          <div className="mt-2 block text-sm text-muted-foreground md:hidden">
             <PasswordIndicator value={value as string} />
           </div>
         )}

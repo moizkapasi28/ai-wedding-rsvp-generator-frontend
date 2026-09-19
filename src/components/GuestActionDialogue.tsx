@@ -45,7 +45,6 @@ import {
 
 import { AddressAutocomplete } from "./custom/AddressAutocomplete";
 
-import { Calendar, Contact, Home, Mail, User, Users } from "lucide-react";
 import { PhoneInput } from "./custom/PhoneInput";
 import type { Guest } from "@/models/guest.model";
 import { useEffect } from "react";
@@ -198,26 +197,23 @@ export function GuestActionDialogue({
                       {isEdit ? "Event Invitations" : "Events"}
                     </FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
-                        <MultiSelect
-                          options={eventOptions}
-                          value={field.value ?? []}
-                          onValueChange={field.onChange}
-                          placeholder="Select events to invite this guest to"
-                          className="pl-11 min-h-10 h-auto! rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          onScrollEnd={() => {
-                            if (
-                              hasNextPage &&
-                              !isFetchingNextPage &&
-                              fetchNextPage
-                            ) {
-                              fetchNextPage();
-                            }
-                          }}
-                          isFetchingNextPage={isFetchingNextPage}
-                        />
-                      </div>
+                      <MultiSelect
+                        options={eventOptions}
+                        value={field.value ?? []}
+                        onValueChange={field.onChange}
+                        placeholder="Select events to invite this guest to"
+                        className="h-auto! min-h-8 w-full"
+                        onScrollEnd={() => {
+                          if (
+                            hasNextPage &&
+                            !isFetchingNextPage &&
+                            fetchNextPage
+                          ) {
+                            fetchNextPage();
+                          }
+                        }}
+                        isFetchingNextPage={isFetchingNextPage}
+                      />
                     </FormControl>
                     {isEdit && (
                       <FormDescription>
@@ -240,15 +236,11 @@ export function GuestActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Name</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          placeholder="Enter guest's full name"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        placeholder="Enter guest's full name"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -274,16 +266,12 @@ export function GuestActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Email</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10" />
-                        <Input
-                          type="email"
-                          placeholder="Enter email address"
-                          autoComplete="off"
-                          className="pl-11 h-10 bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
-                          {...field}
-                        />
-                      </div>
+                      <Input
+                        type="email"
+                        placeholder="Enter email address"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -296,22 +284,19 @@ export function GuestActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Side</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger className="w-full pl-11 h-10! rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
-                            <SelectValue placeholder="Select side" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={Side.BRIDE}>Bride</SelectItem>
-                            <SelectItem value={Side.GROOM}>Groom</SelectItem>
-                            <SelectItem value={Side.BOTH}>Both</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select side" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={Side.BRIDE}>Bride</SelectItem>
+                          <SelectItem value={Side.GROOM}>Groom</SelectItem>
+                          <SelectItem value={Side.BOTH}>Both</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -324,38 +309,35 @@ export function GuestActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel required>Group</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Contact className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger className="w-full pl-11 h-10! rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
-                            <SelectValue placeholder="Select group" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value={GuestGroup.FAMILY}>
-                              Family
-                            </SelectItem>
-                            <SelectItem value={GuestGroup.FRIEND}>
-                              Friend
-                            </SelectItem>
-                            <SelectItem value={GuestGroup.COLLEAGUE}>
-                              Colleague
-                            </SelectItem>
-                            <SelectItem value={GuestGroup.EMPLOYEE}>
-                              Employee
-                            </SelectItem>
-                            <SelectItem value={GuestGroup.VIP}>VIP</SelectItem>
-                            <SelectItem value={GuestGroup.RELATIVE}>
-                              Relative
-                            </SelectItem>
-                            <SelectItem value={GuestGroup.OTHER}>
-                              Other
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={GuestGroup.FAMILY}>
+                            Family
+                          </SelectItem>
+                          <SelectItem value={GuestGroup.FRIEND}>
+                            Friend
+                          </SelectItem>
+                          <SelectItem value={GuestGroup.COLLEAGUE}>
+                            Colleague
+                          </SelectItem>
+                          <SelectItem value={GuestGroup.EMPLOYEE}>
+                            Employee
+                          </SelectItem>
+                          <SelectItem value={GuestGroup.VIP}>VIP</SelectItem>
+                          <SelectItem value={GuestGroup.RELATIVE}>
+                            Relative
+                          </SelectItem>
+                          <SelectItem value={GuestGroup.OTHER}>
+                            Other
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -368,21 +350,18 @@ export function GuestActionDialogue({
                   <FormItem className="space-y-1 flex flex-col">
                     <FormLabel>Needs Accommodation</FormLabel>
                     <FormControl>
-                      <div className="relative group">
-                        <Home className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
-                        <Select
-                          value={field.value ? "yes" : "no"}
-                          onValueChange={(val) => field.onChange(val === "yes")}
-                        >
-                          <SelectTrigger className="w-full pl-11 h-10! rounded-md bg-white/60 dark:bg-zinc-950/60 dark:hover:bg-zinc-950/60 hover:bg-white/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm">
-                            <SelectValue placeholder="Select..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="yes">Yes</SelectItem>
-                            <SelectItem value="no">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      <Select
+                        value={field.value ? "yes" : "no"}
+                        onValueChange={(val) => field.onChange(val === "yes")}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="yes">Yes</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -420,7 +399,7 @@ export function GuestActionDialogue({
                         <InputGroupTextarea
                           placeholder="Enter any note for the guest (optional)"
                           rows={4}
-                          className="min-h-20 resize-none bg-white/60 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800 focus-visible:ring-primary/20 focus-visible:border-primary transition-all duration-300 shadow-sm"
+                          className="min-h-20 resize-none"
                           {...field}
                         />
                         <InputGroupAddon align="block-end">

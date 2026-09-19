@@ -1,110 +1,112 @@
-import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
+// ponytail: there is no billing in this codebase, so these prices are
+// placeholders. Set the real numbers (and wire up checkout) before launch.
+// Every listed feature below does exist today.
 const plans = [
   {
-    name: "Starter",
-    description: "Perfect for couples planning their big day.",
-    price: "$29",
-    period: "/event",
+    name: "Free",
+    price: "₹0",
+    period: "one wedding",
+    summary: "Enough to run a small wedding end to end.",
     features: [
-      "Up to 150 guests",
-      "Smart RSVP tracking",
-      "Standard email invitations",
-      "Basic dashboard analytics",
-      "Email support"
+      "One wedding with all its ceremonies",
+      "Up to 50 guests",
+      "Excel and CSV import",
+      "WhatsApp RSVP links",
+      "Live RSVP dashboard",
     ],
-    cta: "Start Free Trial",
-    recommended: false,
+    cta: "Start free",
+    featured: false,
   },
   {
-    name: "Pro",
-    description: "Ideal for professional wedding planners.",
-    price: "$79",
-    period: "/month",
+    name: "Wedding",
+    price: "₹1,499",
+    period: "per wedding",
+    summary: "One wedding, no limits on the guest list.",
     features: [
-      "Unlimited guests",
-      "AI no-show prediction",
-      "Automated SMS & Email flows",
-      "QR Code Check-in",
-      "Custom branding",
-      "Priority support"
+      "Unlimited guests and ceremonies",
+      "Unlimited AI invitation cards",
+      "AI header image and page builder",
+      "RSVP deadline and reminders",
+      "Dietary notes and plus-ones",
     ],
-    cta: "Get Started",
-    recommended: true,
+    cta: "Start free",
+    featured: true,
   },
   {
-    name: "Enterprise",
-    description: "For agencies managing multiple clients and weddings.",
-    price: "$199",
-    period: "/month",
+    name: "Planner",
+    price: "₹3,999",
+    period: "per month",
+    summary: "For planners running several weddings at once.",
     features: [
-      "Everything in Pro",
-      "Multi-host collaboration",
-      "Dedicated account manager",
-      "API access",
-      "Advanced custom reporting",
-      "White-label options"
+      "Everything in Wedding",
+      "Unlimited weddings side by side",
+      "Switch between weddings in one account",
+      "Priority email support",
     ],
-    cta: "Contact Sales",
-    recommended: false,
-  }
+    cta: "Start free",
+    featured: false,
+  },
 ];
 
 export default function PricingSection() {
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden">
-      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Choose the plan that fits your needs. No hidden fees, ever.
-          </p>
-        </div>
+    <section id="pricing" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
+      <div className="mx-auto w-full max-w-[1440px]">
+        <h2 className="max-w-[22ch] text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem]">
+          Pay for the wedding, not a subscription.
+        </h2>
+        <p className="mt-6 max-w-[48ch] leading-relaxed text-muted-foreground">
+          Start free and only pay once the guest list outgrows it. Planners
+          running back-to-back seasons can pay monthly instead.
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
-          {plans.map((plan, index) => (
-            <div 
-              key={index} 
-              className={`relative glass-card rounded-3xl p-8 flex flex-col h-full ${
-                plan.recommended 
-                  ? "border-primary/50 shadow-2xl shadow-primary/20 md:-translate-y-4 bg-background/80" 
-                  : "border-white/10 hover:border-white/20 bg-background/40"
-              } transition-all duration-300`}
+        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className={`flex flex-col rounded-xl border p-8 ${
+                plan.featured
+                  ? "border-primary bg-card"
+                  : "border-border bg-transparent"
+              }`}
             >
-              {plan.recommended && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-primary to-purple-600 text-white text-sm font-bold shadow-lg">
-                  Most Popular
-                </div>
-              )}
+              <h3 className="font-medium">{plan.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {plan.summary}
+              </p>
 
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <p className="text-muted-foreground text-sm h-10">{plan.description}</p>
-              </div>
+              <p className="mt-7 flex items-baseline gap-2">
+                <span className="text-4xl font-medium tracking-[-0.03em]">
+                  {plan.price}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {plan.period}
+                </span>
+              </p>
 
-              <div className="mb-8 flex items-baseline gap-1">
-                <span className="text-4xl md:text-5xl font-extrabold text-foreground">{plan.price}</span>
-                <span className="text-muted-foreground font-medium">{plan.period}</span>
-              </div>
-
-              <ul className="space-y-4 mb-8 flex-1">
-                {plan.features.map((feature, fIndex) => (
-                  <li key={fIndex} className="flex items-start gap-3 text-sm">
-                    <Check className={`w-5 h-5 shrink-0 ${plan.recommended ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <span className="text-foreground/80">{feature}</span>
+              <ul className="mt-8 flex-1 space-y-3 border-t border-border pt-7">
+                {plan.features.map((feature) => (
+                  <li
+                    key={feature}
+                    className="flex gap-3 text-sm leading-relaxed"
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-[0.45rem] size-1.5 shrink-0 rounded-full bg-primary"
+                    />
+                    {feature}
                   </li>
                 ))}
               </ul>
 
               <Link
                 to="/signup"
-                className={`w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all ${
-                  plan.recommended
-                    ? "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary/90"
-                    : "bg-white/5 text-foreground border border-white/10 hover:bg-white/10"
+                className={`mt-9 rounded-md px-5 py-3 text-center text-sm font-medium transition-opacity hover:opacity-90 ${
+                  plan.featured
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border"
                 }`}
               >
                 {plan.cta}

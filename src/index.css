@@ -178,3 +178,32 @@ html::-webkit-scrollbar, body::-webkit-scrollbar {
   }
 }
 
+
+
+/* ---------------------------------------------------------------------------
+   Landing page.
+
+   The page uses the app's own tokens and Geist, so the marketing site and the
+   product read as one thing. The only thing scoped here is the single load
+   animation: the invitation settles onto the page, then the reply it received
+   appears. Nothing else on the page animates on scroll.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .landing .settle {
+    animation: landing-settle 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .landing .settle-reply {
+    animation: landing-settle 600ms cubic-bezier(0.2, 0.7, 0.2, 1) 900ms both;
+  }
+}
+
+@keyframes landing-settle {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

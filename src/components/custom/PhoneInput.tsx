@@ -5,8 +5,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  fieldBoxClass,
+  fieldFocusWithinClass,
+  fieldInvalidClass,
+} from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Phone } from "lucide-react";
 import * as React from "react";
 
 export interface PhoneInputProps
@@ -66,41 +70,39 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     return (
-      <div className="relative group">
-        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400 group-focus-within:text-primary transition-colors duration-300 z-10 pointer-events-none" />
+      // The wrapper wears the shared field box, so this control is the same
+      // height, radius and border as every other input; the ring is
+      // focus-within because the focusable elements are the children.
+      <div
+        className={cn(
+          fieldBoxClass,
+          fieldFocusWithinClass,
+          fieldInvalidClass,
+          "flex items-center overflow-hidden",
+          className
+        )}
+      >
+        <Select value={countryCode} onValueChange={handleCodeChange}>
+          <SelectTrigger className="h-full w-auto min-w-[3.75rem] rounded-none border-0 border-r border-input bg-transparent px-2.5 text-muted-foreground focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {COUNTRY_CODES.map((c) => (
+              <SelectItem key={c.code} value={c.code} className="cursor-pointer">
+                {c.code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <div
-          className={cn(
-            "flex items-center h-9 w-full bg-white/60 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-md focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all duration-300 shadow-sm overflow-hidden",
-            className
-          )}
-        >
-          {/* Prefix Section with Select */}
-          <div className="flex items-center h-full pl-10 pr-2 border-r border-zinc-200 dark:border-zinc-800 bg-transparent">
-            <Select value={countryCode} onValueChange={handleCodeChange}>
-              <SelectTrigger className="h-full border-0 bg-transparent dark:bg-transparent dark:hover:bg-transparent hover:bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 px-1 w-auto min-w-[55px] text-sm font-medium text-zinc-500 dark:text-zinc-400 [&>svg]:opacity-50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {COUNTRY_CODES.map((c) => (
-                  <SelectItem key={c.code} value={c.code} className="cursor-pointer">
-                    <span className="font-medium">{c.code}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Actual Input */}
-          <input
-            type="tel"
-            ref={ref}
-            value={phoneNumber}
-            onChange={handleNumberChange}
-            className="flex-1 h-full w-full bg-transparent px-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
-            {...props}
-          />
-        </div>
+        <input
+          type="tel"
+          ref={ref}
+          value={phoneNumber}
+          onChange={handleNumberChange}
+          className="h-full w-full flex-1 bg-transparent px-2.5 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+          {...props}
+        />
       </div>
     );
   }

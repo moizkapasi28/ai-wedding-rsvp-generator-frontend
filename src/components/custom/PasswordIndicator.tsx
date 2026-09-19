@@ -91,7 +91,7 @@ export const PasswordIndicator: FC<PasswordIndicatorProps> = ({ value }) => {
             ) : (
               <XIcon size={16} className="text-red-500" />
             )}
-            <span className="text-sm text-gray-500 ">{req.text}</span>
+            <span className="text-sm text-gray-500">{req.text}</span>
           </li>
         ))}
       </ul>

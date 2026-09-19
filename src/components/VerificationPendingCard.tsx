@@ -1,24 +1,14 @@
+import AuthLayout from "@/components/auth/AuthLayout";
+import AuthNotice from "@/components/auth/AuthNotice";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useResendEmailVerification } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import type { ResendVerificationEmailRequest } from "@/validations/auth.validation";
-import { Inbox, MailQuestion, RefreshCw } from "lucide-react";
-import { useEffect, type HTMLAttributes } from "react";
+import { RefreshCw } from "lucide-react";
+import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-export type VerifyEmailCardProps = HTMLAttributes<HTMLDivElement>;
-
-export default function EmailVerificationPendingCard({
-  className,
-  ...props
-}: VerifyEmailCardProps) {
+export default function EmailVerificationPendingCard() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -41,61 +31,43 @@ export default function EmailVerificationPendingCard({
   };
 
   return (
-    <div className={cn("grid gap-6", className)} {...props}>
-      <Card className="w-full max-w-md z-10 shadow-2xl shadow-zinc-200/50 dark:shadow-black/50 border-white/60 dark:border-white/10 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl">
-        <CardHeader className="space-y-2 text-center pb-4 pt-6">
-          <div className="mx-auto bg-linear-to-br from-amber-500/20 to-amber-500/5 w-12 h-12 rounded-2xl flex items-center justify-center mb-1 shadow-inner border border-amber-500/10">
-            <MailQuestion className="w-7 h-7 text-amber-600 dark:text-amber-400 drop-shadow-sm" />
-          </div>
-          <CardTitle className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Verify Your Email
-          </CardTitle>
-          <CardDescription className="text-base text-zinc-500 dark:text-zinc-400">
-            We have sent a confirmation link to your registered email address.
-          </CardDescription>
-        </CardHeader>
+    <AuthLayout
+      title="Check your inbox."
+      description={
+        <>
+          We've sent a confirmation link to{" "}
+          <span className="text-foreground">{email}</span>. Open it and your
+          account is ready.
+        </>
+      }
+      footer={
+        <>
+          Already confirmed?{" "}
+          <Link
+            to="/signin"
+            className="text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+          >
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <div className="space-y-8">
+        <AuthNotice title="Not there?">
+          It can take a minute to arrive. Check your spam or promotions folder
+          before asking for another.
+        </AuthNotice>
 
-        <CardContent className="space-y-6 pt-2">
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 dark:bg-amber-500/10">
-            <div className="flex items-start gap-3">
-              <Inbox className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
-                  Check your inbox
-                </p>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Click the confirmation link inside the email to fully activate
-                  your account. If you cannot find it, please make sure to check
-                  your Spam or Junk folders.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Button
-              className="w-full gap-2 font-medium"
-              variant="outline"
-              onClick={handleResendVerificationEmail}
-              disabled={isPending}
-            >
-              <RefreshCw
-                className={cn("h-4 w-4", isPending && "animate-spin")}
-              />
-              {isPending ? "Sending..." : "Resend Verification Link"}
-            </Button>
-            <div className="text-sm text-center text-zinc-500 dark:text-zinc-400">
-              Back to login?{" "}
-              <Link
-                to="/signin"
-                className="text-primary hover:text-primary/80 font-semibold transition-colors hover:underline"
-              >
-                Sign in
-              </Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleResendVerificationEmail}
+          disabled={isPending}
+        >
+          <RefreshCw className={cn("size-4", isPending && "animate-spin")} />
+          {isPending ? "Sending" : "Send it again"}
+        </Button>
+      </div>
+    </AuthLayout>
   );
 }

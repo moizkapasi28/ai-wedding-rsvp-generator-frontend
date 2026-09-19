@@ -87,6 +87,19 @@ const Setup = () => {
               }),
             },
             {
+              // Public marketing pages; readable signed in or out.
+              path: "/blog",
+              lazy: async () => ({
+                Component: (await import("@/pages/Blog")).default,
+              }),
+            },
+            {
+              path: "/blog/:slug",
+              lazy: async () => ({
+                Component: (await import("@/pages/BlogPost")).default,
+              }),
+            },
+            {
               path: "/",
               lazy: async () => ({
                 Component: (await import("./pages/Landing")).default,
