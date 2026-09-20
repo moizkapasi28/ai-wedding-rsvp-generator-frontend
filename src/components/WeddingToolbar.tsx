@@ -1,7 +1,13 @@
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import SearchBar from "./SerachBar";
 import { Button } from "./ui/button";
 import { useWedding } from "./WeddingProvider";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+
+const filterOptions = [
+  { label: "This week", opt: "this_week" },
+  { label: "Upcoming", opt: "upcoming" },
+  { label: "Completed", opt: "completed" },
+];
 
 export default function WeddingToolbar() {
   const {
@@ -14,24 +20,16 @@ export default function WeddingToolbar() {
     setSortOrder,
   } = useWedding();
 
-  const filterOptions = [
-    {
-      label: "This Week",
-      opt: "this_week",
-    },
-    {
-      label: "Upcoming",
-      opt: "upcoming",
-    },
-    {
-      label: "Completed",
-      opt: "completed",
-    },
-  ];
+  const toggle = (opt: string) =>
+    setFilter(
+      filter.includes(opt)
+        ? filter.filter((f) => f !== opt)
+        : [...filter, opt],
+    );
 
   return (
-    <div className="flex flex-wrap gap-3 items-center w-full">
-      <div className="flex-1 min-w-60">
+    <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
+      <div className="lg:max-w-xs lg:flex-1">
         <SearchBar
           placeholder="Search by couple, city or venue"
           value={search}
@@ -39,38 +37,37 @@ export default function WeddingToolbar() {
         />
       </div>
 
-      <div className="flex gap-2">
+      {/* Scrolls sideways on a phone rather than wrapping into a second row
+          and pushing the grid down. -mx-1/px-1 keeps focus rings visible. */}
+      <div className="no-scrollbar -mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-0.5 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0">
         {filterOptions.map(({ label, opt }) => (
           <Button
             key={opt}
+            size="sm"
             variant={filter.includes(opt) ? "default" : "outline"}
-            onClick={() => {
-              if (filter.includes(opt)) {
-                setFilter(filter.filter((f) => f !== opt));
-              } else {
-                setFilter([...filter, opt]);
-              }
-            }}
+            className="shrink-0"
+            aria-pressed={filter.includes(opt)}
+            onClick={() => toggle(opt)}
           >
             {label}
           </Button>
         ))}
+
         <Button
+          size="sm"
           variant="outline"
+          className="shrink-0"
           onClick={() => {
             setSortBy("date");
             setSortOrder((prev) =>
               prev === "" ? "desc" : prev === "desc" ? "asc" : "",
             );
           }}
-          className="gap-2"
         >
-          Wedding Date
-          {sortOrder === "asc" && <ArrowUp className="w-4 h-4" />}
-          {sortOrder === "desc" && <ArrowDown className="w-4 h-4" />}
-          {sortOrder === "" && (
-            <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
-          )}
+          Date
+          {sortOrder === "asc" && <ArrowUp />}
+          {sortOrder === "desc" && <ArrowDown />}
+          {sortOrder === "" && <ArrowUpDown className="text-muted-foreground" />}
         </Button>
       </div>
     </div>

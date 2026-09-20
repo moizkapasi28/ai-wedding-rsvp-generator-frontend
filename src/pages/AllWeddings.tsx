@@ -1,5 +1,4 @@
 import Page, { PageHeader } from "@/components/Page";
-import ToolBar from "@/components/ToolBar";
 import WeddingDialogues from "@/components/WeddingDialogues";
 import WeddingList from "@/components/WeddingList";
 import WeddingPrimaryButtons from "@/components/WeddingPrimaryButtons";
@@ -12,17 +11,17 @@ export default function AllWeddings() {
       <Page>
         <PageHeader title="All Weddings" />
 
-        <div className="mt-auto space-y-4">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
-            <ToolBar>
-              <WeddingToolbar />
-            </ToolBar>
+        {/* The action sits above the filters on a phone, where a full-width
+            primary button is easier to hit than one squeezed onto a row. */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <WeddingPrimaryButtons />
+          <WeddingToolbar />
+        </div>
 
-            <WeddingPrimaryButtons />
-          </div>
-
+        <div className="mt-6">
           <WeddingList />
         </div>
+
         <WeddingDialogues />
       </Page>
     </WeddingProvider>

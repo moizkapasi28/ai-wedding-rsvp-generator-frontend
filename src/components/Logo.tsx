@@ -61,7 +61,7 @@ export function Logo({
       <LogoMark className={markClassName} />
       <span
         className={cn(
-          "font-display text-2xl font-semibold tracking-[-0.03em]",
+          "font-display text-2xl leading-none font-semibold tracking-[-0.03em]",
           wordmarkClassName,
         )}
       >

@@ -6,14 +6,12 @@ export default function WeddingPrimaryButtons() {
   const { setOpen } = useWedding();
 
   return (
-    <div className="flex items-center gap-2 shrink-0">
-      {/* <Button variant="outline">
-        <MenuIcon />
-        <span>View as list</span>
-      </Button> */}
-      <Button variant="default" onClick={() => setOpen("add")}>
+    // Full width on a phone, shrink-wrapped once it shares a row with the
+    // filters. order- puts it back on the right at desktop widths.
+    <div className="order-first flex shrink-0 lg:order-last">
+      <Button className="w-full lg:w-auto" onClick={() => setOpen("add")}>
         <PlusIcon />
-        <span>New Wedding</span>
+        New wedding
       </Button>
     </div>
   );

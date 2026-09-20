@@ -1,167 +1,179 @@
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { getInitials, getWeddingColor } from "@/lib/weddingColor";
+import { formatWeddingDate } from "@/lib/weddingDate";
+import type { Wedding } from "@/models/wedding.model";
+import { activeWeddingAtom, activeWeddingIdAtom } from "@/store/store";
+import { useAtomValue, useSetAtom } from "jotai";
 import { MapPin, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "./ui/badge";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useWedding } from "./WeddingProvider";
-import type { Wedding } from "@/models/wedding.model";
-import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
-import { useSetAtom } from "jotai";
-import { useNavigate } from "react-router-dom";
 
 export default function WeddingCard({ wedding }: { wedding: Wedding }) {
   const { setOpen, setCurrentRow } = useWedding();
   const [menuOpen, setMenuOpen] = useState(false);
   const setActiveWeddingId = useSetAtom(activeWeddingIdAtom);
   const setActiveWeddingStore = useSetAtom(activeWeddingAtom);
+  const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const navigate = useNavigate();
 
-  const menuActive = menuOpen;
+  const isActive = activeWeddingId === wedding.id;
+  const confirmed = wedding.confirmationRate ?? 0;
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("button") || menuOpen) {
-      return;
-    }
+  const open = () => {
     setActiveWeddingId(wedding.id);
     setActiveWeddingStore(wedding);
     navigate("/wedding-dashboard");
   };
 
   return (
-    <Card 
-      className="group overflow-hidden gap-0 py-0 hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer"
-      onClick={handleCardClick}
+    // Hairline card, no colour slab. The wedding's identity colour rides on
+    // the initials chip — the same chip it wears in the sidebar switcher — and
+    // on the confirmation bar, which is where colour carries meaning.
+    <article
+      className={cn(
+        "flex min-w-0 flex-col rounded-xl border bg-card p-5 transition-colors",
+        isActive ? "border-primary" : "border-border hover:border-ring",
+      )}
     >
-      <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 text-white space-y-1 relative px-5 pb-5 pt-3">
-        <Badge
-          className={`absolute right-5 top-3 bg-white/20 text-white hover:bg-white/20 pointer-events-none transition-opacity duration-200 ${
-            menuActive ? "opacity-0" : "group-hover:opacity-0"
-          }`}
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden
+          className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-md bg-linear-to-br text-xs font-bold text-white",
+            getWeddingColor(wedding.id),
+          )}
         >
-          {wedding.tag}
-        </Badge>
+          {getInitials(wedding.bride_name, wedding.groom_name)}
+        </span>
 
-        {/* Options button — visible on hover OR while menu is open */}
+        <div className="min-w-0 flex-1">
+          {/* Wraps to a second line rather than cutting off — a long couple's
+              name is the one thing on this card that must stay readable. */}
+          <h3
+            className="line-clamp-2 text-base font-semibold tracking-[-0.02em]"
+            title={wedding.title}
+          >
+            {wedding.title}
+          </h3>
+          <p className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="truncate">
+              {formatWeddingDate(wedding.date)}
+              {wedding.city ? `, ${wedding.city}` : ""}
+            </span>
+            {wedding.tag && (
+              <span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 text-xs">
+                {wedding.tag}
+              </span>
+            )}
+          </p>
+        </div>
+
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
-              id="wedding-card-options-btn"
               variant="ghost"
               size="icon"
-              className={`absolute right-4 top-2 h-7 w-7 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${
-                menuActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-              }`}
-              aria-label="Wedding options"
+              className="-mt-1 -mr-2 shrink-0 text-muted-foreground"
+              aria-label={`Options for ${wedding.title}`}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
-              id="wedding-card-edit-btn"
               className="cursor-pointer"
               onClick={() => {
                 setCurrentRow(wedding);
                 setOpen("edit");
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              id="wedding-card-delete-btn"
               className="cursor-pointer text-destructive focus:text-destructive"
               onClick={() => {
                 setCurrentRow(wedding);
                 setOpen("delete");
               }}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
 
-        <div className="w-[calc(100%-6rem)]">
-          <h3 className="text-lg font-semibold truncate">{wedding.title}</h3>
-          <p className="text-sm text-white/80 truncate mt-1">
-            {new Date(wedding.date).toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}{" "}
-            · {wedding.city}
-          </p>
+      <div className="mt-4 flex min-w-0 items-start gap-2 border-t border-border pt-4 text-sm">
+        <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div className="min-w-0">
+          <p className="truncate">{wedding.venue || "Venue not set"}</p>
+          {wedding.address && (
+            <p
+              className="truncate text-xs text-muted-foreground"
+              title={wedding.address}
+            >
+              {wedding.address}
+            </p>
+          )}
         </div>
-      </CardHeader>
+      </div>
 
-      {/* Content */}
-      <CardContent className="p-5 space-y-5">
-        {/* Venue & Address */}
-        <div className="flex items-start gap-2.5 flex-1 min-w-0 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-foreground/70" />
-          <div className="flex flex-col min-w-0 w-full">
-            <span className="font-semibold text-foreground truncate">
-              {wedding.venue}
-            </span>
-            {wedding.address && (
-              <span className="text-xs truncate" title={wedding.address}>
-                {wedding.address}
-              </span>
-            )}
-          </div>
-        </div>
+      <dl className="mt-5 grid grid-cols-3 gap-2">
+        <Stat value={wedding.totalGuests ?? 0} label="Guests" />
+        <Stat value={wedding.totalEvents ?? 0} label="Events" />
+        <Stat value={`${confirmed}%`} label="Confirmed" />
+      </dl>
 
-        {/* Stats (grid is unavoidable in CSS) */}
-        <div className="grid grid-cols-3 text-left">
-          <Stat value={String(wedding.totalGuests) || "0"} label="Guests" />
-          <Stat value={String(wedding.totalEvents) || "0"} label="Events" />
-          <Stat
-            value={`${String(wedding.confirmationRate) || "0"}%`}
-            label="Confirmed"
-          />
-        </div>
-      </CardContent>
+      <div
+        className="mt-3 mb-5 h-1 w-full overflow-hidden rounded-full bg-muted"
+        role="progressbar"
+        aria-valuenow={confirmed}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${confirmed}% of guests confirmed`}
+      >
+        <div
+          className={cn("h-full bg-linear-to-r", getWeddingColor(wedding.id))}
+          style={{ width: `${confirmed}%` }}
+        />
+      </div>
 
-      {/* Footer */}
-      <CardFooter className="pt-0 pb-5 px-4 border-t-0 bg-transparent">
-        <ProgressBar value={wedding.confirmationRate ?? 0} />
-      </CardFooter>
-    </Card>
+      <div className="mt-auto flex items-center gap-3 border-t border-border pt-4">
+        <Button
+          variant={isActive ? "default" : "outline"}
+          className="flex-1"
+          onClick={open}
+        >
+          {isActive ? "Open dashboard" : "Switch to this wedding"}
+        </Button>
+        {isActive && (
+          <span className="shrink-0 rounded-md border border-primary bg-primary/15 px-2 py-1 text-xs font-medium">
+            Active
+          </span>
+        )}
+      </div>
+    </article>
   );
 }
 
-/* Small reusable pieces (this is where real cleanliness comes from) */
-
-function Stat({ value, label }: { value: string; label: string }) {
+function Stat({ value, label }: { value: string | number; label: string }) {
   return (
     <div>
-      <p className="text-base font-semibold">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function ProgressBar({ value }: { value: number }) {
-  return (
-    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-      <div
-        className="h-full bg-linear-to-r from-orange-500 to-pink-600"
-        style={{ width: `${value}%` }}
-      />
+      <dd className="font-display text-xl font-medium tracking-[-0.02em] tabular-nums">
+        {value}
+      </dd>
+      <dt className="mt-0.5 text-xs text-muted-foreground">{label}</dt>
     </div>
   );
 }

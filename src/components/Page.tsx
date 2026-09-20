@@ -7,7 +7,7 @@ type PageHeaderProps = {
 };
 
 export default function Page({ children }: { children: React.ReactNode }) {
-  return <div className="px-2 py-6 md:p-3">{children}</div>;
+  return <div className="p-4 sm:p-6">{children}</div>;
 }
 
 export function PageHeader({ title, children }: PageHeaderProps) {

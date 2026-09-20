@@ -8,13 +8,17 @@ export const formatWeddingDate = (date?: string | null) => {
   const when = new Date(date);
   if (Number.isNaN(when.getTime())) return "Date not set";
 
+  const now = new Date();
+  // Year is noise for this year's wedding and essential for any other, so it
+  // only appears when it differs.
+  const sameYear = when.getUTCFullYear() === now.getFullYear();
   const day = when.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
+    ...(sameYear ? {} : { year: "numeric" }),
     timeZone: "UTC",
   });
 
-  const now = new Date();
   const days =
     toDayNumber(when.getUTCFullYear(), when.getUTCMonth(), when.getUTCDate()) -
     toDayNumber(now.getFullYear(), now.getMonth(), now.getDate());

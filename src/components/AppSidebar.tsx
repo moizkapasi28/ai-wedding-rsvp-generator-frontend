@@ -1,4 +1,4 @@
-import { LogoMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
 import WeddingSwitcher from "@/components/WeddingSwitcher";
 import { APP_SIDEBAR } from "@/constants";
@@ -36,18 +36,23 @@ export default function AppSidebar() {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" tooltip="WeddlyAI">
-              <NavLink to="/weddings" onClick={closeOnMobile}>
-                <LogoMark className="h-7 group-data-[collapsible=icon]:h-5" />
-                <span className="truncate font-display text-lg font-semibold tracking-[-0.03em]">
-                  WeddlyAI
-                </span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        {/* Deliberately not a SidebarMenuButton: that component forces every
+            descendant svg to size-4, which squashed the logo to 16px. The
+            brand row is a header, not a nav item, so it sizes itself. */}
+        <NavLink
+          to="/weddings"
+          onClick={closeOnMobile}
+          aria-label="WeddlyAI"
+          className="block rounded-md px-1 py-1 transition-opacity hover:opacity-80 group-data-[collapsible=icon]:px-0"
+        >
+          {/* Shares the Logo component with the landing header and auth pages,
+              so the mark/wordmark proportions can't drift apart again. */}
+          <Logo
+            className="min-w-0 group-data-[collapsible=icon]:justify-center"
+            markClassName="h-9 group-data-[collapsible=icon]:h-6"
+            wordmarkClassName="truncate group-data-[collapsible=icon]:hidden"
+          />
+        </NavLink>
       </SidebarHeader>
 
       <WeddingSwitcher />

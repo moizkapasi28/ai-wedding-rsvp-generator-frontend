@@ -2,6 +2,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { WeddingActionDialogue } from "@/components/WeddingActionDialogue";
 import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { cn } from "@/lib/utils";
+import { getInitials, getWeddingColor } from "@/lib/weddingColor";
 import { formatWeddingDate } from "@/lib/weddingDate";
 import { activeWeddingIdAtom, activeWeddingAtom } from "@/store/store";
 import { useAtom } from "jotai";
@@ -15,26 +16,6 @@ import {
   Search,
 } from "lucide-react";
 import * as React from "react";
-
-const GRADIENTS = [
-  "from-pink-500 via-rose-500 to-red-500",
-  "from-purple-500 to-indigo-500",
-  "from-teal-400 to-emerald-600",
-  "from-amber-400 to-orange-600",
-  "from-blue-400 to-cyan-600",
-];
-
-const getWeddingColor = (id: string) => {
-  if (!id) return GRADIENTS[0];
-  const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return GRADIENTS[hash % GRADIENTS.length];
-};
-
-const getInitials = (bride: string, groom: string) => {
-  return (
-    `${bride?.charAt(0) || ""}${groom?.charAt(0) || ""}`.toUpperCase() || "W"
-  );
-};
 
 export default function WeddingSwitcher() {
   const { state } = useSidebar();
