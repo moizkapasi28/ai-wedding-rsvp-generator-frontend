@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   guestFormSchema,
   GuestGroup,
@@ -34,7 +35,7 @@ import {
   type GuestFormValues,
 } from "@/validations/guest.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Input } from "./ui/input";
 import {
   InputGroup,
@@ -42,14 +43,13 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "./ui/input-group";
-
 import { AddressAutocomplete } from "./custom/AddressAutocomplete";
-
 import { PhoneInput } from "./custom/PhoneInput";
 import type { Guest } from "@/models/guest.model";
 import { useEffect } from "react";
 import { useCreateGuest, useUpdateGuest } from "@/hooks/use-guest";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 type GuestActionDialogMode = "add" | "edit";
 
@@ -58,23 +58,28 @@ export type EventOption = {
   title: string;
 };
 
-const STATIC_EVENTS: EventOption[] = [
-  { id: "550e8400-e29b-41d4-a716-446655440001", title: "Mehendi" },
-  { id: "550e8400-e29b-41d4-a716-446655440002", title: "Sangeet" },
-  { id: "550e8400-e29b-41d4-a716-446655440003", title: "Wedding Ceremony" },
-  { id: "550e8400-e29b-41d4-a716-446655440004", title: "Reception" },
-];
-
 type GuestActionDialogProps = {
   currentRow?: Guest;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: GuestActionDialogMode;
-  events?: EventOption[];
+  events: EventOption[];
   fetchNextPage?: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
 };
+
+const NOTE_LIMIT = 100;
+
+const GROUPS: { value: string; label: string }[] = [
+  { value: GuestGroup.FAMILY, label: "Family" },
+  { value: GuestGroup.RELATIVE, label: "Relative" },
+  { value: GuestGroup.FRIEND, label: "Friend" },
+  { value: GuestGroup.COLLEAGUE, label: "Colleague" },
+  { value: GuestGroup.EMPLOYEE, label: "Employee" },
+  { value: GuestGroup.VIP, label: "VIP" },
+  { value: GuestGroup.OTHER, label: "Other" },
+];
 
 const getFormValues = (row?: Guest | null): GuestFormValues => ({
   name: row?.name ?? "",
@@ -93,7 +98,7 @@ export function GuestActionDialogue({
   open,
   onOpenChange,
   mode = "add",
-  events = STATIC_EVENTS,
+  events,
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
@@ -119,10 +124,13 @@ export function GuestActionDialogue({
   const createGuest = useCreateGuest();
   const updateGuest = useUpdateGuest();
 
-  const isPendingCreate = createGuest.isPending;
-  const isPendingUpdate = updateGuest.isPending;
+  // Was `isPendingCreate` alone, so Save Changes never showed a spinner.
+  const isPending = createGuest.isPending || updateGuest.isPending;
 
-  const isAccommodationRequired = form.watch("accomodation_required");
+  const needsRoom = useWatch({
+    control: form.control,
+    name: "accomodation_required",
+  });
 
   const handlePlaceSelected = (place: google.maps.places.PlaceResult) => {
     if (place.formatted_address) {
@@ -130,17 +138,15 @@ export function GuestActionDialogue({
     }
   };
 
-  const handleClose = () => {
-    if (isPendingCreate || isPendingUpdate) return;
-    form.reset();
-    onOpenChange(false);
+  // One way out, used by the X, Esc, the overlay and Cancel alike — and it
+  // refuses to close while a save is in flight.
+  const handleOpenChange = (state: boolean) => {
+    if (!state && isPending) return;
+    onOpenChange(state);
   };
 
   const onSubmit = (values: GuestFormValues) => {
-    const onMutationSuccess = () => {
-      form.reset();
-      onOpenChange(false);
-    };
+    const onMutationSuccess = () => onOpenChange(false);
 
     if (isEdit) {
       if (!currentRow?.id) {
@@ -157,15 +163,14 @@ export function GuestActionDialogue({
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(state) => {
-        form.reset();
-        onOpenChange(state);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {/* p-0 + flex column: the header and footer stay put and only the fields
+          scroll, so a long form on a short laptop screen can't push Save off
+          the bottom of the window. The cap is a percentage, not dvh — the
+          dialog is fixed, so 100% already resolves against the viewport, and it
+          doesn't jump when a mobile browser's toolbar slides away. */}
       <DialogContent
-        className="w-full sm:max-w-2xl"
+        className="flex max-h-[calc(100%-2rem)] flex-col overflow-hidden p-0 sm:max-w-2xl"
         onInteractOutside={(e) => {
           const target = e.target as HTMLElement;
           if (target.closest(".pac-container")) {
@@ -174,253 +179,249 @@ export function GuestActionDialogue({
         }}
       >
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader className="text-start">
-              <DialogTitle>
-                {isEdit ? "Edit Guest" : "Add New Guest"}
-              </DialogTitle>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            {/* pr-12 keeps the text clear of the close button */}
+            <DialogHeader className="gap-0.5 border-b border-border px-5 py-4 pr-12 text-start">
+              <DialogTitle>{isEdit ? "Edit guest" : "Add a guest"}</DialogTitle>
               <DialogDescription>
                 {isEdit
-                  ? "Update the guest details and manage their event invitations below"
-                  : "Add a new guest and select which events they are invited to"}
+                  ? "Update their details, or change which ceremonies they are invited to."
+                  : "Pick the ceremonies they are invited to, then add their details."}
               </DialogDescription>
             </DialogHeader>
 
-            {/* ── Event invitations (full-width) ── */}
-            <div className="grid grid-cols-1 gap-y-3 py-2">
-              <FormField
-                control={form.control}
-                name="eventIds"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>
-                      {isEdit ? "Event Invitations" : "Events"}
-                    </FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        options={eventOptions}
-                        value={field.value ?? []}
-                        onValueChange={field.onChange}
-                        placeholder="Select events to invite this guest to"
-                        className="h-auto! min-h-8 w-full"
-                        onScrollEnd={() => {
-                          if (
-                            hasNextPage &&
-                            !isFetchingNextPage &&
-                            fetchNextPage
-                          ) {
-                            fetchNextPage();
-                          }
-                        }}
-                        isFetchingNextPage={isFetchingNextPage}
-                      />
-                    </FormControl>
-                    {isEdit && (
-                      <FormDescription>
-                        Unchecking an event will remove this guest's invitation
-                        from that event.
-                      </FormDescription>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* One grid, no section headings and no helper paragraphs: the
+                labels already say what each field is, and every extra line is
+                another line to scroll past. */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                {/* First, because a guest exists to be invited to something */}
+                <FormField
+                  control={form.control}
+                  name="eventIds"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5 sm:col-span-2">
+                      <FormLabel required>Invited to</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={eventOptions}
+                          value={field.value ?? []}
+                          onValueChange={field.onChange}
+                          placeholder="Pick the ceremonies"
+                          className="h-auto! min-h-8 w-full"
+                          onScrollEnd={() => {
+                            if (hasNextPage && !isFetchingNextPage)
+                              fetchNextPage?.();
+                          }}
+                          isFetchingNextPage={isFetchingNextPage}
+                        />
+                      </FormControl>
+                      {/* Kept: unchecking here destroys an existing invite */}
+                      {isEdit && (
+                        <FormDescription>
+                          Removing a ceremony deletes this guest's invitation to
+                          it, along with their reply.
+                        </FormDescription>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* ── Guest profile (2-column grid) ── */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 pb-2">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter guest's full name"
-                        autoComplete="off"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="mobile_number"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Mobile Number</FormLabel>
-                    <FormControl>
-                      <PhoneInput {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Enter email address"
-                        autoComplete="off"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="side"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Side</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select side" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={Side.BRIDE}>Bride</SelectItem>
-                          <SelectItem value={Side.GROOM}>Groom</SelectItem>
-                          <SelectItem value={Side.BOTH}>Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="group"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Group</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select group" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={GuestGroup.FAMILY}>
-                            Family
-                          </SelectItem>
-                          <SelectItem value={GuestGroup.FRIEND}>
-                            Friend
-                          </SelectItem>
-                          <SelectItem value={GuestGroup.COLLEAGUE}>
-                            Colleague
-                          </SelectItem>
-                          <SelectItem value={GuestGroup.EMPLOYEE}>
-                            Employee
-                          </SelectItem>
-                          <SelectItem value={GuestGroup.VIP}>VIP</SelectItem>
-                          <SelectItem value={GuestGroup.RELATIVE}>
-                            Relative
-                          </SelectItem>
-                          <SelectItem value={GuestGroup.OTHER}>
-                            Other
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="accomodation_required"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Needs Accommodation</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value ? "yes" : "no"}
-                        onValueChange={(val) => field.onChange(val === "yes")}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="yes">Yes</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="accomodation_address"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel required={isAccommodationRequired}>Accommodation Address</FormLabel>
-                    <FormControl>
-                      <AddressAutocomplete
-                        disabled={!isAccommodationRequired}
-                        placeholder="Enter accommodation address"
-                        onPlaceSelected={handlePlaceSelected}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="pb-2">
-              <FormField
-                control={form.control}
-                name="note"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel>Note</FormLabel>
-                    <FormControl>
-                      <InputGroup>
-                        <InputGroupTextarea
-                          placeholder="Enter any note for the guest (optional)"
-                          rows={4}
-                          className="min-h-20 resize-none"
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ananya Rao"
+                          autoComplete="off"
                           {...field}
                         />
-                        <InputGroupAddon align="block-end">
-                          <InputGroupText className="tabular-nums">
-                            {(field.value ?? "").length}/100 characters
-                          </InputGroupText>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="mobile_number"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Mobile</FormLabel>
+                      <FormControl>
+                        <PhoneInput {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5 sm:col-span-2">
+                      <FormLabel required>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="ananya.rao@example.com"
+                          autoComplete="off"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="side"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Side</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select side" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={Side.BRIDE}>Bride</SelectItem>
+                            <SelectItem value={Side.GROOM}>Groom</SelectItem>
+                            <SelectItem value={Side.BOTH}>Both</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="group"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Group</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select group" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GROUPS.map((group) => (
+                              <SelectItem key={group.value} value={group.value}>
+                                {group.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* A yes/no was a dropdown; a switch says it in one tap, and
+                    the address only appears once there's something to fill in
+                    rather than sitting there greyed out. */}
+                <FormField
+                  control={form.control}
+                  name="accomodation_required"
+                  render={({ field }) => (
+                    <FormItem
+                      className={cn(
+                        "flex flex-row items-center justify-between gap-4 space-y-0 rounded-lg border border-border px-3 py-2.5 sm:col-span-2",
+                        needsRoom && "border-primary/40",
+                      )}
+                    >
+                      <FormLabel className="font-normal">
+                        Needs a room
+                      </FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {needsRoom && (
+                  <FormField
+                    control={form.control}
+                    name="accomodation_address"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1.5 sm:col-span-2">
+                        <FormLabel required>Where they're staying</FormLabel>
+                        <FormControl>
+                          <AddressAutocomplete
+                            placeholder="Search the hotel or address"
+                            onPlaceSelected={handlePlaceSelected}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
+
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => {
+                    const length = (field.value ?? "").length;
+                    return (
+                      <FormItem className="space-y-1.5 sm:col-span-2">
+                        <FormLabel>Note</FormLabel>
+                        <FormControl>
+                          <InputGroup>
+                            <InputGroupTextarea
+                              placeholder="Anything to remember — dietary needs, who they're travelling with."
+                              rows={3}
+                              className="min-h-20 resize-none"
+                              {...field}
+                            />
+                            <InputGroupAddon align="block-end">
+                              <InputGroupText
+                                className={cn(
+                                  "tabular-nums",
+                                  length > NOTE_LIMIT && "text-destructive",
+                                )}
+                              >
+                                {length}/{NOTE_LIMIT}
+                              </InputGroupText>
+                            </InputGroupAddon>
+                          </InputGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
             </div>
 
-            <DialogFooter className="bg-transparent border-t-0">
-              <Button type="button" variant="outline" onClick={handleClose}>
+            <DialogFooter className="mx-0 mb-0 px-5 py-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" loading={isPendingCreate}>
-                {isEdit ? "Save Changes" : "Add Guest"}
+              <Button type="submit" loading={isPending}>
+                {isEdit ? "Save changes" : "Add guest"}
               </Button>
             </DialogFooter>
           </form>

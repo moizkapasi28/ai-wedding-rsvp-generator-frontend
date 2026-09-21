@@ -1,11 +1,13 @@
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { pageRange } from "@/lib/pageRange";
 
 type Props = {
   page: number;
@@ -22,18 +24,18 @@ export default function TablePagination({
   pageSize,
   onPageChange,
 }: Props) {
+  if (totalItems === 0) return null;
+
   const start = (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalItems);
 
   return (
-    <div className="flex w-full items-center mt-4 justify-between text-sm text-muted-foreground">
-      {/* LEFT */}
-      <span>
-        Showing {start} to {end} of {totalItems}
+    <div className="mt-5 flex flex-col-reverse items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
+      <span className="tabular-nums">
+        Showing {start}–{end} of {totalItems}
       </span>
 
-      {/* RIGHT */}
-      <Pagination className="w-auto mx-0 my-0 gap-1">
+      <Pagination className="mx-0 my-0 w-auto gap-1">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
@@ -42,20 +44,22 @@ export default function TablePagination({
             />
           </PaginationItem>
 
-          {Array.from({ length: totalPages }).map((_, i) => {
-            const p = i + 1;
-
-            return (
-              <PaginationItem key={p}>
+          {pageRange(page, totalPages).map((entry, i) =>
+            entry === "gap" ? (
+              <PaginationItem key={`gap-${i}`}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={entry}>
                 <PaginationLink
-                  isActive={p === page}
-                  onClick={() => onPageChange(p)}
+                  isActive={entry === page}
+                  onClick={() => onPageChange(entry)}
                 >
-                  {p}
+                  {entry}
                 </PaginationLink>
               </PaginationItem>
-            );
-          })}
+            ),
+          )}
 
           <PaginationItem>
             <PaginationNext

@@ -2,6 +2,7 @@ import ScrollFade from "@/components/custom/ScrollFade";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -9,23 +10,8 @@ import {
 } from "@/components/ui/card";
 import type { LiveStatus } from "@/hooks/use-wedding-live";
 import { cn } from "@/lib/utils";
+import { rsvpStatus } from "@/lib/rsvpStatus";
 import type { LiveRsvp } from "@/models/wedding.model";
-
-// Colours match MultiProgressBar: green attending, yellow maybe, red declined
-const STATUS_STYLES: Record<LiveRsvp["status"], { label: string; className: string }> = {
-  ATTENDING: {
-    label: "Attending",
-    className: "bg-green-500/15 text-green-700 dark:text-green-400",
-  },
-  MAYBE: {
-    label: "Maybe",
-    className: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400",
-  },
-  DECLINED: {
-    label: "Declined",
-    className: "bg-red-500/15 text-red-700 dark:text-red-400",
-  },
-};
 
 const LIVE_LABELS: Record<LiveStatus, string> = {
   connecting: "Connecting…",
@@ -55,35 +41,36 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
   const isLive = liveStatus === "live";
 
   return (
-    <Card className="h-full py-5">
-      <CardHeader className="flex flex-row items-start justify-between">
-        <div>
-          <CardTitle>Recent RSVPs</CardTitle>
-          <CardDescription>Latest replies from your guests</CardDescription>
-        </div>
-
-        <span
-          role="status"
-          className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground"
-        >
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Recent RSVPs</CardTitle>
+        <CardDescription>Latest replies from your guests</CardDescription>
+        <CardAction>
           <span
-            className={cn(
-              "size-1.5 rounded-full",
-              isLive ? "bg-green-500" : "animate-pulse bg-amber-500",
-            )}
-          />
-          {LIVE_LABELS[liveStatus]}
-        </span>
+            role="status"
+            className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                isLive ? "bg-green-500" : "animate-pulse bg-amber-500",
+              )}
+            />
+            {LIVE_LABELS[liveStatus]}
+          </span>
+        </CardAction>
       </CardHeader>
 
       <CardContent>
         {rsvps.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No replies yet</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No replies yet. They'll appear here the moment a guest responds.
+          </p>
         ) : (
           // Rows are h-14 with 0.25rem gaps, so this height shows exactly five; older replies scroll
           <ScrollFade className="max-h-[18.5rem] space-y-1">
           {rsvps.map((rsvp) => {
-            const status = STATUS_STYLES[rsvp.status];
+            const status = rsvpStatus(rsvp.status);
             const isNew = now - new Date(rsvp.respondedAt).getTime() < 60_000;
 
             return (
@@ -100,7 +87,7 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
                     {rsvp.eventTitle} · {timeAgo(rsvp.respondedAt, now)}
                   </p>
                 </div>
-                <Badge className={cn("shrink-0", status.className)}>
+                <Badge className={cn("shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium", status.className)}>
                   {status.label}
                 </Badge>
               </div>

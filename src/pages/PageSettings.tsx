@@ -4,7 +4,7 @@ import PageSettingMain from "@/components/PageSettingMain";
 export default function PageSettings() {
   return (
     <Page>
-      <PageHeader title="RSVP Page Settings" />
+      <PageHeader title="RSVP page" />
       <PageSettingMain />
     </Page>
   );

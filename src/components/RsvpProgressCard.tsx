@@ -1,5 +1,6 @@
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -11,67 +12,85 @@ import { Button } from "./ui/button";
 import { MultiProgressBar } from "./custom/MultiProgressBar";
 import ScrollFade from "./custom/ScrollFade";
 
+// Same four colours the bar paints, in the same order.
+const LEGEND = [
+  { label: "Attending", className: "bg-green-500" },
+  { label: "Maybe", className: "bg-yellow-500" },
+  { label: "Declined", className: "bg-red-500" },
+  { label: "Pending", className: "bg-violet-500" },
+];
+
 export default function RsvpProgressCard({ events }: { events: Event[] }) {
   const navigate = useNavigate();
 
   return (
-    <Card className="h-full py-5">
-      <CardHeader className="flex flex-row items-start justify-between">
-        <div>
-          <CardTitle>RSVP Progress by Event</CardTitle>
-
-          <CardDescription>How each function is filling up</CardDescription>
-        </div>
-
-        <Button variant="ghost" size="sm" onClick={() => navigate("/events")}>
-          View all events
-        </Button>
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>RSVP progress by event</CardTitle>
+        <CardDescription>How each function is filling up</CardDescription>
+        <CardAction>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/events")}>
+            View all events
+          </Button>
+        </CardAction>
       </CardHeader>
 
       <CardContent>
         {events.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No events yet. Add events to start tracking RSVPs.
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No events yet. Add a ceremony to start tracking RSVPs.
           </p>
         ) : (
-          // Rows are ~2.5rem with 1.5rem gaps: five fit, matching the Recent RSVPs list beside it
-          <ScrollFade className="max-h-[18.5rem] space-y-6">
-            {events.map((event) => (
-              <EventProgressRow key={event.id} event={event} />
-            ))}
-          </ScrollFade>
+          <>
+            {/* Rows are ~2.5rem with 1.5rem gaps: five fit, matching the Recent RSVPs list beside it */}
+            <ScrollFade className="max-h-[18.5rem] space-y-6">
+              {events.map((event) => (
+                <EventProgressRow key={event.id} event={event} />
+              ))}
+            </ScrollFade>
+
+            {/* Without this the four colours in the bar mean nothing */}
+            <p className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+              {LEGEND.map((item) => (
+                <span key={item.label} className="flex items-center gap-1.5">
+                  <span
+                    aria-hidden
+                    className={`size-2 shrink-0 rounded-full ${item.className}`}
+                  />
+                  {item.label}
+                </span>
+              ))}
+            </p>
+          </>
         )}
       </CardContent>
     </Card>
   );
 }
 
-export function EventProgressRow({ event }: { event: Event }) {
+function EventProgressRow({ event }: { event: Event }) {
   const { stats } = event;
 
   return (
-    <div>
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="flex flex-row flex-wrap gap-x-2">
-          <p className="font-medium">{event.title}</p>
-
-          <p className="text-sm text-muted-foreground">
-            {new Date(event.date).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-            })}{" "}
-            · {event.venue}
-          </p>
-        </div>
-
-        <div className="text-sm shrink-0">
-          <span className="font-medium">{stats.attendingGuests}</span>
+    <div className="min-w-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="truncate font-medium">{event.title}</p>
+        <p className="shrink-0 text-sm tabular-nums">
+          {stats.attendingGuests}
           <span className="text-muted-foreground">
-            {" "}
-            / {stats.totalGuests} invited
+            {" / "}
+            {stats.totalGuests}
           </span>
-        </div>
+        </p>
       </div>
+
+      <p className="mt-0.5 mb-2 truncate text-xs text-muted-foreground">
+        {new Date(event.date).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        })}
+        {event.venue ? ` · ${event.venue}` : ""}
+      </p>
 
       <MultiProgressBar {...stats.progressBar} />
     </div>

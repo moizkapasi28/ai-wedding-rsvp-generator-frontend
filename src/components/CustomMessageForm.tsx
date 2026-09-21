@@ -9,14 +9,14 @@ export default function CustomMessageForm() {
   const form = useFormContext<AiInviteFormValues>();
 
   return (
-    <Card className="border-border shadow-sm">
-      <CardHeader className="py-3">
-        <CardTitle className="text-base">Custom Invitation Message (Optional)</CardTitle>
+    <Card>
+      <CardHeader>
+        <CardTitle>Your own message</CardTitle>
         <CardDescription>
-          Add a personalized message, quote, or cultural greeting to include on your invitation card.
+          Optional. A line, a blessing or a couplet to print on the card.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0 pb-3">
+      <CardContent>
         <FormField
           control={form.control}
           name="customMessage"
@@ -27,7 +27,7 @@ export default function CustomMessageForm() {
                   {...field}
                   value={field.value || ""}
                   placeholder="E.g., We joyfully invite you to share in our happiness..."
-                  className="min-h-[60px] resize-none"
+                  className="min-h-20 resize-y"
                 />
               </FormControl>
               <FormMessage />

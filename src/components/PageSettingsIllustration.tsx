@@ -215,44 +215,28 @@ export default function PageSettingsIllustration({
   };
 
   return (
-    <div className="mb-10">
-      <h3 className="text-xl font-semibold">AI Couple RSVP Thumbnail</h3>
-      <p className="text-sm text-muted-foreground">
-        Upload a photo of couple to generate a beautiful AI illustration for
-        your RSVP thumbnail.
-      </p>
-
-      <div className="space-y-3 mt-4">
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start text-left">
-          <span className="text-lg leading-none">💡</span>
-          <p>
-            Upload a clear, front-facing photo of the couple. Our AI will seamlessly transform it into a beautiful custom illustration for your invitation.
-          </p>
-        </div>
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex gap-3 text-sm text-primary/90 items-start text-left">
-          <span className="text-lg leading-none">🔒</span>
-          <p>
-            Face should be clear and front-facing for best results. Used only to generate this invite, never shared.
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-5 border border-dashed rounded-xl p-6 bg-card flex flex-col items-center justify-center text-center">
+    // The card around this supplies the heading and the description, so the
+    // section starts straight at the thing you act on. The two emoji tip boxes
+    // said the same thing twice; what's left is the one line that changes what
+    // you do — and it sits inside the uploader, where you're about to choose.
+    <div>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border p-6 text-center">
         {!coupleImage ? (
           <>
             <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h4 className="font-medium mb-1">Upload couple photo</h4>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-              For best results, upload a clear, front-facing photo of couple.
+            <h4 className="mb-1 font-medium">Upload a photo of the couple</h4>
+            <p className="mb-4 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
+              Faces clear and front-facing works best. The photo is used only to
+              make this illustration and is never shared.
             </p>
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
             >
-              <Upload className="mr-2 h-4 w-4" />
-              Select Image
+              <Upload />
+              Choose photo
             </Button>
           </>
         ) : (

@@ -19,6 +19,8 @@ type GuestContextType = {
   setGroupFilter: React.Dispatch<React.SetStateAction<string[]>>;
   sentFilter: InviteSentFilter | null;
   setSentFilter: React.Dispatch<React.SetStateAction<InviteSentFilter | null>>;
+  hasFilters: boolean;
+  clearFilters: () => void;
 };
 
 const GuestContext = React.createContext<GuestContextType | null>(null);
@@ -39,6 +41,21 @@ export default function GuestProvider({
   const [groupFilter, setGroupFilter] = useState<string[]>([]);
   const [sentFilter, setSentFilter] = useState<InviteSentFilter | null>(null);
 
+  const hasFilters =
+    Boolean(search) ||
+    eventFilter.length > 0 ||
+    sideFilter.length > 0 ||
+    groupFilter.length > 0 ||
+    sentFilter !== null;
+
+  const clearFilters = () => {
+    setSearch("");
+    setEventFilter([]);
+    setSideFilter([]);
+    setGroupFilter([]);
+    setSentFilter(null);
+  };
+
   return (
     <GuestContext.Provider
       value={{
@@ -56,6 +73,8 @@ export default function GuestProvider({
         setGroupFilter,
         sentFilter,
         setSentFilter,
+        hasFilters,
+        clearFilters,
       }}
     >
       {children}

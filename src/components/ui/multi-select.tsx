@@ -87,12 +87,12 @@ export function MultiSelect({
               {value.length} selected
             </Badge>
           ) : (
-            <div className="flex flex-1 flex-wrap gap-1">
+            <div className="flex min-w-0 flex-1 flex-wrap gap-1">
               {selectedOptions.map((opt) => (
                 <Badge
                   key={opt.value}
                   variant="secondary"
-                  className="h-auto gap-0.5 py-0 pl-2 pr-1 text-xs font-normal"
+                  className="h-auto max-w-full gap-0.5 truncate py-0 pr-1 pl-2 text-xs font-normal"
                 >
                   {opt.label}
                 </Badge>

@@ -1,4 +1,4 @@
-import { formatSide, getSideBadgeStyles } from "@/components/EventCard";
+import { formatSide, getSideBadgeStyles } from "@/lib/eventSide";
 import Page, { PageHeader } from "@/components/Page";
 import ToolBar from "@/components/ToolBar";
 import { Badge } from "@/components/ui/badge";

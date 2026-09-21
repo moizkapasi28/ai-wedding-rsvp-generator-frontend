@@ -55,10 +55,6 @@ export default function GuestDialogues() {
             currentRow={currentRow}
             open={open === "delete"}
             onOpenChange={(isOpen) => setOpen(isOpen ? "delete" : null)}
-            onConfirm={() => {
-              console.log("Guest delete confirmed");
-              setOpen(null);
-            }}
           />
         </>
       )}

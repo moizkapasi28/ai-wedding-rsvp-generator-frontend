@@ -1,108 +1,55 @@
-import RsvpPageSettingToggleRow from "@/components/RsvpPageSettingToggleRow";
+import { SettingRow, SettingSwitch } from "@/components/PageSettingsRow";
+import { FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { BellRingIcon, CalendarClockIcon } from "lucide-react";
-
-import { useFormContext } from "react-hook-form";
 import type { RsvpSettingsFormValues } from "@/validations/pageSetting.validation";
-import { FormField, FormItem, FormControl } from "@/components/ui/form";
+import { BellRingIcon, CalendarClockIcon } from "lucide-react";
+import { useFormContext } from "react-hook-form";
 
 export default function PageSettingsReminders() {
   const form = useFormContext<RsvpSettingsFormValues>();
+
   return (
-    <div className="mt-5">
-      <h3 className="text-xl font-semibold">Deadline and WhatsApp reminders</h3>
-      <p className="text-sm text-muted-foreground">
-        Reminders go to guests who haven't replied. When one is due, it shows up
-        under Send RSVPs on WhatsApp in Guest Preview.
-      </p>
-      <div className="mt-5 space-y-4">
-        <RsvpPageSettingToggleRow>
-          <div className="flex items-center space-x-2">
-            <CalendarClockIcon />
-            <div className="mx-auto">
-              <h4 className="text-sm font-semibold">RSVP deadline</h4>
-              <p className="text-xs text-muted-foreground">
-                Guests can't reply through their link after this date. Leave it
-                empty to keep RSVPs open.
-              </p>
-            </div>
-          </div>
-          <FormField
-            control={form.control}
-            name="rsvp_deadline"
-            render={({ field }) => (
-              <FormItem className="space-y-0">
-                <FormControl>
-                  <Input
-                    type="date"
-                    className="w-40"
-                    aria-label="RSVP deadline"
-                    value={field.value ?? ""}
-                    onChange={(e) => field.onChange(e.target.value || null)}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </RsvpPageSettingToggleRow>
-        <RsvpPageSettingToggleRow className="cursor-pointer">
-          <div className="flex items-center space-x-2">
-            <BellRingIcon />
-            <div className="mx-auto">
-              <h4 className="text-sm font-semibold">First reminder</h4>
-              <p className="text-xs text-muted-foreground">
-                7 days after the invite is sent, if no response
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <FormField
-              control={form.control}
-              name="first_reminder"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch
-                      id="first-reminder"
-                      checked={field.value || false}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-        </RsvpPageSettingToggleRow>
-        <RsvpPageSettingToggleRow className="cursor-pointer">
-          <div className="flex items-center space-x-2">
-            <BellRingIcon />
-            <div className="mx-auto">
-              <h4 className="text-sm font-semibold">Final reminder</h4>
-              <p className="text-xs text-muted-foreground">
-                3 days before the RSVP deadline
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <FormField
-              control={form.control}
-              name="final_reminder"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2 space-y-0">
-                  <FormControl>
-                    <Switch
-                      id="final-reminder"
-                      checked={field.value || false}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-        </RsvpPageSettingToggleRow>
-      </div>
+    <div className="space-y-3">
+      <SettingRow
+        Icon={CalendarClockIcon}
+        title="RSVP deadline"
+        description="Guests can't reply through their link after this date. Leave it empty to keep RSVPs open."
+      >
+        <FormField
+          control={form.control}
+          name="rsvp_deadline"
+          render={({ field }) => (
+            <FormItem className="space-y-0">
+              <FormControl>
+                {/* The picker indicator is stretched over the whole field so
+                    the entire box opens the calendar; it needs `relative` on
+                    the input itself to stay inside it. */}
+                <Input
+                  type="date"
+                  className="relative w-40 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
+                  aria-label="RSVP deadline"
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </SettingRow>
+
+      <SettingSwitch
+        name="first_reminder"
+        Icon={BellRingIcon}
+        title="First reminder"
+        description="Seven days after the invite goes out, to anyone who hasn't replied."
+      />
+
+      <SettingSwitch
+        name="final_reminder"
+        Icon={BellRingIcon}
+        title="Final reminder"
+        description="Three days before the deadline, to anyone still pending."
+      />
     </div>
   );
 }

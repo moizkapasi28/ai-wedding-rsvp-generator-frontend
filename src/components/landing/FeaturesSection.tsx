@@ -10,8 +10,8 @@ import {
 const features = [
   {
     icon: Sparkles,
-    title: "AI invitation cards",
-    body: "Generate a wedding card from design presets, or upload a card you like and work from that.",
+    title: "Invitation cards",
+    body: "Generate one from design presets, work from an example you like, or upload the card you already have.",
   },
   {
     icon: LayoutTemplate,

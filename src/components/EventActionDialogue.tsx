@@ -10,7 +10,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatDateForInput } from "@/lib/utils";
+import { cn, formatDateForInput } from "@/lib/utils";
 import type { Event } from "@/models/event.model";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
@@ -54,6 +53,13 @@ type EventActionDialogProps = {
   onOpenChange: (open: boolean) => void;
   mode?: EventActionDialogMode;
 };
+
+const MESSAGE_LIMIT = 250;
+
+// The picker indicator is stretched over the whole field so the entire box
+// opens it; it needs `relative` on the input itself to stay inside it.
+const PICKER_FIELD =
+  "relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0";
 
 const getFormValues = (
   row?: Event | null,
@@ -101,21 +107,19 @@ export function EventActionDialogue({
 
   const isPending = createEvent.isPending || updateEvent.isPending;
 
-  const handleClose = () => {
-    if (isPending) return;
-    form.reset();
-    onOpenChange(false);
+  // One way out, used by the X, Esc, the overlay and Cancel alike — and it
+  // refuses to close while a save is in flight.
+  const handleOpenChange = (state: boolean) => {
+    if (!state && isPending) return;
+    onOpenChange(state);
   };
 
   const onSubmit = (values: EventFormValues) => {
-    const onMutationSuccess = () => {
-      form.reset();
-      onOpenChange(false);
-    };
+    const onMutationSuccess = () => onOpenChange(false);
 
     if (isEdit) {
       if (!currentRow?.id) {
-        toast.error("Missing wedding id for edit");
+        toast.error("Missing event id for edit");
         return;
       }
       updateEvent.mutate(
@@ -145,15 +149,14 @@ export function EventActionDialogue({
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(state) => {
-        form.reset();
-        onOpenChange(state);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {/* p-0 + flex column: the header and footer stay put and only the fields
+          scroll, so a long form on a short laptop screen can't push Save off
+          the bottom of the window. The cap is a percentage, not dvh — the
+          dialog is fixed, so 100% already resolves against the viewport, and it
+          doesn't jump when a mobile browser's toolbar slides away. */}
       <DialogContent
-        className="w-full sm:max-w-2xl"
+        className="flex max-h-[calc(100%-2rem)] flex-col overflow-hidden p-0 sm:max-w-2xl"
         onInteractOutside={(e) => {
           const target = e.target as HTMLElement;
           if (target.closest(".pac-container")) {
@@ -162,192 +165,204 @@ export function EventActionDialogue({
         }}
       >
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader className="text-start">
-              <DialogTitle>
-                {isEdit ? "Edit Event" : "Add New Event"}
-              </DialogTitle>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 flex-1 flex-col"
+          >
+            {/* pr-12 keeps the text clear of the close button */}
+            <DialogHeader className="gap-0.5 border-b border-border px-5 py-4 pr-12 text-start">
+              <DialogTitle>{isEdit ? "Edit event" : "Add an event"}</DialogTitle>
               <DialogDescription>
                 {isEdit
-                  ? "Update the event details below"
-                  : "Add a new event to the list"}
+                  ? "Changes show up on this event's RSVP page straight away."
+                  : "Guests you invite to this event each get their own RSVP link for it."}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 py-2">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Title</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter the wedding title"
-                        autoComplete="off"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="event_side"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Event Side</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select side" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={EventSide.BRIDE}>
-                            Bride
-                          </SelectItem>
-                          <SelectItem value={EventSide.GROOM}>
-                            Groom
-                          </SelectItem>
-                          <SelectItem value={EventSide.BOTH}>Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Date</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        placeholder="Select date"
-                        autoComplete="off"
-                        min={todayStr}
-                        className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="time"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Time</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="time"
-                        placeholder="Enter time of the event"
-                        autoComplete="off"
-                        className="relative [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="venue"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Venue</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter the venue of the event"
-                        autoComplete="off"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>City</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter the city"
-                        autoComplete="off"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel required>Address</FormLabel>
-                    <FormControl>
-                      <AddressAutocomplete
-                        placeholder="Enter the address"
-                        onPlaceSelected={handlePlaceSelected}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="pb-2">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex flex-col">
-                    <FormLabel required>Message</FormLabel>
-                    <FormControl>
-                      <InputGroup>
-                        <InputGroupTextarea
-                          placeholder="Enter the message for the wedding"
-                          rows={6}
-                          className="min-h-24 resize-none"
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Sangeet"
+                          autoComplete="off"
                           {...field}
                         />
-                        <InputGroupAddon align="block-end">
-                          <InputGroupText className="tabular-nums">
-                            {(field.value ?? "").length}/250 characters
-                          </InputGroupText>
-                        </InputGroupAddon>
-                      </InputGroup>
-                    </FormControl>
-                    <FormDescription>
-                      Please enter a proper message as it will be displayed on
-                      the RSVP page.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="event_side"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Side</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select side" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value={EventSide.BRIDE}>Bride</SelectItem>
+                            <SelectItem value={EventSide.GROOM}>Groom</SelectItem>
+                            <SelectItem value={EventSide.BOTH}>Both</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Date</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          autoComplete="off"
+                          min={todayStr}
+                          className={PICKER_FIELD}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="time"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Start time</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="time"
+                          autoComplete="off"
+                          className={PICKER_FIELD}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="venue"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>Venue</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Durbar Hall"
+                          autoComplete="off"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5">
+                      <FormLabel required>City</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Udaipur"
+                          autoComplete="off"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1.5 sm:col-span-2">
+                      <FormLabel required>Address</FormLabel>
+                      <FormControl>
+                        <AddressAutocomplete
+                          placeholder="Search the venue address"
+                          onPlaceSelected={handlePlaceSelected}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => {
+                    const length = (field.value ?? "").length;
+                    return (
+                      <FormItem className="space-y-1.5 sm:col-span-2">
+                        {/* Named for where it lands, not for the column it's
+                            stored in — this is what guests read on the invite. */}
+                        <FormLabel required>Message to guests</FormLabel>
+                        <FormControl>
+                          <InputGroup>
+                            <InputGroupTextarea
+                              placeholder="Dinner and dancing from 8pm. Dress code is festive."
+                              rows={3}
+                              className="min-h-20 resize-none"
+                              {...field}
+                            />
+                            <InputGroupAddon align="block-end">
+                              <InputGroupText
+                                className={cn(
+                                  "tabular-nums",
+                                  length > MESSAGE_LIMIT && "text-destructive",
+                                )}
+                              >
+                                {length}/{MESSAGE_LIMIT}
+                              </InputGroupText>
+                            </InputGroupAddon>
+                          </InputGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
             </div>
-            <DialogFooter className="bg-transparent border-t-0">
-              <Button type="button" variant="outline" onClick={handleClose}>
+
+            <DialogFooter className="mx-0 mb-0 px-5 py-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" loading={isPending}>
-                {isEdit ? "Save Changes" : "Add Event"}
+                {isEdit ? "Save changes" : "Add event"}
               </Button>
             </DialogFooter>
           </form>

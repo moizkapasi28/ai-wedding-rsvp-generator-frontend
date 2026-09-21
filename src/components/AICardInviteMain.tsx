@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
-  AI_INVITE_CARD_QUERY_KEY,
+  invalidateInviteCards,
   useAiInviteCardGenerationStatus,
   useGetAiInviteCardsByWeddingInfinite,
   useUpdateAiInviteCard,
@@ -15,7 +15,7 @@ import {
 import { activeWeddingIdAtom } from "@/store/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { Loader2, SparklesIcon, UploadIcon } from "lucide-react";
+import { ImageIcon, SparklesIcon, UploadIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +32,7 @@ import ReferenceUploadForm from "./ReferenceUploadForm";
 import CustomMessageForm from "./CustomMessageForm";
 import CharacterPhotoForm from "./CharacterPhotoForm";
 import DesignPreviewCard from "./DesignPreviewCard";
+import OwnCardUploadForm from "./OwnCardUploadForm";
 import {
   aiInviteFormSchema,
   type AiInviteFormValues,
@@ -43,6 +44,12 @@ import {
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+
+// The form column and the preview size themselves against the content width,
+// not the viewport, so collapsing the sidebar re-lays them out. Same split as
+// the RSVP page settings, which is the same shape of page.
+const SHELL = "@container/invite";
+const SPLIT = "grid gap-5 @min-[64rem]/invite:grid-cols-3";
 
 // The generator can't read HEIC and skips sources over 20 MB, so stop those before uploading
 const rejectUnsupportedImage = (file: File) => {
@@ -151,6 +158,11 @@ export default function AiCardInviteMain() {
   const [characterImage, setCharacterImage] = useState<string | null>(null);
   const [isUploadingCharacter, setIsUploadingCharacter] = useState(false);
 
+  const [isUploadingCard, setIsUploadingCard] = useState(false);
+  // Screen-only: "use my own card" isn't a generation mode, so it stays out of
+  // the form and never reaches the save payload.
+  const [useOwnCard, setUseOwnCard] = useState(false);
+
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null,
   );
@@ -173,6 +185,7 @@ export default function AiCardInviteMain() {
     hydratedEventIdRef.current = selectedEventId;
     form.reset(cardToFormValues(selectedCard));
     setGenerationError(null);
+    setUseOwnCard(false);
   }, [selectedEventId, selectedCard, form]);
 
   const generatedImageKey = selectedCard?.generated_invite_image_url ?? null;
@@ -303,12 +316,13 @@ export default function AiCardInviteMain() {
         photo_type: photo_type ?? undefined,
       });
     },
-    onSuccess: (res) => {
+    onSuccess: (res, formData) => {
+      // The generate endpoint stores the configuration it was given, so this
+      // is a save too — rebase the form or it stays marked unsaved.
+      form.reset(formData);
       // The worker does the generating; follow it through the status endpoint
       setPollingCardId(res.data.aiInviteCardId);
-      queryClient.invalidateQueries({
-        queryKey: [...AI_INVITE_CARD_QUERY_KEY],
-      });
+      invalidateInviteCards(queryClient);
       toast.success("Generating your invitation — you can leave this page.");
     },
     onError: (error: Error & { status?: number }) => {
@@ -367,7 +381,7 @@ export default function AiCardInviteMain() {
     setPollingCardId(null);
     // Refresh the card either way: it still holds the in-flight status this page reads to
     // decide whether a run is going, and on success the new image key feeds the preview.
-    queryClient.invalidateQueries({ queryKey: [...AI_INVITE_CARD_QUERY_KEY] });
+    invalidateInviteCards(queryClient);
 
     if (generationStatus.status === "COMPLETED") setGenerationError(null);
     if (generationStatus.status === "FAILED")
@@ -391,10 +405,16 @@ export default function AiCardInviteMain() {
       toast.error("No card configuration found to update for this event.");
       return;
     }
-    updateMutation.mutate({
-      id: selectedCard.id,
-      data: buildCardPayload(form.getValues()),
-    });
+
+    const values = form.getValues();
+
+    updateMutation.mutate(
+      { id: selectedCard.id, data: buildCardPayload(values) },
+      // What was saved is the new baseline. Without this the form stays
+      // "dirty" after a successful save and the unsaved-changes marker never
+      // clears — the hydrating effect below only runs on an event switch.
+      { onSuccess: () => form.reset(values) },
+    );
   };
 
   const handleReferenceUpload = async (
@@ -426,6 +446,42 @@ export default function AiCardInviteMain() {
       } finally {
         setIsUploadingReference(false);
       }
+    }
+  };
+
+  // For couples who already have an invitation: it becomes the event's card
+  // exactly as a generated one would, so Guest Preview and WhatsApp pick it up.
+  const handleCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // so choosing the same file again still fires
+    if (!file || !selectedCard?.id) return;
+    if (rejectUnsupportedImage(file)) return;
+
+    const cardId = selectedCard.id;
+    const previousUrl = generatedImageUrl;
+    setGeneratedImageUrl(URL.createObjectURL(file));
+    setGenerationError(null);
+    setIsUploadingCard(true);
+    try {
+      const objectKey = `ai-invite-cards/uploaded/${Date.now()}-${file.name}`;
+      const urlRes = await generalService.generateUploadUrl(
+        objectKey,
+        file.type,
+      );
+      await generalService.uploadFileToS3(urlRes.data.url, file);
+      // Only the image: sending the whole form here would quietly save any
+      // unsaved design edits along with it.
+      await aiInviteCardService.updateAiInviteCard(cardId, {
+        generated_invite_image_url: urlRes.data.object_key,
+      });
+      invalidateInviteCards(queryClient);
+      toast.success("Invitation uploaded.");
+    } catch (err) {
+      console.error("Card upload failed", err);
+      setGeneratedImageUrl(previousUrl);
+      toast.error("Failed to upload your invitation.");
+    } finally {
+      setIsUploadingCard(false);
     }
   };
 
@@ -463,26 +519,24 @@ export default function AiCardInviteMain() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4">
-        {/* Top bar skeletons */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
-          <div className="flex flex-wrap gap-2 w-full">
-            <Skeleton className="h-10 w-24 rounded-full" />
-            <Skeleton className="h-10 w-32 rounded-full" />
-            <Skeleton className="h-10 w-28 rounded-full" />
-          </div>
-          <Skeleton className="h-10 w-32 rounded-md" />
+      <div className={SHELL}>
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          {[24, 32, 28].map((w, i) => (
+            <Skeleton
+              key={i}
+              className="h-8 rounded-lg"
+              style={{ width: w * 4 }}
+            />
+          ))}
+          <Skeleton className="ml-auto h-8 w-32 rounded-lg" />
         </div>
-
-        {/* Layout skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
-          <div className="space-y-4 md:col-span-6 lg:col-span-6">
-            <Skeleton className="h-24 w-full rounded-xl" />
-            <Skeleton className="h-100 w-full rounded-xl" />
+        <div className={SPLIT}>
+          <div className="space-y-5 @min-[64rem]/invite:col-span-2">
+            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-80 w-full rounded-xl" />
+            <Skeleton className="h-40 w-full rounded-xl" />
           </div>
-          <div className="md:col-span-6 lg:col-span-6">
-            <Skeleton className="h-150 w-full rounded-xl" />
-          </div>
+          <Skeleton className="h-[30rem] w-full rounded-xl" />
         </div>
       </div>
     );
@@ -497,124 +551,131 @@ export default function AiCardInviteMain() {
   return (
     <TooltipProvider>
       <Form {...form}>
-        <EventSelectorBar
-          events={events}
-          selectedEventId={selectedEventId}
-          setSelectedEventId={setSelectedEventId}
-          hasNextPage={hasNextPage}
-          fetchNextPage={fetchNextPage}
-          isFetchingNextPage={isFetchingNextPage}
-          isGenerating={updateMutation.isPending}
-          onGenerate={handleSaveChanges}
-          isUploadingReference={isUploadingReference}
-          isUploadingCharacter={isUploadingCharacter}
-        />
+        <div className={SHELL}>
+          <EventSelectorBar
+            events={events}
+            selectedEventId={selectedEventId}
+            setSelectedEventId={setSelectedEventId}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            isGenerating={updateMutation.isPending}
+            onGenerate={handleSaveChanges}
+            isUploadingReference={isUploadingReference}
+            isUploadingCharacter={isUploadingCharacter}
+            isDirty={form.formState.isDirty}
+          />
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full items-start">
-          {/* Left Column: Form Controls */}
-          <div className="space-y-4 md:col-span-7 lg:col-span-8">
-            <div className="mb-2">
-              <h3 className="text-xl font-semibold">
-                AI Invitation Card Builder
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Select an event to generate a beautiful AI-powered luxury
-                invitation card.
-              </p>
-            </div>
+          <div className={SPLIT}>
+            {/* Left: how the card should look */}
+            <div className="space-y-5 @min-[64rem]/invite:col-span-2">
+              <Tabs
+                value={useOwnCard ? "own" : activeTab}
+                onValueChange={(v) => {
+                  setUseOwnCard(v === "own");
+                  if (v !== "own")
+                    form.setValue("activeTab", v as "describe" | "upload");
+                }}
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="describe">
+                    <SparklesIcon />
+                    Describe a design
+                  </TabsTrigger>
+                  <TabsTrigger value="upload">
+                    <ImageIcon />
+                    Use an example
+                  </TabsTrigger>
+                  <TabsTrigger value="own">
+                    <UploadIcon />
+                    Use my own card
+                  </TabsTrigger>
+                </TabsList>
 
-            <Tabs
-              value={activeTab}
-              onValueChange={(v) =>
-                form.setValue("activeTab", v as "describe" | "upload")
-              }
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger
+                <TabsContent
                   value="describe"
-                  className="flex items-center gap-2"
+                  className="mt-5 focus-visible:outline-none"
                 >
-                  <SparklesIcon className="w-4 h-4" />
-                  Describe with AI
-                </TabsTrigger>
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <UploadIcon className="w-4 h-4" />
-                  Upload Example
-                </TabsTrigger>
-              </TabsList>
+                  <DesignConfigForm />
+                </TabsContent>
 
-              <TabsContent
-                value="describe"
-                className="space-y-3 focus-visible:outline-none focus-visible:ring-0"
-              >
-                <DesignConfigForm />
-              </TabsContent>
+                <TabsContent
+                  value="upload"
+                  className="mt-5 focus-visible:outline-none"
+                >
+                  <ReferenceUploadForm
+                    uploadedImage={uploadedImage}
+                    isUploadingReference={isUploadingReference}
+                    handleReferenceUpload={handleReferenceUpload}
+                    onRemoveImage={() => {
+                      setUploadedImage(null);
+                      form.setValue("referenceKey", null, {
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
+                </TabsContent>
 
-              <TabsContent
-                value="upload"
-                className="space-y-4 focus-visible:outline-none focus-visible:ring-0"
-              >
-                <ReferenceUploadForm
-                  uploadedImage={uploadedImage}
-                  isUploadingReference={isUploadingReference}
-                  handleReferenceUpload={handleReferenceUpload}
-                  onRemoveImage={() => {
-                    setUploadedImage(null);
-                    form.setValue("referenceKey", null, {
-                      shouldValidate: true,
-                    });
-                  }}
-                />
-              </TabsContent>
-            </Tabs>
+                <TabsContent
+                  value="own"
+                  className="mt-5 focus-visible:outline-none"
+                >
+                  <OwnCardUploadForm
+                    onUpload={handleCardUpload}
+                    isUploading={isUploadingCard}
+                    hasCard={!!generatedImageUrl}
+                    isGenerating={isGenerating}
+                    disabled={!selectedCard?.id}
+                  />
+                </TabsContent>
+              </Tabs>
 
-            <CustomMessageForm />
+              {/* Message, couple photo and Generate only shape a generated
+                  card; with your own card there's nothing for them to do. */}
+              {!useOwnCard && (
+                <>
+                  <CustomMessageForm />
 
-            <CharacterPhotoForm
-              characterImage={characterImage}
-              isUploadingCharacter={isUploadingCharacter}
-              handleCharacterUpload={handleCharacterUpload}
-              onRemoveImage={() => {
-                setCharacterImage(null);
-                form.setValue("characterKey", null, { shouldValidate: true });
-              }}
-            />
+                  <CharacterPhotoForm
+                    characterImage={characterImage}
+                    isUploadingCharacter={isUploadingCharacter}
+                    handleCharacterUpload={handleCharacterUpload}
+                    onRemoveImage={() => {
+                      setCharacterImage(null);
+                      form.setValue("characterKey", null, { shouldValidate: true });
+                    }}
+                  />
 
-            {/* Global Action Button */}
-            <div className="pt-4">
-              <Button
-                size="lg"
-                type="button"
-                onClick={form.handleSubmit(onSubmit)}
-                disabled={
-                  isGenerating ||
-                  !selectedEventId ||
-                  isUploadingReference ||
-                  isUploadingCharacter
-                }
-                className="w-full h-11 text-base font-medium bg-linear-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-md hover:shadow-lg transition-all duration-300 gap-2 group rounded-xl"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Generating Magic...
-                  </>
-                ) : (
-                  <>
-                    <SparklesIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    {activeTab === "describe"
-                      ? "Generate Luxury Invitation"
-                      : "Generate from Reference Image"}
-                  </>
-                )}
-              </Button>
+                  {/* Save changes keeps the configuration; this is the one that
+                      spends a generation, so it stays the page's only filled
+                      full-width button. */}
+                  <Button
+                    type="button"
+                    className="w-full"
+                    onClick={form.handleSubmit(onSubmit)}
+                    loading={isGenerating}
+                    disabled={
+                      !selectedEventId ||
+                      isUploadingReference ||
+                      isUploadingCharacter ||
+                      isUploadingCard
+                    }
+                  >
+                    {!isGenerating && <SparklesIcon />}
+                    {isGenerating
+                      ? "Generating…"
+                      : activeTab === "describe"
+                        ? "Generate invitation"
+                        : "Generate from example"}
+                  </Button>
+                </>
+              )}
             </div>
-          </div>
 
-          <div className="md:col-span-5 lg:col-span-4 h-full flex justify-center items-start">
-            <div className="w-full max-w-sm lg:max-w-none md:sticky md:top-6">
+            {/* Right: what came back */}
+            <div className="@min-[64rem]/invite:sticky @min-[64rem]/invite:top-32 @min-[64rem]/invite:self-start">
               <DesignPreviewCard
+                isUploading={isUploadingCard}
                 isGenerating={isGenerating}
                 generationStage={
                   generationStatus?.stage ??

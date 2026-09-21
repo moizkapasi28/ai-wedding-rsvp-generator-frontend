@@ -36,6 +36,8 @@ export interface ProgressBar {
   pending: number;
 }
 
+export type EventSort = "newest" | "date_asc" | "date_desc";
+
 export type EventListResponse = GenericResponse<{
   events: Event[];
   totalCount: number;

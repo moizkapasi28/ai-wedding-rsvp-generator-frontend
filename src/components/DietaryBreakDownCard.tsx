@@ -22,16 +22,13 @@ export default function DietaryBreakDownCard({
   data,
 }: Props) {
   return (
-    <Card className="py-5">
-      <CardHeader className="flex flex-row items-start justify-between">
-        <div>
-          <CardTitle>{title}</CardTitle>
-
-          <CardDescription>{description}</CardDescription>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
 
-      <CardContent className="">
+      <CardContent>
         {data.length === 0 ? (
           <p className="flex h-[215px] items-center justify-center text-sm text-muted-foreground">
             Nothing to show yet

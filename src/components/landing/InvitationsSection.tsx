@@ -10,7 +10,7 @@ const specification = [
 
 const details = [
   "Design, paper, foil, edging and monogram picked from presets",
-  "Or upload a card you like and generate from that instead",
+  "Or generate from an example you like, or upload your finished card as it is",
   "A matching header image for the page your guests open",
   "Wording, layout and colours arranged in the page builder",
 ];
@@ -49,8 +49,9 @@ export default function InvitationsSection() {
           </h2>
           <p className="mt-6 max-w-[46ch] leading-relaxed text-muted-foreground">
             Choose how the card should look and WeddlyAI draws it, along with a
-            header image to match on the page your guests open. If you already
-            have a card you like, upload it and work from that instead.
+            header image to match on the page your guests open. Have a design
+            you like? Give it as an example. Card already made? Upload it and
+            use it as it is.
           </p>
 
           <ul className="mt-9">

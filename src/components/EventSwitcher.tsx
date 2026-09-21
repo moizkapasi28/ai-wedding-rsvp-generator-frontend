@@ -1,7 +1,10 @@
-import { getSideBadgeStyles } from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
+import {
+  formatSide,
+  getSideBadgeStyles,
+  getSideSelectedStyles,
+} from "@/lib/eventSide";
 import { cn } from "@/lib/utils";
-import type { EventSide } from "@/validations/event.validation";
 import type { ReactNode } from "react";
 
 type Props = {
@@ -11,6 +14,11 @@ type Props = {
   children?: ReactNode;
 };
 
+/**
+ * The row of events you can switch between. Two things at once, one colour
+ * system: the hue is whose side the event is, the fill is whether it's the one
+ * you're looking at.
+ */
 export default function EventSwitcher({
   events,
   selectedId,
@@ -18,20 +26,23 @@ export default function EventSwitcher({
   children,
 }: Props) {
   return (
-    <div className="flex w-full flex-wrap gap-2">
+    // Scrolls sideways rather than wrapping into a growing pile of pills that
+    // pushes the page down. -mx-1/px-1 keeps focus rings visible.
+    <div className="no-scrollbar -mx-1 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5">
       {events.map((event) => {
         const isSelected = selectedId === event.id;
         return (
           <Button
             key={event.id}
+            size="sm"
             variant="outline"
             aria-pressed={isSelected}
+            title={`${event.title} — ${formatSide(event.event_side)}`}
             className={cn(
-              "rounded-full transition-all duration-200",
-              getSideBadgeStyles(event.event_side as EventSide),
+              "shrink-0",
               isSelected
-                ? "border-transparent font-semibold shadow-sm ring-1 ring-current"
-                : "opacity-70 hover:opacity-100",
+                ? getSideSelectedStyles(event.event_side)
+                : getSideBadgeStyles(event.event_side),
             )}
             onClick={() => onSelect(event.id)}
           >

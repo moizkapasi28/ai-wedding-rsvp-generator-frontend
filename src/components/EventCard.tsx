@@ -1,25 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import {
-  MapPin,
-  MoreVertical,
-  Pencil,
-  SettingsIcon,
-  Trash2,
-  UsersIcon,
-  Clock,
-  Calendar,
-} from "lucide-react";
-import { useState } from "react";
-import { MultiProgressBar } from "./custom/MultiProgressBar";
-import { Button } from "./ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,193 +6,187 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEvent } from "./EventProvider";
+import { cn } from "@/lib/utils";
+import { formatSide, getSideBadgeStyles } from "@/lib/eventSide";
 import type { Event } from "@/models/event.model";
+import { MapPin, MoreVertical, Pencil, SettingsIcon, Trash2, UsersIcon } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MultiProgressBar } from "./custom/MultiProgressBar";
+import { useEvent } from "./EventProvider";
+import { Button } from "./ui/button";
 
-type EventCardProps = {
-  event: Event;
-};
-
-export const getSideBadgeStyles = (side: string) => {
-  switch (side) {
-    case "BRIDE":
-      return "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-900/50";
-    case "GROOM":
-      return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/30 dark:text-sky-300 dark:border-sky-900/50";
-    case "BOTH":
-    default:
-      return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900/50";
-  }
-};
-
-export const formatSide = (side: string) => {
-  if (side === "BOTH") return "Bride & Groom";
-  return side.charAt(0) + side.slice(1).toLowerCase();
-};
-
-export default function EventCard({ event }: EventCardProps) {
+export default function EventCard({ event }: { event: Event }) {
   const { setOpen, setCurrentRow } = useEvent();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuActive = menuOpen;
   const navigate = useNavigate();
 
+  const when = new Date(event.date);
+  const valid = !Number.isNaN(when.getTime());
+  const day = valid
+    ? {
+        number: when.toLocaleDateString("en-GB", {
+          day: "numeric",
+          timeZone: "UTC",
+        }),
+        month: when.toLocaleDateString("en-GB", {
+          month: "short",
+          timeZone: "UTC",
+        }),
+      }
+    : { number: "—", month: "" };
+
+  // Year is noise for this year's events and essential for any other.
+  const year =
+    valid && when.getUTCFullYear() !== new Date().getFullYear()
+      ? String(when.getUTCFullYear())
+      : null;
+  const meta = [year, event.time].filter(Boolean).join(" · ") || "Time not set";
+
   return (
-    <Card className="group flex flex-col h-full overflow-hidden gap-0 py-0 transition-all hover:-translate-y-1 hover:shadow-lg">
-      {/* Hero Section */}
-      <CardHeader className="relative bg-linear-to-r from-orange-500 to-pink-600 p-5 text-white">
+    // Hairline card, no gradient slab. The date block replaces the old colour
+    // wash: it's the same size but it carries the one thing a ceremony is
+    // organised around.
+    <article className="@container/event flex min-w-0 flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-ring">
+      <div className="flex items-start gap-3">
+        <div
+          aria-hidden
+          className="flex size-11 shrink-0 flex-col items-center justify-center rounded-lg border border-border bg-muted leading-none"
+        >
+          <span className="font-display text-base font-medium tracking-[-0.02em] tabular-nums">
+            {day.number}
+          </span>
+          <span className="mt-0.5 text-[0.625rem] text-muted-foreground">
+            {day.month}
+          </span>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3
+            className="line-clamp-2 text-base font-semibold tracking-[-0.02em]"
+            title={event.title}
+          >
+            {event.title}
+          </h3>
+          {/* The block beside it already says the day and month, so this line
+              only carries what's left: the time, and the year when it isn't
+              this one. Repeating the full date here truncated the time away on
+              a phone. */}
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">
+            {meta}
+          </p>
+        </div>
+
+        <Badge
+          className={cn(
+            "mt-0.5 shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium",
+            getSideBadgeStyles(event.event_side),
+          )}
+        >
+          {formatSide(event.event_side)}
+        </Badge>
+
+        {/* Always visible. It used to fade in on hover, which meant no way to
+            reach Edit or Delete on a touch screen at all. */}
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
-              id="wedding-card-options-btn"
               variant="ghost"
               size="icon"
-              className={`absolute right-2 top-2 h-8 w-8 text-white hover:bg-white/20 hover:text-white focus-visible:ring-0 transition-opacity duration-200 ${menuActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}
-              aria-label="Wedding options"
+              className="-mt-1 -mr-2 shrink-0 text-muted-foreground"
+              aria-label={`Options for ${event.title}`}
             >
-              <MoreVertical className="h-5 w-5" />
+              <MoreVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
-              id="wedding-card-edit-btn"
               className="cursor-pointer"
               onClick={() => {
                 setCurrentRow(event);
                 setOpen("edit");
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              id="wedding-card-delete-btn"
               className="cursor-pointer text-destructive focus:text-destructive"
               onClick={() => {
                 setCurrentRow(event);
                 setOpen("delete");
               }}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
 
-        <div className="pr-6">
-          <h3 className="text-xl font-semibold mb-2 line-clamp-1">
-            {event.title}
-          </h3>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-medium opacity-90">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              <span>
-                {new Date(event.date).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
-            {event.time && (
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
-                <span>{event.time}</span>
-              </div>
-            )}
-          </div>
+      <div className="mt-4 flex min-w-0 items-start gap-2 border-t border-border pt-4 text-sm">
+        <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div className="min-w-0">
+          <p className="truncate">{event.venue || "Venue not set"}</p>
+          {event.address && (
+            <p
+              className="truncate text-xs text-muted-foreground"
+              title={event.address}
+            >
+              {event.address}
+            </p>
+          )}
         </div>
-      </CardHeader>
+      </div>
 
-      {/* Body */}
-      <CardContent className="space-y-5 p-5 flex-1 flex flex-col min-h-0">
-        {/* Venue & Side Badge */}
-        <div className="flex items-start justify-between gap-4 text-sm text-muted-foreground">
-          <div className="flex items-start gap-2.5 flex-1 min-w-0">
-            <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-foreground/70" />
-            <div className="flex flex-col min-w-0 w-full">
-              <span className="font-semibold text-foreground truncate">
-                {event.venue}
-              </span>
-              {event.address && (
-                <span className="text-xs truncate" title={event.address}>
-                  {event.address}
-                </span>
-              )}
-            </div>
-          </div>
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-              getSideBadgeStyles(event.event_side),
-            )}
-          >
-            {formatSide(event.event_side)}
-          </Badge>
-        </div>
+      <dl className="mt-5 grid grid-cols-3 gap-x-3 gap-y-4 @min-[22rem]/event:grid-cols-5">
+        <Stat value={event.stats.totalGuests} label="Invited" />
+        <Stat value={event.stats.attendingGuests} label="Attending" />
+        <Stat value={event.stats.maybeGuests} label="Maybe" />
+        <Stat value={event.stats.declinedGuests} label="Declined" />
+        <Stat value={event.stats.pendingGuests} label="Pending" />
+      </dl>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 mt-auto pt-1">
-          <Stat value={String(event.stats.totalGuests)} label="Invited" />
-          <Stat value={String(event.stats.attendingGuests)} label="Attending" />
-          <Stat value={String(event.stats.declinedGuests)} label="Declined" />
-          <Stat value={String(event.stats.maybeGuests)} label="Maybe" />
-          <Stat value={String(event.stats.pendingGuests)} label="Pending" />
-        </div>
+      <div className="mt-5 flex items-baseline justify-between gap-3 text-sm">
+        <span className="text-muted-foreground">Replied</span>
+        <span className="font-medium tabular-nums">
+          {event.stats.completion}%
+        </span>
+      </div>
+      <div className="mt-2">
+        <MultiProgressBar {...event.stats.progressBar} />
+      </div>
 
-        {/* RSVP Progress */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">RSVP Completion</span>
-
-            <span className="font-medium">{event.stats.completion}%</span>
-          </div>
-
-          <MultiProgressBar
-            confirmed={event.stats.progressBar.confirmed}
-            maybe={event.stats.progressBar.maybe}
-            declined={event.stats.progressBar.declined}
-            pending={event.stats.progressBar.pending}
-          />
-        </div>
-      </CardContent>
-
-      {/* Footer */}
-      <CardFooter className="px-5 pb-5 pt-0 border-t-0 bg-transparent">
-        <div className="flex w-full flex-col gap-2 sm:flex-row">
-          <Button 
-            variant="outline" 
-            className="flex-1 p-2"
-            onClick={() => navigate(`/page-settings?event=${event.id}`)}
-          >
-            <SettingsIcon />
-            <span>RSVP Settings</span>
-          </Button>
-
-          <Button 
-            variant="outline" 
-            className="flex-1 p-2"
-            onClick={() => navigate(`/guests?event=${event.id}`)}
-          >
-            <UsersIcon />
-            <span>Guest List</span>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+      <div className="mt-auto flex flex-col gap-2 border-t border-border pt-4 @min-[20rem]/event:flex-row">
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => navigate(`/guests?event=${event.id}`)}
+        >
+          <UsersIcon />
+          Guest list
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1"
+          onClick={() => navigate(`/page-settings?event=${event.id}`)}
+        >
+          <SettingsIcon />
+          RSVP page
+        </Button>
+      </div>
+    </article>
   );
 }
 
-/* Small reusable pieces (this is where real cleanliness comes from) */
-
-function Stat({ value, label }: { value: string; label: string }) {
+function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <div>
-      <p className="text-base font-semibold">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="min-w-0">
+      <dd className="font-display text-xl font-medium tracking-[-0.02em] tabular-nums">
+        {value}
+      </dd>
+      <dt className="mt-0.5 truncate text-xs text-muted-foreground">{label}</dt>
     </div>
   );
 }

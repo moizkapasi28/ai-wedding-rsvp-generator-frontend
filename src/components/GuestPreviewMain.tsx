@@ -1,6 +1,7 @@
 import EventLocationCard from "@/components/EventLocationCard";
 import EventSwitcher from "@/components/EventSwitcher";
 import NoEventsState from "@/components/NoEventsState";
+import Notice from "@/components/Notice";
 import RsvpForm from "@/components/RsvpForm";
 import { SendInvitesDialogue } from "@/components/SendInvitesDialogue";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,15 @@ import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+
+// The three columns answer to the content width, not the viewport, so
+// collapsing the sidebar re-lays them out — same split the other event-scoped
+// pages use.
+const SHELL = "@container/preview";
+// The invitation card's 9:16 height sets the row; the RSVP form is set tight
+// enough to fit beside it, and it and the location card stretch to match.
+const SPLIT = "grid gap-5 @min-[64rem]/preview:grid-cols-3";
 
 export default function GuestPreviewMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
@@ -37,24 +46,33 @@ export default function GuestPreviewMain() {
   const { data: dueReminders } = useGetDueReminders(selectedEvent?.id);
   const reminderCount = dueReminders?.data.length ?? 0;
 
-  const { data: generatedCardUrl } = useGetViewUrl(
+  // The event's own card — generated or uploaded on the AI Invite Card page.
+  // Stored as an S3 key, so it needs a signed URL before it can be shown.
+  const {
+    data: cardUrl,
+    isLoading: isCardLoading,
+    isError: isCardError,
+  } = useGetViewUrl(
     selectedEvent?.aiEventInviteCard?.[0]?.generated_invite_image_url,
   );
-  // Sample card until the event has a generated AI invitation card
-  const cardImage = generatedCardUrl ?? "/test-preview.jpeg";
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap gap-2">
-          <Skeleton className="h-10 w-24 rounded-full" />
-          <Skeleton className="h-10 w-32 rounded-full" />
-          <Skeleton className="h-10 w-28 rounded-full" />
+      <div className={SHELL}>
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          {[24, 32, 28].map((w, i) => (
+            <Skeleton
+              key={i}
+              className="h-8 rounded-lg"
+              style={{ width: w * 4 }}
+            />
+          ))}
+          <Skeleton className="ml-auto h-8 w-52 rounded-lg" />
         </div>
-        <div className="mx-auto grid w-full max-w-md gap-6 xl:max-w-400 xl:grid-cols-3">
-          <Skeleton className="h-160 w-full rounded-4xl" />
-          <Skeleton className="h-160 w-full rounded-4xl" />
-          <Skeleton className="h-160 w-full rounded-4xl" />
+        <div className={SPLIT}>
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="aspect-[9/16] w-full" />
+          ))}
         </div>
       </div>
     );
@@ -62,12 +80,10 @@ export default function GuestPreviewMain() {
 
   if (isError) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
-        <h2 className="mb-2 text-xl font-bold">Couldn't load preview</h2>
-        <p className="text-muted-foreground">
-          Something went wrong while loading your events. Please try again.
-        </p>
-      </div>
+      <Notice
+        title="We couldn't load this preview."
+        body="Something went wrong on the way to the server. Refresh the page to try again."
+      />
     );
   }
 
@@ -88,38 +104,45 @@ export default function GuestPreviewMain() {
   };
 
   return (
-    <>
-      {/* Event selection & actions */}
-      <div className="mb-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
-        <EventSwitcher
-          events={events}
-          selectedId={selectedEvent.id}
-          onSelect={handleSelectEvent}
-        >
-          {hasNextPage && (
-            <Button
-              variant="outline"
-              className="rounded-full"
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-            >
-              {isFetchingNextPage && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              View More
-            </Button>
-          )}
-        </EventSwitcher>
+    <div className={SHELL}>
+      {/* Which event you're previewing, and the one thing you came here to do.
+          Sticky, because the preview below is taller than a screen and the
+          send button used to scroll away with it. */}
+      <div className="sticky top-14 z-20 -mx-4 mb-5 border-b border-border bg-background px-4 py-3 sm:-mx-6 sm:px-6">
+        <div className="flex items-center gap-3">
+          <EventSwitcher
+            events={events}
+            selectedId={selectedEvent.id}
+            onSelect={handleSelectEvent}
+          >
+            {hasNextPage && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="shrink-0"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage && <Loader2 className="animate-spin" />}
+                Load more
+              </Button>
+            )}
+          </EventSwitcher>
 
-        <Button className="shrink-0" onClick={() => setSendOpen(true)}>
-          <Send className="mr-2 h-4 w-4" />
-          Send RSVPs on WhatsApp
-          {reminderCount > 0 && (
-            <span className="ml-2 rounded-full bg-primary-foreground/20 px-2 text-xs">
-              {reminderCount} reminder{reminderCount === 1 ? "" : "s"} due
+          <Button className="shrink-0" onClick={() => setSendOpen(true)}>
+            <Send />
+            {/* The full label needs room; on a narrow screen the icon and the
+                count still say what the button does. */}
+            <span className="hidden @min-[34rem]/preview:inline">
+              Send RSVPs on WhatsApp
             </span>
-          )}
-        </Button>
+            {reminderCount > 0 && (
+              <span className="rounded-full bg-primary-foreground/20 px-2 text-xs tabular-nums">
+                {reminderCount} due
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       <SendInvitesDialogue
@@ -130,42 +153,62 @@ export default function GuestPreviewMain() {
         onOpenChange={setSendOpen}
       />
 
-      {/* Guest-facing preview. Keyed by event so form inputs reset on switch. */}
-      <div
-        key={selectedEvent.id}
-        className="relative isolate overflow-hidden rounded-4xl border bg-background p-4 shadow-sm sm:p-6 lg:p-10"
-      >
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <img
-            src={cardImage}
-            alt=""
-            className="absolute inset-0 size-full scale-110 object-cover opacity-40 blur-3xl"
-          />
-          <div className="absolute inset-0 bg-background/50" />
-        </div>
+      <p className="mb-5 text-sm text-muted-foreground">
+        What a guest sees when they open their link. Replies made here don't
+        count — this is a preview.
+      </p>
 
-        {/* Equal-width columns; rows stretch so all three cards share one height */}
-        <div className="mx-auto grid max-w-md grid-cols-1 gap-6 xl:max-w-400 xl:auto-rows-[minmax(40rem,auto)] xl:grid-cols-3 xl:gap-10">
-          {/* Invitation card: image is absolute so it fills the row instead of sizing it */}
-          <div className="relative aspect-9/16 w-full overflow-hidden rounded-4xl border border-black/10 bg-muted shadow-2xl xl:aspect-auto dark:border-white/10">
+      {/* Keyed by event so form inputs reset on switch */}
+      <div key={selectedEvent.id} className={SPLIT}>
+        {/* The artwork is the one thing on this page worth looking at, so it
+            gets square corners and a hairline instead of the rounded, blurred
+            slab it used to float in — a printed invitation has square corners,
+            and rounding clipped the design's own.
+
+            self-start keeps it at its own 9:16 shape instead of stretching to
+            the row; the other two columns stretch to match it. */}
+        <div className="relative aspect-[9/16] w-full self-start overflow-hidden border border-border bg-muted/30">
+          {cardUrl ? (
             <img
-              src={cardImage}
+              src={cardUrl}
               alt={`${selectedEvent.title} invitation card`}
-              className="absolute inset-0 size-full object-cover"
+              className="absolute inset-0 size-full object-contain"
             />
-          </div>
-
-          {/* Preview only: submitting does nothing */}
-          <RsvpForm
-            event={selectedEvent}
-            wedding={selectedEvent.wedding}
-            format={format}
-            onSubmit={() => {}}
-          />
-
-          <EventLocationCard event={selectedEvent} />
+          ) : isCardLoading ? (
+            <Skeleton className="absolute inset-0 rounded-none" />
+          ) : (
+            // No stock image standing in: a sample here read as the couple's
+            // own invitation, which is the one thing a preview can't get wrong.
+            <div className="flex size-full flex-col items-center justify-center px-6 text-center">
+              <p className="text-sm font-medium">
+                {isCardError
+                  ? "We couldn't load the invitation card."
+                  : "No invitation card yet."}
+              </p>
+              <p className="mt-1 max-w-[28ch] text-sm text-muted-foreground">
+                {isCardError
+                  ? "Refresh the page to try again."
+                  : "Generate one or upload your own, and it shows up here."}
+              </p>
+              {!isCardError && (
+                <Button asChild variant="outline" size="sm" className="mt-5">
+                  <Link to="/ai-invite-card">Create invitation card</Link>
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Preview only: submitting does nothing */}
+        <RsvpForm
+          event={selectedEvent}
+          wedding={selectedEvent.wedding}
+          format={format}
+          onSubmit={() => {}}
+        />
+
+        <EventLocationCard event={selectedEvent} />
       </div>
-    </>
+    </div>
   );
 }

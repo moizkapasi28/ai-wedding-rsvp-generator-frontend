@@ -16,7 +16,7 @@ export default function Rsvp() {
   if (isError || !rsvp) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-        <h1 className="mb-2 text-2xl font-bold">
+        <h1 className="mb-2 font-display text-2xl font-medium tracking-[-0.02em]">
           This invitation link isn't valid
         </h1>
         <p className="text-muted-foreground">
@@ -42,12 +42,14 @@ export default function Rsvp() {
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-5xl space-y-6">
-        <header className="space-y-1 text-center">
-          <p className="text-sm text-muted-foreground">
+        {/* The invitation below carries the couple's names in the display face.
+            Printing them again here, in a second typeface, said the same thing
+            twice in two voices. What only this line can say is who it was sent
+            to — so that's all it says now. It stays the h1: small type, but
+            still the page's heading. */}
+        <header className="text-center">
+          <h1 className="text-sm text-muted-foreground">
             Hi {guest.name}, you're invited to celebrate
-          </p>
-          <h1 className="font-serif text-3xl sm:text-4xl">
-            {wedding.bride_name} &amp; {wedding.groom_name}
           </h1>
         </header>
 

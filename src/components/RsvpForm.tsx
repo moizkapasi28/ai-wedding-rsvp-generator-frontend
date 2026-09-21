@@ -1,4 +1,11 @@
-import { Button } from "@/components/ui/button";
+import RsvpInviteHero from "./RsvpInviteHero";
+import {
+  inviteFieldClass,
+  inviteLabelClass,
+  inviteStepperButtonClass,
+  inviteStepperClass,
+} from "@/lib/rsvpFieldStyles";
+import RsvpReplyButtons from "./RsvpReplyButtons";
 import {
   Form,
   FormControl,
@@ -90,120 +97,126 @@ export default function RsvpForm({
 
   return (
     <Form {...form}>
-      <div className="flex flex-col overflow-hidden rounded-4xl border border-black/10 bg-background shadow-2xl dark:border-white/10">
-        <div className="relative overflow-hidden bg-linear-to-br from-indigo-500 via-purple-600 to-indigo-700 px-6 py-10 text-center text-white">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgb(255_255_255/0.2),transparent_60%)]" />
-          <p className="relative text-[10px] uppercase tracking-[0.15em] text-white/70">
-            {[event.title, dateStr].filter(Boolean).join(" · ")}
-          </p>
-          {names && (
-            <h2 className="relative mt-1 font-serif text-3xl leading-tight">
-              {names}
-            </h2>
-          )}
-          <p className="relative mt-2 text-xs text-white/80">
-            {[place, event.time].filter(Boolean).join(" · ")}
-          </p>
-        </div>
+      {/* Square and hairline, the same shell RsvpPreviewCard uses — the two
+          render the same invitation, so they can't be set differently. The
+          rounded, shadowed slab this was reads as UI chrome around what is
+          meant to be a printed card. */}
+      <div className="flex flex-col overflow-hidden border border-border bg-background">
+        <RsvpInviteHero
+          names={names}
+          eventTitle={event.title}
+          date={dateStr}
+          place={place}
+          time={event.time}
+          className="py-6"
+        />
 
-        <div className="flex flex-1 flex-col gap-6 px-5 py-8 sm:px-6">
+        <div className="flex flex-1 flex-col gap-4 px-5 py-5 sm:px-6">
           {event.description && (
             <p className="text-center text-sm leading-relaxed text-muted-foreground">
               {event.description}
             </p>
           )}
 
-          {format?.dietary_preference && (
-            <FormField
-              control={form.control}
-              name="dietary"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <FormLabel>Dietary preference</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={disabled}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a preference" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {DIETARY_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-          )}
+          {/* Side by side: two short fields stacked cost a row of height the
+              card doesn't have beside the invitation */}
+          <div className="grid grid-cols-2 gap-4 empty:hidden">
+            {format?.dietary_preference && (
+              <FormField
+                control={form.control}
+                name="dietary"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-1.5">
+                    <FormLabel className={inviteLabelClass}>
+                      Dietary preference
+                    </FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={disabled}
+                    >
+                      <FormControl>
+                        <SelectTrigger className={`w-full ${inviteFieldClass}`}>
+                          <SelectValue placeholder="Select a preference" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DIETARY_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            )}
 
-          {format?.plus_ones && (
-            <FormField
-              control={form.control}
-              name="plus_ones"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  {/* a span, not FormLabel: the stepper has no focusable input to label */}
-                  <span id="guest-plus-ones" className="text-sm font-medium">
-                    Plus-ones
-                  </span>
-                  <div
-                    role="group"
-                    aria-labelledby="guest-plus-ones"
-                    className="flex h-10 items-center justify-between rounded-md border px-3"
-                  >
-                    <button
-                      type="button"
-                      aria-label="Decrease plus-ones"
-                      disabled={disabled || field.value === 0}
-                      onClick={() =>
-                        field.onChange(Math.max(0, field.value - 1))
-                      }
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground transition hover:bg-accent hover:text-accent-foreground disabled:opacity-40"
-                    >
-                      <Minus className="size-3" />
-                    </button>
-                    <span
-                      aria-live="polite"
-                      className="w-6 text-center text-sm font-semibold"
-                    >
-                      {field.value}
+            {format?.plus_ones && (
+              <FormField
+                control={form.control}
+                name="plus_ones"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col gap-1.5">
+                    {/* a span, not FormLabel: the stepper has no focusable input to label */}
+                    <span id="guest-plus-ones" className={inviteLabelClass}>
+                      Plus-ones
                     </span>
-                    <button
-                      type="button"
-                      aria-label="Increase plus-ones"
-                      disabled={disabled || field.value === 9}
-                      onClick={() =>
-                        field.onChange(Math.min(9, field.value + 1))
-                      }
-                      className="flex size-7 items-center justify-center rounded-md border text-muted-foreground transition hover:bg-accent hover:text-accent-foreground disabled:opacity-40"
+                    <div
+                      role="group"
+                      aria-labelledby="guest-plus-ones"
+                      className={inviteStepperClass}
                     >
-                      <Plus className="size-3" />
-                    </button>
-                  </div>
-                </FormItem>
-              )}
-            />
-          )}
+                      <button
+                        type="button"
+                        aria-label="Decrease plus-ones"
+                        disabled={disabled || field.value === 0}
+                        onClick={() =>
+                          field.onChange(Math.max(0, field.value - 1))
+                        }
+                        className={`${inviteStepperButtonClass} disabled:opacity-40`}
+                      >
+                        <Minus className="size-3" />
+                      </button>
+                      <span
+                        aria-live="polite"
+                        className="w-6 text-center text-sm font-semibold"
+                      >
+                        {field.value}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Increase plus-ones"
+                        disabled={disabled || field.value === 9}
+                        onClick={() =>
+                          field.onChange(Math.min(9, field.value + 1))
+                        }
+                        className={`${inviteStepperButtonClass} disabled:opacity-40`}
+                      >
+                        <Plus className="size-3" />
+                      </button>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
 
           {format?.song_request && (
             <FormField
               control={form.control}
               name="song_request"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <FormLabel>Song request (optional)</FormLabel>
+                <FormItem className="flex flex-col gap-1.5">
+                  <FormLabel className={inviteLabelClass}>
+                    Song request (optional)
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       placeholder="Any song you'd love to dance to?"
-                      className="min-h-16 resize-none text-sm"
+                      className={`min-h-10 resize-none text-sm ${inviteFieldClass}`}
                       maxLength={500}
                       disabled={disabled}
                     />
@@ -218,13 +231,15 @@ export default function RsvpForm({
               control={form.control}
               name="message"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <FormLabel>Message to the couple</FormLabel>
+                <FormItem className="flex flex-col gap-1.5">
+                  <FormLabel className={inviteLabelClass}>
+                    Message to the couple
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       placeholder="Leave a note for the couple"
-                      className="min-h-16 resize-none text-sm"
+                      className={`min-h-10 resize-none text-sm ${inviteFieldClass}`}
                       maxLength={500}
                       disabled={disabled}
                     />
@@ -234,7 +249,7 @@ export default function RsvpForm({
             />
           )}
 
-          <div className="mt-auto flex flex-col gap-3 border-t pt-6">
+          <div className="mt-auto flex flex-col gap-3 border-t pt-4">
             {invite && invite.status !== "PENDING" && (
               <p className="text-center text-sm text-muted-foreground">
                 You replied{" "}
@@ -249,32 +264,7 @@ export default function RsvpForm({
                 RSVPs for this event are closed
               </p>
             )}
-            <Button
-              type="button"
-              disabled={disabled}
-              onClick={() => submit("ATTENDING")}
-              className="h-12 w-full border-0 bg-linear-to-r from-indigo-500 to-purple-600 text-base text-white shadow-md hover:from-indigo-600 hover:to-purple-700"
-            >
-              Yes, I'll be there!
-            </Button>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                disabled={disabled}
-                onClick={() => submit("MAYBE")}
-                className="h-10 border-0 bg-amber-500 text-white hover:bg-amber-600"
-              >
-                Maybe
-              </Button>
-              <Button
-                type="button"
-                disabled={disabled}
-                onClick={() => submit("DECLINED")}
-                className="h-10 border-0 bg-rose-500 text-white hover:bg-rose-600"
-              >
-                Can't make it
-              </Button>
-            </div>
+            <RsvpReplyButtons disabled={disabled} onReply={submit} />
           </div>
         </div>
       </div>

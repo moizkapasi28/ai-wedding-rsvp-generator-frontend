@@ -6,13 +6,9 @@ export default function EventPrimaryButtons() {
   const { setOpen } = useEvent();
   return (
     <div className="flex items-center gap-2 shrink-0">
-      {/* <Button variant="outline">
-        <MenuIcon />
-        <span>View as list</span>
-      </Button> */}
-      <Button variant="default" onClick={() => setOpen("add")}>
+      <Button onClick={() => setOpen("add")}>
         <PlusIcon />
-        <span>New Event</span>
+        New event
       </Button>
     </div>
   );

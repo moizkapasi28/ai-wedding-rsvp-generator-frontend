@@ -3,13 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
-import { ImageIcon, InfoIcon, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ImageIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 
@@ -30,60 +26,64 @@ export default function ReferenceUploadForm({
   const error = form.formState.errors.referenceKey;
 
   return (
-    <Card className="border-border shadow-sm">
-      <CardHeader className="py-3">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-base">Reference an Example <span className="text-destructive">*</span></CardTitle>
-            <CardDescription className="text-xs">
-              Upload an existing invitation design you like, and we'll use it as inspiration.
-            </CardDescription>
-          </div>
-          <Tooltip>
-            <TooltipTrigger type="button" className="cursor-help">
-              <InfoIcon className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs p-3 space-y-2">
-              <div className="flex gap-2 text-xs">
-                <span>💡</span>
-                <p>We'll try to match the layout, colour palette, borders and overall mood of your example — not copy it exactly.</p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          Reference an example <span className="text-destructive">*</span>
+        </CardTitle>
+        {/* This was a tooltip behind an info icon. It's the one thing someone
+            needs to know before uploading, so it says it here instead. */}
+        <CardDescription>
+          An invitation design you like. We match its layout, palette, borders
+          and mood — we don't copy it.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0 pb-3">
+      <CardContent className="space-y-5">
         <div>
           {!uploadedImage ? (
-            <label className={`w-full border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center transition-colors cursor-pointer group ${error ? "border-destructive/50 hover:bg-destructive/10" : "border-muted-foreground/25 hover:bg-muted/50"}`}>
+            <label
+              className={cn(
+                "flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed p-6 text-center transition-colors",
+                error
+                  ? "border-destructive/50 hover:bg-destructive/5"
+                  : "border-border hover:bg-muted/50",
+              )}
+            >
               <Input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleReferenceUpload} />
-              <div className="bg-primary/10 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                <ImageIcon className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-sm font-semibold mb-0.5">Click to upload</h3>
-              <p className="text-[11px] text-muted-foreground">
-                SVG, PNG, JPG or GIF (max. 5MB)
-              </p>
+              <ImageIcon className="size-5 text-muted-foreground" />
+              <span className="mt-3 text-sm font-medium">Click to upload</span>
+              {/* Was "SVG, PNG, JPG or GIF (max. 5MB)" — none of which matched
+                  what the uploader actually accepts. */}
+              <span className="mt-0.5 text-xs text-muted-foreground">
+                JPG, PNG or WebP, up to 20 MB
+              </span>
             </label>
           ) : (
-            <div className="w-full relative rounded-xl overflow-hidden border bg-muted group">
+            <div className="relative w-full overflow-hidden rounded-xl border border-border bg-muted">
               <img
                 src={uploadedImage}
                 alt="Uploaded reference"
-                className="w-full h-[120px] object-cover"
+                className="h-40 w-full object-cover"
               />
-              {isUploadingReference && (
-                <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-white animate-spin mb-1" />
-                  <span className="text-[11px] text-white font-medium">Uploading...</span>
+              {isUploadingReference ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/50">
+                  <Loader2 className="size-5 animate-spin text-white" />
+                  <span className="text-xs font-medium text-white">
+                    Uploading…
+                  </span>
                 </div>
-              )}
-              {!isUploadingReference && (
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Button size="sm" variant="secondary" onClick={onRemoveImage}>
-                    Remove Image
-                  </Button>
-                </div>
+              ) : (
+                // Always visible: a hover-only control can't be reached on a
+                // touch screen.
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="absolute top-2 right-2"
+                  onClick={onRemoveImage}
+                >
+                  Remove
+                </Button>
               )}
             </div>
           )}
@@ -94,14 +94,14 @@ export default function ReferenceUploadForm({
           control={form.control}
           name="additionalDetails"
           render={({ field }) => (
-            <FormItem className="space-y-2 pt-2">
+            <FormItem className="space-y-2">
               <FormLabel>Anything to change from the example?</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   value={field.value || ""}
                   placeholder="E.g. Incorporate a subtle peacock motif in the background..."
-                  className="min-h-[60px] resize-y bg-background"
+                  className="min-h-20 resize-y"
                 />
               </FormControl>
               <FormMessage />

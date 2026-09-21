@@ -43,7 +43,7 @@ export function EventDeleteDialogue({
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
               <Trash2 className="h-5 w-5 text-destructive" />
             </div>
-            <DialogTitle>Delete Event</DialogTitle>
+            <DialogTitle>Delete event</DialogTitle>
           </div>
           <DialogDescription>
             Are you sure you want to delete{" "}
@@ -69,7 +69,7 @@ export function EventDeleteDialogue({
             variant="destructive"
             onClick={handleConfirm}
           >
-            Delete Event
+            Delete event
           </Button>
         </DialogFooter>
       </DialogContent>

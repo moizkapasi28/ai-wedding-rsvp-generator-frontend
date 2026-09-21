@@ -16,7 +16,6 @@ type GuestDeleteDialogueProps = {
   currentRow?: Guest;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm?: () => void;
 };
 
 export function GuestDeleteDialogue({
@@ -44,7 +43,7 @@ export function GuestDeleteDialogue({
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
               <Trash2 className="h-5 w-5 text-destructive" />
             </div>
-            <DialogTitle>Delete Guest</DialogTitle>
+            <DialogTitle>Delete guest</DialogTitle>
           </div>
           <DialogDescription>
             Are you sure you want to delete{" "}
@@ -70,7 +69,7 @@ export function GuestDeleteDialogue({
             variant="destructive"
             onClick={handleConfirm}
           >
-            Delete Guest
+            Delete guest
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import type {
   CreateOrUpdateEventResponse,
+  EventSort,
   DeleteEventResponse,
   EventListResponse,
 } from "@/models/event.model";
@@ -19,9 +20,23 @@ class EventService {
     page: number,
     limit: number = 10,
     stats: boolean = false,
+    search: string = "",
+    side: string = "",
+    sort: EventSort = "newest",
   ): Promise<EventListResponse> {
+    const params = new URLSearchParams({
+      weddingId,
+      page: page.toString(),
+      limit: limit.toString(),
+      stats: String(stats),
+    });
+
+    if (search) params.append("search", search);
+    if (side) params.append("sides", side);
+    if (sort !== "newest") params.append("sort", sort);
+
     return this.api.get<EventListResponse>(
-      `${this.controller}?weddingId=${weddingId}&page=${page}&limit=${limit}&stats=${stats}`,
+      `${this.controller}?${params.toString()}`,
     );
   }
 

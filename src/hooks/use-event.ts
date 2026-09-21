@@ -1,4 +1,5 @@
 import { eventService } from "@/api/event.service";
+import type { EventSort } from "@/models/event.model";
 import type { EventFormValues } from "@/validations/event.validation";
 import {
   useMutation,
@@ -17,11 +18,30 @@ export const useGetEventsWithStats = (
   page: number,
   limit: number = 10,
   stats: boolean = false,
+  search: string = "",
+  side: string = "",
+  sort: EventSort = "newest",
 ) => {
   return useQuery({
-    queryKey: [...EVENT_QUERY_KEY, weddingId, page, limit],
+    queryKey: [
+      ...EVENT_QUERY_KEY,
+      weddingId,
+      page,
+      limit,
+      search,
+      side,
+      sort,
+    ],
     queryFn: () =>
-      eventService.getEvents(weddingId as string, page, limit, stats),
+      eventService.getEvents(
+        weddingId as string,
+        page,
+        limit,
+        stats,
+        search,
+        side,
+        sort,
+      ),
     enabled: !!weddingId,
   });
 };
