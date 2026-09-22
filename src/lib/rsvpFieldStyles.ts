@@ -11,11 +11,24 @@ export const inviteLabelClass =
   "text-xs font-medium text-muted-foreground";
 
 export const inviteFieldClass =
-  "rounded-none border-0 border-b border-border bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent";
+  // text-base md:text-sm on every field: the textarea sets its own text-base on
+  // phones (16px, so iOS doesn't zoom on focus) while the select stayed at
+  // text-sm, and the answers came out at two different sizes on the same card.
+  "rounded-none border-0 border-b border-border bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0 md:text-sm dark:bg-transparent dark:hover:bg-transparent";
 
-/** The plus-ones stepper: the same ruled line, with the count centred on it. */
+/** A select on the card: the ruled line, at the same height as the stepper. */
+// data-[size=default]:h-10, not h-10: the trigger sets its own height through a
+// data-attribute selector, which outranks a plain class.
+export const inviteSelectClass = `w-full data-[size=default]:h-10 ${inviteFieldClass}`;
+
+/**
+ * The plus-ones stepper: the same ruled line, the same height as a select, and
+ * the controls grouped at the start of the line. They used to be pushed to
+ * either end of the column, which left the count stranded mid-air and lined up
+ * with nothing beside it.
+ */
 export const inviteStepperClass =
-  "flex h-10 items-center justify-between border-0 border-b border-border px-0";
+  "flex h-10 items-center gap-2 border-0 border-b border-border px-0";
 
 export const inviteStepperButtonClass =
   "flex size-7 shrink-0 items-center justify-center border border-border text-muted-foreground transition-colors hover:border-ring hover:text-foreground";

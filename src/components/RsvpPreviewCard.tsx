@@ -10,6 +10,7 @@ import { Minus, Plus } from "lucide-react";
 import RsvpInviteHero from "./RsvpInviteHero";
 import {
   inviteFieldClass,
+  inviteSelectClass,
   inviteLabelClass,
   inviteStepperButtonClass,
   inviteStepperClass,
@@ -82,60 +83,64 @@ export default function RsvpPhonePreview({
           />
 
           {/* Body */}
-          <div className="flex flex-1 flex-col space-y-5 px-5 py-5 sm:space-y-6 sm:px-6 sm:py-6">
+          <div className="@container/rsvpcard flex flex-1 flex-col gap-5 px-5 py-5 sm:gap-6 sm:px-6 sm:py-6">
             <p className="text-sm leading-relaxed text-muted-foreground">
               {description}
             </p>
 
-            {dietaryPreference && (
-              <div className="flex flex-col gap-2.5">
-                <label className={inviteLabelClass}>
-                  Dietary preference
-                </label>
-                <Select defaultValue="vegetarian">
-                  <SelectTrigger className={`w-full ${inviteFieldClass}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                    <SelectItem value="non-vegetarian">
-                      Non-vegetarian
-                    </SelectItem>
-                    <SelectItem value="jain">Jain</SelectItem>
-                    <SelectItem value="gluten-free">Gluten-free</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {plusOnesEnabled && (
-              <div className="flex flex-col gap-2.5">
-                <label className={inviteLabelClass}>
-                  Plus-ones
-                </label>
-                <div className={inviteStepperClass}>
-                  <button
-                    type="button"
-                    onClick={() => setPlusOnes((n) => Math.max(0, n - 1))}
-                    className={inviteStepperButtonClass}
-                    aria-label="Decrease plus-ones"
-                  >
-                    <Minus className="h-3 w-3" />
-                  </button>
-                  <span className="w-4 text-center text-sm font-semibold text-foreground">
-                    {plusOnes}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPlusOnes((n) => Math.min(9, n + 1))}
-                    className={inviteStepperButtonClass}
-                    aria-label="Increase plus-ones"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </button>
+            {/* Same responsive pair as RsvpForm, so preview and real page
+                break to one column at the same point */}
+            <div className="grid grid-cols-1 gap-5 empty:hidden @min-[22rem]/rsvpcard:grid-cols-2">
+              {dietaryPreference && (
+                <div className="flex flex-col gap-2.5">
+                  <label className={inviteLabelClass}>
+                    Dietary preference
+                  </label>
+                  <Select defaultValue="vegetarian">
+                    <SelectTrigger className={inviteSelectClass}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                      <SelectItem value="non-vegetarian">
+                        Non-vegetarian
+                      </SelectItem>
+                      <SelectItem value="jain">Jain</SelectItem>
+                      <SelectItem value="gluten-free">Gluten-free</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-            )}
+              )}
+
+              {plusOnesEnabled && (
+                <div className="flex flex-col gap-2.5">
+                  <label className={inviteLabelClass}>
+                    Plus-ones
+                  </label>
+                  <div className={inviteStepperClass}>
+                    <button
+                      type="button"
+                      onClick={() => setPlusOnes((n) => Math.max(0, n - 1))}
+                      className={inviteStepperButtonClass}
+                      aria-label="Decrease plus-ones"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </button>
+                    <span className="min-w-5 text-center text-sm font-semibold tabular-nums">
+                      {plusOnes}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPlusOnes((n) => Math.min(9, n + 1))}
+                      className={inviteStepperButtonClass}
+                      aria-label="Increase plus-ones"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {songRequest && (
               <div className="flex flex-col gap-2.5">

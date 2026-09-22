@@ -1,6 +1,7 @@
 import RsvpInviteHero from "./RsvpInviteHero";
 import {
   inviteFieldClass,
+  inviteSelectClass,
   inviteLabelClass,
   inviteStepperButtonClass,
   inviteStepperClass,
@@ -113,16 +114,18 @@ export default function RsvpForm({
           className="py-6"
         />
 
-        <div className="flex flex-1 flex-col gap-4 px-5 py-5 sm:px-6">
+        <div className="@container/rsvpcard flex flex-1 flex-col gap-4 px-5 py-5 sm:px-6">
           {event.description && (
             <p className="text-center text-sm leading-relaxed text-muted-foreground">
               {event.description}
             </p>
           )}
 
-          {/* Side by side: two short fields stacked cost a row of height the
-              card doesn't have beside the invitation */}
-          <div className="grid grid-cols-2 gap-4 empty:hidden">
+          {/* Side by side only once the card is wide enough for both: at phone
+              width two columns squeezed the dropdown until its value truncated.
+              Measured against the card, not the window, since the same card is
+              a third of the width inside Guest Preview. */}
+          <div className="grid grid-cols-1 gap-4 empty:hidden @min-[22rem]/rsvpcard:grid-cols-2">
             {format?.dietary_preference && (
               <FormField
                 control={form.control}
@@ -138,7 +141,7 @@ export default function RsvpForm({
                       disabled={disabled}
                     >
                       <FormControl>
-                        <SelectTrigger className={`w-full ${inviteFieldClass}`}>
+                        <SelectTrigger className={inviteSelectClass}>
                           <SelectValue placeholder="Select a preference" />
                         </SelectTrigger>
                       </FormControl>
@@ -183,7 +186,7 @@ export default function RsvpForm({
                       </button>
                       <span
                         aria-live="polite"
-                        className="w-6 text-center text-sm font-semibold"
+                        className="min-w-5 text-center text-sm font-semibold tabular-nums"
                       >
                         {field.value}
                       </span>
