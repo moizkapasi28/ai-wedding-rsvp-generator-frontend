@@ -51,7 +51,11 @@ export interface RsvpEvent {
 
 // One link = one event invite
 export type RsvpResponse = GenericResponse<{
-  guest: { name: string };
+  guest: {
+    name: string;
+    accomodation_required: boolean;
+    accomodation_address: string | null;
+  };
   wedding: { bride_name: string; groom_name: string; slug: string };
   event: RsvpEvent;
 }>;

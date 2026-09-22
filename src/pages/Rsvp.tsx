@@ -1,8 +1,10 @@
 import EventLocationCard from "@/components/EventLocationCard";
+import { Button } from "@/components/ui/button";
 import RsvpForm from "@/components/RsvpForm";
 import Loader from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
 import { useGetRsvp, useSubmitRsvp } from "@/hooks/use-rsvp";
+import { MapPin } from "lucide-react";
 import { Navigate, useParams } from "react-router-dom";
 
 export default function Rsvp() {
@@ -92,7 +94,38 @@ export default function Rsvp() {
           />
           <EventLocationCard event={event} />
         </div>
+
+        {guest.accomodation_required && guest.accomodation_address && (
+          <StayCard address={guest.accomodation_address} />
+        )}
       </div>
     </main>
+  );
+}
+
+/**
+ * Where the couple has put this guest up. Full width under the grid rather
+ * than a fourth column: it's about the guest, not the ceremony, and it's the
+ * one address they need after the party. No second embedded map — one Google
+ * frame per page is enough; this one just hands them directions.
+ */
+function StayCard({ address }: { address: string }) {
+  return (
+    <div className="flex flex-col items-center border border-border bg-background px-6 py-8 text-center">
+      <h2 className="font-display text-2xl font-medium tracking-[-0.02em]">
+        Where you're staying
+      </h2>
+      <p className="mt-3 max-w-prose text-sm leading-relaxed">{address}</p>
+      <Button asChild variant="outline" className="mt-5 rounded-none">
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MapPin />
+          Get directions
+        </a>
+      </Button>
+    </div>
   );
 }
