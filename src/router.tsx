@@ -181,10 +181,10 @@ const Setup = () => {
                       }),
                     },
                     {
-                      path: "ai-invite-card",
+                      path: "invite-card",
                       index: false,
                       lazy: async () => ({
-                        Component: (await import("@/pages/AIInviteCard")).default,
+                        Component: (await import("@/pages/InviteCard")).default,
                       }),
                     },
                     {

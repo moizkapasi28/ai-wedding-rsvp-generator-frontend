@@ -7,6 +7,8 @@ export interface RsvpFormat {
   plus_ones: boolean;
   song_request: boolean;
   message: boolean;
+  // Signed URL for the RSVP page illustration set in Page Settings, if any
+  illustration_url?: string | null;
 }
 
 // A type alias (not an interface) so it satisfies api.service's Record<string, unknown> body
@@ -43,6 +45,8 @@ export interface RsvpEvent {
   event_side: string;
   format: RsvpFormat;
   invite: RsvpInvite;
+  // Signed URL for the event's invitation card; null when the host hasn't made one
+  invite_card_url: string | null;
 }
 
 // One link = one event invite

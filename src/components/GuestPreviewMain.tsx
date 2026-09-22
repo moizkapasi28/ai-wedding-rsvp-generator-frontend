@@ -1,8 +1,8 @@
 import EventLocationCard from "@/components/EventLocationCard";
-import EventSwitcher from "@/components/EventSwitcher";
+import EventBar from "@/components/EventBar";
 import NoEventsState from "@/components/NoEventsState";
 import Notice from "@/components/Notice";
-import RsvpForm from "@/components/RsvpForm";
+import RsvpPhonePreview from "@/components/RsvpPreviewCard";
 import { SendInvitesDialogue } from "@/components/SendInvitesDialogue";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,9 +13,9 @@ import {
 } from "@/hooks/use-pageSetting";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 // The three columns answer to the content width, not the viewport, so
 // collapsing the sidebar re-lays them out — same split the other event-scoped
@@ -27,7 +27,8 @@ const SPLIT = "grid gap-5 @min-[64rem]/preview:grid-cols-3";
 
 export default function GuestPreviewMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
-  const [searchParams, setSearchParams] = useSearchParams();
+  // Plain state, like the other event-scoped pages; the URL stays /guest-preview
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [sendOpen, setSendOpen] = useState(false);
 
   const {
@@ -40,8 +41,8 @@ export default function GuestPreviewMain() {
   } = useGetGuestEventInviteFormatsInfinite(activeWeddingId, 5);
 
   const events = data?.pages.flatMap((page) => page.data?.events || []) || [];
-  const eventParam = searchParams.get("event");
-  const selectedEvent = events.find((e) => e.id === eventParam) ?? events[0];
+  const selectedEvent =
+    events.find((e) => e.id === selectedEventId) ?? events[0];
   const format = selectedEvent?.guestEventInviteFormat?.[0];
   const { data: dueReminders } = useGetDueReminders(selectedEvent?.id);
   const reminderCount = dueReminders?.data.length ?? 0;
@@ -53,8 +54,11 @@ export default function GuestPreviewMain() {
     isLoading: isCardLoading,
     isError: isCardError,
   } = useGetViewUrl(
-    selectedEvent?.aiEventInviteCard?.[0]?.generated_invite_image_url,
+    selectedEvent?.inviteCard?.[0]?.generated_invite_image_url,
   );
+
+  // The RSVP page's own illustration, the same image Page Settings previews
+  const { data: rsvpHeroImage = null } = useGetViewUrl(format?.generated_image);
 
   if (isLoading) {
     return (
@@ -93,57 +97,30 @@ export default function GuestPreviewMain() {
     );
   }
 
-  const handleSelectEvent = (eventId: string) => {
-    setSearchParams(
-      (prev) => {
-        prev.set("event", eventId);
-        return prev;
-      },
-      { replace: true },
-    );
-  };
-
   return (
     <div className={SHELL}>
-      {/* Which event you're previewing, and the one thing you came here to do.
-          Sticky, because the preview below is taller than a screen and the
-          send button used to scroll away with it. */}
-      <div className="sticky top-14 z-20 -mx-4 mb-5 border-b border-border bg-background px-4 py-3 sm:-mx-6 sm:px-6">
-        <div className="flex items-center gap-3">
-          <EventSwitcher
-            events={events}
-            selectedId={selectedEvent.id}
-            onSelect={handleSelectEvent}
-          >
-            {hasNextPage && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="shrink-0"
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-              >
-                {isFetchingNextPage && <Loader2 className="animate-spin" />}
-                Load more
-              </Button>
-            )}
-          </EventSwitcher>
-
-          <Button className="shrink-0" onClick={() => setSendOpen(true)}>
-            <Send />
-            {/* The full label needs room; on a narrow screen the icon and the
-                count still say what the button does. */}
-            <span className="hidden @min-[34rem]/preview:inline">
-              Send RSVPs on WhatsApp
+      <EventBar
+        events={events}
+        selectedId={selectedEvent.id}
+        onSelect={setSelectedEventId}
+        hasNextPage={hasNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      >
+        <Button className="shrink-0" onClick={() => setSendOpen(true)}>
+          <Send />
+          {/* The full label needs room; on a narrow screen the icon and the
+              count still say what the button does. */}
+          <span className="hidden @min-[26rem]/eventbar:inline">
+            Send RSVPs on WhatsApp
+          </span>
+          {reminderCount > 0 && (
+            <span className="rounded-full bg-primary-foreground/20 px-2 text-xs tabular-nums">
+              {reminderCount} due
             </span>
-            {reminderCount > 0 && (
-              <span className="rounded-full bg-primary-foreground/20 px-2 text-xs tabular-nums">
-                {reminderCount} due
-              </span>
-            )}
-          </Button>
-        </div>
-      </div>
+          )}
+        </Button>
+      </EventBar>
 
       <SendInvitesDialogue
         eventId={selectedEvent.id}
@@ -192,19 +169,26 @@ export default function GuestPreviewMain() {
               </p>
               {!isCardError && (
                 <Button asChild variant="outline" size="sm" className="mt-5">
-                  <Link to="/ai-invite-card">Create invitation card</Link>
+                  {/* In navigation state, not the URL: it opens on this event
+                      and the address stays /invite-card */}
+                  <Link to="/invite-card" state={{ eventId: selectedEvent.id }}>
+                    Create invitation card
+                  </Link>
                 </Button>
               )}
             </div>
           )}
         </div>
 
-        {/* Preview only: submitting does nothing */}
-        <RsvpForm
+        {/* The same component as Page Settings' Live preview, fed the saved
+            settings, so the two previews of the RSVP card can't differ */}
+        <RsvpPhonePreview
           event={selectedEvent}
-          wedding={selectedEvent.wedding}
-          format={format}
-          onSubmit={() => {}}
+          heroImage={rsvpHeroImage}
+          dietaryPreference={!!format?.dietary_preference}
+          plusOnesEnabled={!!format?.plus_ones}
+          songRequest={!!format?.song_request}
+          messageToCouple={!!format?.message}
         />
 
         <EventLocationCard event={selectedEvent} />

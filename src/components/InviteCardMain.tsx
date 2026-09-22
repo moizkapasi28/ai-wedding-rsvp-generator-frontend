@@ -1,22 +1,23 @@
 import {
-  aiInviteCardService,
-  type GenerateAIInviteCardError,
-} from "@/api/aiInviteCard.service";
+  inviteCardService,
+  type GenerateInviteCardError,
+} from "@/api/inviteCard.service";
 import { generalService } from "@/api/general.service";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   invalidateInviteCards,
-  useAiInviteCardGenerationStatus,
-  useGetAiInviteCardsByWeddingInfinite,
-  useUpdateAiInviteCard,
-} from "@/hooks/use-aiInviteCard";
+  useInviteCardGenerationStatus,
+  useGetInviteCardsByWeddingInfinite,
+  useUpdateInviteCard,
+} from "@/hooks/use-inviteCard";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { ImageIcon, SparklesIcon, UploadIcon } from "lucide-react";
+import { CheckIcon, ImageIcon, SparklesIcon, UploadIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -25,7 +26,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 
 // Sub-components
-import EventSelectorBar from "./EventSelectorBar";
+import { cn } from "@/lib/utils";
+import EventBar from "./EventBar";
 import NoEventsState from "./NoEventsState";
 import DesignConfigForm from "./DesignConfigForm";
 import ReferenceUploadForm from "./ReferenceUploadForm";
@@ -36,11 +38,11 @@ import OwnCardUploadForm from "./OwnCardUploadForm";
 import {
   aiInviteFormSchema,
   type AiInviteFormValues,
-} from "@/validations/aiInviteCard.validation";
+} from "@/validations/inviteCard.validation";
 import {
   IN_FLIGHT_GENERATION_STATUSES,
   type AiEventInviteCard,
-} from "@/models/aiInviteCard.model";
+} from "@/models/inviteCard.model";
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -98,7 +100,7 @@ const cardToFormValues = (
   const isCouple = photoType === "couple";
 
   return {
-    activeTab: card.generation_mode === "EXAMPLE" ? "upload" : "describe",
+    activeTab: card.card_source === "EXAMPLE" ? "upload" : "describe",
     designPreset: card.design_preset || "",
     textureEmulation: card.texture_emulation || "",
     typographyPairing: card.typography_pairing || "",
@@ -124,12 +126,12 @@ const cardToFormValues = (
 
 const emptyToNull = (value?: string | null) => (value ? value : null);
 
-export default function AiCardInviteMain() {
+export default function InviteCardMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const queryClient = useQueryClient();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useGetAiInviteCardsByWeddingInfinite(activeWeddingId);
+    useGetInviteCardsByWeddingInfinite(activeWeddingId);
 
   // Each page returns events with their AI invite card, so cards load page-by-page alongside events
   const events = useMemo(
@@ -137,20 +139,33 @@ export default function AiCardInviteMain() {
     [data],
   );
 
+  // Guest Preview sends the event it was showing in navigation state rather
+  // than a query string, so the URL stays /invite-card.
+  const requestedEventId = (useLocation().state as { eventId?: string } | null)
+    ?.eventId;
+
   const [selectedEventId, setSelectedEventId] = useState<string>(
     events?.[0]?.id || "",
   );
 
   const selectedCard = events.find((event) => event.id === selectedEventId)
-    ?.aiEventInviteCard?.[0];
+    ?.inviteCard?.[0];
 
-  const updateMutation = useUpdateAiInviteCard();
+  const updateMutation = useUpdateInviteCard();
+
+  // Applied once, as soon as there are events to choose from — not guarded by
+  // "no selection yet", because a cached list means selectedEventId is already
+  // the first event by the time this runs, which is what swallowed the
+  // requested event before.
+  const appliedRequestRef = useRef(false);
 
   useEffect(() => {
-    if (events.length > 0 && !selectedEventId) {
-      setSelectedEventId(events[0].id);
-    }
-  }, [events, selectedEventId]);
+    if (events.length === 0 || appliedRequestRef.current) return;
+    appliedRequestRef.current = true;
+
+    const wanted = events.find((event) => event.id === requestedEventId);
+    setSelectedEventId(wanted?.id ?? selectedEventId ?? events[0].id);
+  }, [events, selectedEventId, requestedEventId]);
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isUploadingReference, setIsUploadingReference] = useState(false);
@@ -159,15 +174,15 @@ export default function AiCardInviteMain() {
   const [isUploadingCharacter, setIsUploadingCharacter] = useState(false);
 
   const [isUploadingCard, setIsUploadingCard] = useState(false);
-  // Screen-only: "use my own card" isn't a generation mode, so it stays out of
-  // the form and never reaches the save payload.
+  // Which tab is showing Use my own card. Kept outside the form (whose
+  // activeTab only knows the two generating tabs) and saved as card_source.
   const [useOwnCard, setUseOwnCard] = useState(false);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null,
   );
   const [generationError, setGenerationError] =
-    useState<GenerateAIInviteCardError | null>(null);
+    useState<GenerateInviteCardError | null>(null);
 
   const form = useForm<AiInviteFormValues>({
     resolver: zodResolver(aiInviteFormSchema),
@@ -185,7 +200,8 @@ export default function AiCardInviteMain() {
     hydratedEventIdRef.current = selectedEventId;
     form.reset(cardToFormValues(selectedCard));
     setGenerationError(null);
-    setUseOwnCard(false);
+    // Reopen on the tab the card came from, now that the database records it
+    setUseOwnCard(selectedCard?.card_source === "UPLOAD");
   }, [selectedEventId, selectedCard, form]);
 
   const generatedImageKey = selectedCard?.generated_invite_image_url ?? null;
@@ -242,7 +258,7 @@ export default function AiCardInviteMain() {
     !!selectedCard?.generation_status &&
     IN_FLIGHT_GENERATION_STATUSES.includes(selectedCard.generation_status);
 
-  const { data: statusResponse } = useAiInviteCardGenerationStatus(
+  const { data: statusResponse } = useInviteCardGenerationStatus(
     selectedCard?.id ?? null,
     cardHasRunInFlight ||
       (!!selectedCard?.id && pollingCardId === selectedCard.id),
@@ -260,9 +276,9 @@ export default function AiCardInviteMain() {
         formData.photoPlacement === "FRAMED_INSET");
 
     return {
-      generation_mode: (formData.activeTab === "describe"
-        ? "MANUAL"
-        : "EXAMPLE") as "MANUAL" | "EXAMPLE",
+      card_source: (formData.activeTab === "describe"
+        ? "PRESETS"
+        : "EXAMPLE") as "PRESETS" | "EXAMPLE",
       photo_type: hasPhoto ? formData.photoType : null,
       design_preset: emptyToNull(formData.designPreset),
       texture_emulation: emptyToNull(formData.textureEmulation),
@@ -310,7 +326,7 @@ export default function AiCardInviteMain() {
     mutationFn: async (formData: AiInviteFormValues) => {
       const { photo_type, ...config } = buildCardPayload(formData);
 
-      return aiInviteCardService.generateAIInviteCardImage({
+      return inviteCardService.generateInviteCardImage({
         eventId: selectedEventId,
         ...config,
         photo_type: photo_type ?? undefined,
@@ -321,7 +337,7 @@ export default function AiCardInviteMain() {
       // is a save too — rebase the form or it stays marked unsaved.
       form.reset(formData);
       // The worker does the generating; follow it through the status endpoint
-      setPollingCardId(res.data.aiInviteCardId);
+      setPollingCardId(res.data.inviteCardId);
       invalidateInviteCards(queryClient);
       toast.success("Generating your invitation — you can leave this page.");
     },
@@ -409,7 +425,15 @@ export default function AiCardInviteMain() {
     const values = form.getValues();
 
     updateMutation.mutate(
-      { id: selectedCard.id, data: buildCardPayload(values) },
+      {
+        id: selectedCard.id,
+        data: {
+          ...buildCardPayload(values),
+          // Saving from Use my own card records that as the card's source; the
+          // design settings from the other tabs are still kept alongside it
+          ...(useOwnCard && { card_source: "UPLOAD" }),
+        },
+      },
       // What was saved is the new baseline. Without this the form stays
       // "dirty" after a successful save and the unsaved-changes marker never
       // clears — the hydrating effect below only runs on an event switch.
@@ -471,8 +495,9 @@ export default function AiCardInviteMain() {
       await generalService.uploadFileToS3(urlRes.data.url, file);
       // Only the image: sending the whole form here would quietly save any
       // unsaved design edits along with it.
-      await aiInviteCardService.updateAiInviteCard(cardId, {
+      await inviteCardService.updateInviteCard(cardId, {
         generated_invite_image_url: urlRes.data.object_key,
+        card_source: "UPLOAD",
       });
       invalidateInviteCards(queryClient);
       toast.success("Invitation uploaded.");
@@ -552,19 +577,40 @@ export default function AiCardInviteMain() {
     <TooltipProvider>
       <Form {...form}>
         <div className={SHELL}>
-          <EventSelectorBar
+          <EventBar
             events={events}
-            selectedEventId={selectedEventId}
-            setSelectedEventId={setSelectedEventId}
+            selectedId={selectedEventId}
+            onSelect={setSelectedEventId}
             hasNextPage={hasNextPage}
             fetchNextPage={fetchNextPage}
             isFetchingNextPage={isFetchingNextPage}
-            isGenerating={updateMutation.isPending}
-            onGenerate={handleSaveChanges}
-            isUploadingReference={isUploadingReference}
-            isUploadingCharacter={isUploadingCharacter}
-            isDirty={form.formState.isDirty}
-          />
+          >
+            {/* Says out loud that switching events would lose the edits */}
+            <span
+              className={cn(
+                "hidden text-xs text-muted-foreground @min-[26rem]/eventbar:inline",
+                !form.formState.isDirty && "invisible",
+              )}
+            >
+              Unsaved changes
+            </span>
+            <Button
+              type="button"
+              onClick={handleSaveChanges}
+              aria-label="Save changes"
+              loading={updateMutation.isPending}
+              disabled={
+                !selectedEventId ||
+                isUploadingReference ||
+                isUploadingCharacter
+              }
+            >
+              <CheckIcon />
+              <span className="hidden @min-[26rem]/eventbar:inline">
+                Save changes
+              </span>
+            </Button>
+          </EventBar>
 
           <div className={SPLIT}>
             {/* Left: how the card should look */}
@@ -577,18 +623,38 @@ export default function AiCardInviteMain() {
                     form.setValue("activeTab", v as "describe" | "upload");
                 }}
               >
+                {/* Three tabs have to fit a phone. The triggers are
+                    whitespace-nowrap, so full labels overflowed their third of
+                    the row rather than shrinking: below ~34rem of content width
+                    they drop to one word each, and the icons go at the very
+                    narrowest, where even those need the room. */}
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="describe">
-                    <SparklesIcon />
-                    Describe a design
+                  <TabsTrigger value="describe" className="min-w-0">
+                    <SparklesIcon className="hidden @min-[22rem]/invite:block" />
+                    <span className="truncate @max-[34rem]/invite:hidden">
+                      Describe a design
+                    </span>
+                    <span className="truncate @min-[34rem]/invite:hidden">
+                      Describe
+                    </span>
                   </TabsTrigger>
-                  <TabsTrigger value="upload">
-                    <ImageIcon />
-                    Use an example
+                  <TabsTrigger value="upload" className="min-w-0">
+                    <ImageIcon className="hidden @min-[22rem]/invite:block" />
+                    <span className="truncate @max-[34rem]/invite:hidden">
+                      Use an example
+                    </span>
+                    <span className="truncate @min-[34rem]/invite:hidden">
+                      Example
+                    </span>
                   </TabsTrigger>
-                  <TabsTrigger value="own">
-                    <UploadIcon />
-                    Use my own card
+                  <TabsTrigger value="own" className="min-w-0">
+                    <UploadIcon className="hidden @min-[22rem]/invite:block" />
+                    <span className="truncate @max-[34rem]/invite:hidden">
+                      Use my own card
+                    </span>
+                    <span className="truncate @min-[34rem]/invite:hidden">
+                      My card
+                    </span>
                   </TabsTrigger>
                 </TabsList>
 

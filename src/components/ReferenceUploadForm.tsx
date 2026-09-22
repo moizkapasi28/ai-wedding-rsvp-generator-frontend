@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+import type { AiInviteFormValues } from "@/validations/inviteCard.validation";
 import { cn } from "@/lib/utils";
 import { ImageIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";

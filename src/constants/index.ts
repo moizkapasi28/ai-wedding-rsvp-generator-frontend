@@ -61,7 +61,7 @@ export const APP_SIDEBAR = {
         },
         {
           title: "Invite card",
-          path: "/ai-invite-card",
+          path: "/invite-card",
           Icon: SparklesIcon,
           badge: "Beta",
         },

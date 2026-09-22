@@ -108,6 +108,8 @@ export default function RsvpForm({
           date={dateStr}
           place={place}
           time={event.time}
+          // The same illustration Page Settings' Live preview shows
+          image={format?.illustration_url}
           className="py-6"
         />
 

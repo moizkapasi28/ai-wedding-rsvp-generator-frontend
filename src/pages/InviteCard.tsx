@@ -1,11 +1,11 @@
-import AiCardInviteMain from "@/components/AICardInviteMain";
+import InviteCardMain from "@/components/InviteCardMain";
 import Page, { PageHeader } from "@/components/Page";
 
-export default function AIInviteCard() {
+export default function InviteCard() {
   return (
     <Page>
       <PageHeader title="Invite Card" />
-      <AiCardInviteMain />
+      <InviteCardMain />
     </Page>
   );
 }

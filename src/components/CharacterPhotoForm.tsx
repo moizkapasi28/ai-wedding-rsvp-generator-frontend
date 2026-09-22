@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CheckIcon, ImageIcon, Loader2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+import type { AiInviteFormValues } from "@/validations/inviteCard.validation";
 
 
 interface CharacterPhotoFormProps {

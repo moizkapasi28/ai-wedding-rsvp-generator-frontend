@@ -17,7 +17,7 @@ export interface EventWithInvitesAndWedding {
   updated_at: string;
   guestEventInviteFormat: GuestEventInviteFormat[];
   // At most one card per event; the key is null until generation completes
-  aiEventInviteCard?: { generated_invite_image_url: string | null }[];
+  inviteCard?: { generated_invite_image_url: string | null }[];
   wedding: Wedding;
   stats: Stats;
 }

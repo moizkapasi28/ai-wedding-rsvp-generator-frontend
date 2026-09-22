@@ -27,7 +27,7 @@ export const IN_FLIGHT_GENERATION_STATUSES: AiGenerationStatus[] = [
   "PROCESSING",
 ];
 
-export interface AiInviteCardGenerationStatus {
+export interface InviteCardGenerationStatus {
   id: string;
   event_id: string;
   status: AiGenerationStatus;
@@ -45,7 +45,8 @@ export interface AiInviteCardGenerationStatus {
 export interface AiEventInviteCard {
   id: string;
   event_id: string;
-  generation_mode: "EXAMPLE" | "MANUAL";
+  // Where the card comes from: generated from presets or an example, or uploaded
+  card_source: "PRESETS" | "EXAMPLE" | "UPLOAD";
   design_preset: string | null;
   texture_emulation: string | null;
   typography_pairing: string | null;
@@ -80,7 +81,7 @@ export interface AiEventInviteCard {
   updated_at: string;
 }
 
-export interface EventWithAiInviteCard {
+export interface EventWithInviteCard {
   id: string;
   wedding_id: string;
   title: string;
@@ -96,12 +97,12 @@ export interface EventWithAiInviteCard {
   created_at: string;
   updated_at: string;
   // Prisma models this as a list, though the unique event_id allows at most one card
-  aiEventInviteCard: AiEventInviteCard[];
+  inviteCard: AiEventInviteCard[];
   wedding: Wedding;
 }
 
-export type AiInviteCardListResponse = GenericResponse<{
-  events: EventWithAiInviteCard[];
+export type InviteCardListResponse = GenericResponse<{
+  events: EventWithInviteCard[];
   totalCount: number;
   totalPages: number;
   currentPage: number;

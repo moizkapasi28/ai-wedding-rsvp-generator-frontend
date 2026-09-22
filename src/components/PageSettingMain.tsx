@@ -1,3 +1,5 @@
+import { CheckIcon } from "lucide-react";
+import EventBar from "@/components/EventBar";
 import NoEventsState from "@/components/NoEventsState";
 import Notice from "@/components/Notice";
 import RsvpPhonePreview from "@/components/RsvpPreviewCard";
@@ -17,7 +19,6 @@ import {
 } from "@/hooks/use-pageSetting";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useAtomValue } from "jotai";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -26,11 +27,6 @@ import PageSettingsGuestQuestions from "@/components/PageSettingsGuestQuestions"
 import PageSettingsIllustration from "@/components/PageSettingsIllustration";
 import PageSettingsReminders from "@/components/PageSettingsReminders";
 import { cn } from "@/lib/utils";
-import {
-  formatSide,
-  getSideBadgeStyles,
-  getSideSelectedStyles,
-} from "@/lib/eventSide";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -193,73 +189,35 @@ export default function PageSettingMain() {
   return (
     <Form {...form}>
       <div className={SHELL}>
-        {/* Which event you're editing, and the one button that commits it.
-            Sticky, because the settings below it are long enough to scroll
-            past — Save used to disappear off the top. */}
-        <div className="sticky top-14 z-20 -mx-4 mb-5 border-b border-border bg-background px-4 py-3 sm:-mx-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {/* Scrolls sideways rather than wrapping into a growing pile of
-                pills that pushes the settings down the page. */}
-            <div className="no-scrollbar -mx-1 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 py-0.5">
-              {/* Two things at once, one colour system: the hue is whose side
-                  the event is, the fill is whether it's the one you're editing.
-                  The old pills used hue for side and opacity + ring + weight
-                  for selection, so neither read clearly. */}
-              {events.map((event) => {
-                const isSelected = selectedEventId === event.id;
-                return (
-                  <Button
-                    key={event.id}
-                    size="sm"
-                    variant="outline"
-                    aria-pressed={isSelected}
-                    title={`${event.title} — ${formatSide(event.event_side)}`}
-                    className={cn(
-                      "shrink-0",
-                      isSelected
-                        ? getSideSelectedStyles(event.event_side)
-                        : getSideBadgeStyles(event.event_side),
-                    )}
-                    onClick={() => handleSelectEvent(event.id)}
-                  >
-                    {event.title}
-                  </Button>
-                );
-              })}
-              {hasNextPage && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="shrink-0"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage && <Loader2 className="animate-spin" />}
-                  Load more
-                </Button>
-              )}
-            </div>
-
-            <div className="flex shrink-0 items-center gap-3">
-              {/* Says out loud that switching events would lose the edits */}
-              <span
-                className={cn(
-                  "hidden text-xs text-muted-foreground @min-[34rem]/settings:inline",
-                  !isDirty && "invisible",
-                )}
-              >
-                Unsaved changes
-              </span>
-              <Button
-                onClick={handleSaveChanges}
-                loading={updateFormatMutation.isPending}
-                disabled={!isDirty}
-              >
-                Save changes
-              </Button>
-            </div>
-          </div>
-        </div>
+        <EventBar
+          events={events}
+          selectedId={selectedEventId ?? ""}
+          onSelect={handleSelectEvent}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+        >
+          {/* Says out loud that switching events would lose the edits */}
+          <span
+            className={cn(
+              "hidden text-xs text-muted-foreground @min-[26rem]/eventbar:inline",
+              !isDirty && "invisible",
+            )}
+          >
+            Unsaved changes
+          </span>
+          <Button
+            onClick={handleSaveChanges}
+            aria-label="Save changes"
+            loading={updateFormatMutation.isPending}
+            disabled={!isDirty}
+          >
+            <CheckIcon />
+            <span className="hidden @min-[26rem]/eventbar:inline">
+              Save changes
+            </span>
+          </Button>
+        </EventBar>
 
         <div className={SPLIT} key={selectedEventId}>
           <div className="space-y-5 @min-[64rem]/settings:col-span-2">

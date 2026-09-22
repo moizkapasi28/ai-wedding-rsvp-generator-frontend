@@ -23,7 +23,7 @@ import {
   TYPOGRAPHY_PAIRING_OPTIONS,
   TEXT_ALIGNMENT_OPTIONS,
 } from "@/constants";
-import type { AiInviteFormValues } from "@/validations/aiInviteCard.validation";
+import type { AiInviteFormValues } from "@/validations/inviteCard.validation";
 import { InfoIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 

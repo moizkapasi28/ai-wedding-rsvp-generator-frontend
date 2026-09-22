@@ -64,11 +64,14 @@ export default function RsvpPhonePreview({
     // The heading lives in the card around this. The hero and the reply
     // buttons come from the same components the real RSVP form uses, so the
     // preview can't drift away from what guests actually get.
-    <div className="flex h-fit w-full flex-col">
-      <div className="relative w-full">
+    // h-full/flex-1 so it can fill a stretched grid cell beside the invitation
+    // in Guest Preview; inside Page Settings nothing stretches it, so it stays
+    // at its natural height there.
+    <div className="flex h-full w-full flex-col">
+      <div className="relative flex w-full flex-1 flex-col">
         {/* No phone bezel: what a guest opens is this card, not a handset
             mock. Square edges so it reads as stationery rather than a UI chip. */}
-        <div className="relative flex h-full w-full flex-col overflow-hidden border border-border bg-background">
+        <div className="relative flex w-full flex-1 flex-col overflow-hidden border border-border bg-background">
           <RsvpInviteHero
             names={names}
             eventTitle={eventTitle}
@@ -79,7 +82,7 @@ export default function RsvpPhonePreview({
           />
 
           {/* Body */}
-          <div className="space-y-5 px-5 py-5 sm:space-y-6 sm:px-6 sm:py-6">
+          <div className="flex flex-1 flex-col space-y-5 px-5 py-5 sm:space-y-6 sm:px-6 sm:py-6">
             <p className="text-sm leading-relaxed text-muted-foreground">
               {description}
             </p>
@@ -158,7 +161,9 @@ export default function RsvpPhonePreview({
               </div>
             )}
 
-            <RsvpReplyButtons className="pt-2" />
+            {/* mt-auto: when the card is stretched, the replies sit at the
+                foot of it rather than leaving a gap under them */}
+            <RsvpReplyButtons className="mt-auto pt-2" />
           </div>
         </div>
       </div>

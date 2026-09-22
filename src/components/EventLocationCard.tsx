@@ -28,8 +28,10 @@ export default function EventLocationCard({ event }: { event: DisplayEvent }) {
 
       {mapQuery ? (
         <>
-          {/* Fills whatever height is left beside the invitation */}
-          <div className="relative h-72 min-h-0 flex-1 border-b border-border">
+          {/* At least 18rem, and fills whatever height is left when the card
+              is stretched beside the invitation. (h-72 + min-h-0 + flex-1 let
+              the map collapse to nothing when stacked on a phone.) */}
+          <div className="relative min-h-72 flex-1 border-b border-border">
             <iframe
               title={`Map of ${place || mapQuery}`}
               src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`}

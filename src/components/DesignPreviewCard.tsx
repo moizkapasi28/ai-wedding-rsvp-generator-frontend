@@ -1,4 +1,4 @@
-import type { GenerateAIInviteCardError } from "@/api/aiInviteCard.service";
+import type { GenerateInviteCardError } from "@/api/inviteCard.service";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,14 +10,14 @@ import {
 import type {
   AiGenerationErrorCode,
   AiGenerationStage,
-} from "@/models/aiInviteCard.model";
+} from "@/models/inviteCard.model";
 import { Download, Loader2, SparklesIcon } from "lucide-react";
 
 interface DesignPreviewCardProps {
   isGenerating: boolean;
   generationStage?: AiGenerationStage | null;
   generatedImageUrl: string | null;
-  error?: GenerateAIInviteCardError | null;
+  error?: GenerateInviteCardError | null;
   retrying?: { attempt: number; maxAttempts: number } | null;
   onRetry?: () => void;
   // An own-card upload in flight; the upload control lives in its own tab

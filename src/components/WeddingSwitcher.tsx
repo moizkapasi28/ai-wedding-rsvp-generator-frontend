@@ -18,8 +18,11 @@ import {
 import * as React from "react";
 
 export default function WeddingSwitcher() {
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+  const { state, isMobile } = useSidebar();
+  // On a phone the sidebar is a full-width sheet, so the icon-rail layout never
+  // applies there — `state` still reads "collapsed" from the desktop
+  // preference, which left the switcher showing only the initials badge.
+  const isCollapsed = state === "collapsed" && !isMobile;
 
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = React.useState<string>("");
@@ -178,9 +181,15 @@ export default function WeddingSwitcher() {
       {isOpen && (
         <div
           className={cn(
-            "absolute z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl shadow-black/30",
+            // Height is capped against the viewport so the Add wedding action
+            // at the foot is always reachable; the list inside takes whatever
+            // room is left. On a short screen the whole panel used to run off
+            // the bottom.
+            "absolute z-50 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl shadow-black/30",
             isCollapsed
-              ? "left-12 top-1.5 w-72 origin-top-left"
+              // Beside the icon rail, but never wider than the screen it has to
+              // fit on — w-72 alone overflowed on a narrow window.
+              ? "left-12 top-1.5 w-[min(18rem,calc(100vw-4.5rem))] origin-top-left"
               : "left-1 right-1 top-full mt-1.5 origin-top",
           )}
         >
@@ -203,9 +212,7 @@ export default function WeddingSwitcher() {
           </div>
 
           {/* Scrollable list */}
-          <div
-            className="flex flex-col max-h-56 overflow-y-auto no-scrollbar gap-0.5 pr-0.5"
-          >
+          <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto pr-0.5 sm:max-h-56">
             {filteredWeddings.length > 0 ? (
               filteredWeddings.map((w) => (
                 <button

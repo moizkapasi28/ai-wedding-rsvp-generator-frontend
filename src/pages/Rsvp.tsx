@@ -1,6 +1,7 @@
 import EventLocationCard from "@/components/EventLocationCard";
 import RsvpForm from "@/components/RsvpForm";
 import Loader from "@/components/ui/loader";
+import { cn } from "@/lib/utils";
 import { useGetRsvp, useSubmitRsvp } from "@/hooks/use-rsvp";
 import { Navigate, useParams } from "react-router-dom";
 
@@ -41,7 +42,12 @@ export default function Rsvp() {
 
   return (
     <main className="min-h-screen bg-muted/30 px-4 py-8 sm:py-12">
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div
+        className={cn(
+          "mx-auto space-y-6",
+          event.invite_card_url ? "max-w-7xl" : "max-w-5xl",
+        )}
+      >
         {/* The invitation below carries the couple's names in the display face.
             Printing them again here, in a second typeface, said the same thing
             twice in two voices. What only this line can say is who it was sent
@@ -53,7 +59,26 @@ export default function Rsvp() {
           </h1>
         </header>
 
-        <div className="grid gap-6 xl:grid-cols-2">
+        <div
+          className={cn(
+            "grid gap-6",
+            event.invite_card_url ? "xl:grid-cols-3" : "xl:grid-cols-2",
+          )}
+        >
+          {/* The invitation itself, first: it's what the guest opened the link
+              to see. Same frame as Guest Preview — square, hairline, its own
+              9:16 shape — and capped on phones and tablets, where full width
+              would make it taller than two screens. */}
+          {event.invite_card_url && (
+            <div className="relative mx-auto aspect-[9/16] w-full max-w-sm self-start overflow-hidden border border-border bg-muted/30 xl:max-w-none">
+              <img
+                src={event.invite_card_url}
+                alt={`${event.title} invitation card`}
+                className="absolute inset-0 size-full object-contain"
+              />
+            </div>
+          )}
+
           {/* Keyed by the saved reply so the form resets to it after each submit */}
           <RsvpForm
             key={event.invite.responded_at ?? "unanswered"}

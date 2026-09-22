@@ -62,9 +62,7 @@ export const useLogin = () => {
       }
       login(response.data.user, refreshToken);
 
-      toast.success(
-        response.message ? `${response.message} 🎉` : "Login successful! 🎉",
-      );
+      // No success toast: landing on your weddings already says it worked
       navigate("/weddings");
     },
     onError: (error) => {
@@ -170,7 +168,7 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       logout();
-      toast.success("Logout successful! 🎉");
+      // No success toast: the sign-in screen is the confirmation
       navigate("/signin");
     },
     onError: (error) => {
@@ -200,7 +198,7 @@ export const useUpdateProfile = () => {
     onSuccess: (response) => {
       setUser(response.data);
       queryClient.invalidateQueries({ queryKey: ["userProfile"] });
-      toast.success("Profile updated successfully! 🎉");
+      toast.success("Profile updated");
     },
     onError: (error) => {
       toast.error(

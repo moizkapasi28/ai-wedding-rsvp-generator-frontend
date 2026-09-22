@@ -1,17 +1,18 @@
 import type {
   AiGenerationErrorCode,
   AiGenerationStatus,
-  AiInviteCardGenerationStatus,
-  AiInviteCardListResponse,
+  InviteCardGenerationStatus,
+  InviteCardListResponse,
   AiPhotoPlacement,
-} from "@/models/aiInviteCard.model";
+} from "@/models/inviteCard.model";
 import { apiService } from "./api.service";
 
-export type GenerateAIInviteCardError = { code: AiGenerationErrorCode };
+export type GenerateInviteCardError = { code: AiGenerationErrorCode };
 
-export type GenerateAIInviteCardPayload = {
+export type GenerateInviteCardPayload = {
   eventId: string;
-  generation_mode: "EXAMPLE" | "MANUAL";
+  // Only the two generated sources; an UPLOAD card is never generated
+  card_source: "PRESETS" | "EXAMPLE";
   photo_type?: "couple" | "bride" | "groom";
   design_preset?: string | null;
   texture_emulation?: string | null;
@@ -31,58 +32,58 @@ export type GenerateAIInviteCardPayload = {
   groom_attire_style?: string | null;
 };
 
-export interface GenerateAIInviteCardResponse {
+export interface GenerateInviteCardResponse {
   message?: string;
   data: {
-    aiInviteCardId: string;
+    inviteCardId: string;
     jobId: string | null;
     status: AiGenerationStatus;
   };
 }
 
-export interface AiInviteCardGenerationStatusResponse {
+export interface InviteCardGenerationStatusResponse {
   message?: string;
-  data: AiInviteCardGenerationStatus;
+  data: InviteCardGenerationStatus;
 }
 
-class AiInviteCardService {
+class InviteCardService {
   private api: typeof apiService;
-  controller: string = "ai-invite-card";
+  controller: string = "invite-card";
 
   constructor() {
     this.api = apiService;
   }
 
-  async generateAIInviteCardImage(
-    data: GenerateAIInviteCardPayload,
-  ): Promise<GenerateAIInviteCardResponse> {
-    return this.api.post<GenerateAIInviteCardResponse>(
+  async generateInviteCardImage(
+    data: GenerateInviteCardPayload,
+  ): Promise<GenerateInviteCardResponse> {
+    return this.api.post<GenerateInviteCardResponse>(
       `${this.controller}/generate-invite`,
       data,
     );
   }
 
-  async getAiInviteCardsByWedding(
+  async getInviteCardsByWedding(
     weddingId: string,
     page: number = 1,
-  ): Promise<AiInviteCardListResponse> {
+  ): Promise<InviteCardListResponse> {
     const params = new URLSearchParams({ page: page.toString() });
-    return this.api.get<AiInviteCardListResponse>(
+    return this.api.get<InviteCardListResponse>(
       `${this.controller}/cards/${weddingId}?${params.toString()}`,
     );
   }
 
   async getGenerationStatus(
     id: string,
-  ): Promise<AiInviteCardGenerationStatusResponse> {
-    return this.api.get<AiInviteCardGenerationStatusResponse>(
+  ): Promise<InviteCardGenerationStatusResponse> {
+    return this.api.get<InviteCardGenerationStatusResponse>(
       `${this.controller}/${id}/generation-status`,
     );
   }
 
-  async updateAiInviteCard(id: string, data: Record<string, unknown>) {
+  async updateInviteCard(id: string, data: Record<string, unknown>) {
     return this.api.patch<{ message?: string }>(`${this.controller}/${id}`, data);
   }
 }
 
-export const aiInviteCardService = new AiInviteCardService();
+export const inviteCardService = new InviteCardService();
