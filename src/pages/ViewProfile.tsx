@@ -1,17 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth, useUpdateProfile } from "@/hooks/use-auth";
 import { generalService } from "@/api/general.service";
-import Avtar from "react-avatar";
-import Cropper, { type Area } from "react-easy-crop";
-import { useGetViewUrl } from "@/hooks/use-pageSetting";
+import Page, { PageHeader } from "@/components/Page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,13 +16,42 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { User, Loader2, Save, X, Edit2, ShieldAlert, Camera, Trash2, Crop } from "lucide-react";
-import Page, { PageHeader } from "@/components/Page";
-import { updateProfileSchema, type UpdateProfileRequest } from "@/validations/auth.validation";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
+import { useAuth, useUpdateProfile } from "@/hooks/use-auth";
+import { useGetViewUrl } from "@/hooks/use-pageSetting";
+import { cn } from "@/lib/utils";
 import { getCroppedImg } from "@/utilities/cropImage";
+import {
+  updateProfileSchema,
+  type UpdateProfileRequest,
+} from "@/validations/auth.validation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Camera, Crop, Loader2, Pencil, ShieldAlert, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import Avtar from "react-avatar";
+import Cropper, { type Area } from "react-easy-crop";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+// Sized against the content width, not the viewport, like the other pages
+const SHELL = "@container/profile";
+const FIELD_GRID = "grid gap-5 @min-[34rem]/profile:grid-cols-2 @min-[52rem]/profile:grid-cols-3";
+
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+};
 
 export default function ViewProfile() {
   const { user } = useAuth();
@@ -40,14 +60,14 @@ export default function ViewProfile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  
+
   // Crop state
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  
+
   const form = useForm<UpdateProfileRequest>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
@@ -76,40 +96,29 @@ export default function ViewProfile() {
     previewImage ?? (isObjectKey ? pictureViewUrl : picture) ?? "";
 
   // Declared before the early return below: hooks must run on every render
-  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
   if (!user) {
     return (
       <Page>
         <PageHeader title="Profile" />
-        <div className="flex h-[50vh] items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
       </Page>
     );
   }
 
-  const userName = `${user.first_name} ${user.last_name}`;
-
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-    } catch {
-      return dateString;
-    }
-  };
+  const userName = `${user.first_name} ${user.last_name}`.trim();
 
   const onSubmit = (data: UpdateProfileRequest) => {
     updateProfile(data, {
       onSuccess: () => {
         setIsEditing(false);
-      }
+      },
     });
   };
 
@@ -120,42 +129,49 @@ export default function ViewProfile() {
     setImageToCrop(objectUrl);
     setCropDialogOpen(true);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
   const handleCropConfirm = async () => {
     if (!imageToCrop || !croppedAreaPixels || !user) return;
-    
+
     try {
       setIsUploading(true);
       setCropDialogOpen(false);
-      
+
       const croppedFile = await getCroppedImg(imageToCrop, croppedAreaPixels);
       if (!croppedFile) throw new Error("Failed to crop image");
-      
+
       const objectUrl = URL.createObjectURL(croppedFile);
       setPreviewImage(objectUrl);
-      
-      const ext = 'jpg';
+
+      const ext = "jpg";
       const objectKey = `users/${user.id}/profile_${Date.now()}.${ext}`;
-      
-      const { data: { url, object_key } } = await generalService.generateUploadUrl(objectKey, croppedFile.type);
-      
+
+      const {
+        data: { url, object_key },
+      } = await generalService.generateUploadUrl(objectKey, croppedFile.type);
+
       await generalService.uploadFileToS3(url, croppedFile);
-      
-      updateProfile({
-        firstName: user.first_name,
-        lastName: user.last_name,
-        mobileNumber: user.mobile_number,
-        profilePicture: object_key
-      }, {
-        onError: () => {
-          setPreviewImage(null);
-        }
-      });
+
+      updateProfile(
+        {
+          firstName: user.first_name,
+          lastName: user.last_name,
+          mobileNumber: user.mobile_number,
+          profilePicture: object_key,
+        },
+        {
+          onError: () => {
+            setPreviewImage(null);
+          },
+        },
+      );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to upload image");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+      );
       setPreviewImage(null);
     } finally {
       setIsUploading(false);
@@ -166,156 +182,149 @@ export default function ViewProfile() {
 
   const handleRemoveImage = () => {
     if (!user) return;
-    
-    updateProfile({
-      firstName: user.first_name,
-      lastName: user.last_name,
-      mobileNumber: user.mobile_number,
-      profilePicture: null
-    }, {
-      onSuccess: () => {
-        setPreviewImage(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      }
-    });
+
+    updateProfile(
+      {
+        firstName: user.first_name,
+        lastName: user.last_name,
+        mobileNumber: user.mobile_number,
+        profilePicture: null,
+      },
+      {
+        onSuccess: () => {
+          setPreviewImage(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+        },
+      },
+    );
   };
 
   return (
     <Page>
       <PageHeader title="My Profile" />
 
-      <Card className="shadow-sm mb-5 overflow-hidden py-0 gap-0">
-        <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 p-5 text-white flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-white m-0">
-            <User className="h-5 w-5 opacity-90" />
-            Profile Details
-          </CardTitle>
-          {!isEditing && (
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              className="gap-2 bg-white/20 hover:bg-white/30 text-white border-0"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit2 className="w-4 h-4" /> Edit Profile
-            </Button>
-          )}
-        </CardHeader>
-        
-        <CardContent className="space-y-6 p-6 pt-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 mb-2">
-            <div className="relative group">
+      <div className={SHELL}>
+        {/* One hairline panel: identity across the top, the fields below it.
+            The gradient header slab is gone — the app bar already names the
+            page, and Edit belongs next to what it edits. */}
+        <Card className="p-5">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
+            <div className="group relative shrink-0">
               <Avtar
                 name={userName}
-                size="80px"
-                round={true}
+                size="72px"
+                round
                 src={actualImageUrl}
-                className="shadow-sm border-2 border-background"
+                className="border border-border"
               />
-              <div 
+              <button
+                type="button"
                 onClick={() => !isUploading && fileInputRef.current?.click()}
-                className={`absolute inset-0 bg-black/40 rounded-full flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity ${isUploading ? 'opacity-100' : ''}`}
+                aria-label="Change profile picture"
+                className={cn(
+                  "absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100",
+                  isUploading && "opacity-100",
+                )}
               >
                 {isUploading ? (
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  <Loader2 className="size-5 animate-spin text-white" />
                 ) : (
-                  <Camera className="w-6 h-6 text-white" />
+                  <Camera className="size-5 text-white" />
                 )}
-              </div>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
                 accept="image/*"
                 onChange={handleImageSelect}
               />
               {actualImageUrl && !isUploading && (
-                <button
+                <Button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveImage();
-                  }}
-                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1.5 shadow-md hover:bg-destructive/90 transition-colors z-10 opacity-0 group-hover:opacity-100"
-                  title="Remove Profile Picture"
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={handleRemoveImage}
                   disabled={isPending}
+                  aria-label="Remove profile picture"
+                  title="Remove profile picture"
+                  className="absolute -right-1 -bottom-1 rounded-full text-destructive opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                  <Trash2 />
+                </Button>
               )}
             </div>
-            <div>
-              <h2 className="text-xl font-bold tracking-tight">{userName}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-muted-foreground text-sm">{user.email}</p>
+
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-display text-2xl leading-none font-medium tracking-[-0.03em]">
+                {userName || "Your account"}
+              </h2>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className="truncate text-sm text-muted-foreground">
+                  {user.email}
+                </span>
                 {user.is_email_verified ? (
-                  <Badge variant="default" className="text-[10px] px-2 py-0 h-5 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50">
+                  <Badge className="rounded-md border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">
                     Verified
                   </Badge>
                 ) : (
-                  <Badge variant="destructive" className="text-[10px] px-2 py-0 h-5 gap-1">
-                    <ShieldAlert className="w-3 h-3" /> Unverified
+                  <Badge className="gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+                    <ShieldAlert className="size-3" />
+                    Unverified
                   </Badge>
                 )}
               </div>
             </div>
+
+            {!isEditing && (
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                <Pencil />
+                Edit profile
+              </Button>
+            )}
           </div>
-          
-          <Separator />
-          
-          {isEditing ? (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  <div className="min-w-0">
+
+          <div className="mt-5 border-t border-border pt-5">
+            {isEditing ? (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                  <div className={FIELD_GRID}>
                     <FormField
                       control={form.control}
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            First Name <span className="text-destructive">*</span>
-                          </p>
+                          <FormLabel required>First name</FormLabel>
                           <FormControl>
-                            <Input placeholder="First Name" {...field} className="h-9" />
+                            <Input placeholder="First name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-
-                  <div className="min-w-0">
                     <FormField
                       control={form.control}
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            Last Name <span className="text-destructive">*</span>
-                          </p>
+                          <FormLabel required>Last name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Last Name" {...field} className="h-9" />
+                            <Input placeholder="Last name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-
-                  <div className="min-w-0">
                     <FormField
                       control={form.control}
                       name="mobileNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                            Mobile Number <span className="text-destructive">*</span>
-                          </p>
+                          <FormLabel required>Mobile number</FormLabel>
                           <FormControl>
-                            <Input placeholder="+1234567890" {...field} className="h-9" />
+                            <Input placeholder="+1234567890" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -323,124 +332,55 @@ export default function ViewProfile() {
                     />
                   </div>
 
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                      Email Address
-                    </p>
-                    <p className="font-medium text-base truncate h-9 flex items-center">
-                      {user.email}
-                    </p>
+                  {/* The three read-only facts stay on the page while editing,
+                      so the panel doesn't reflow to a different height */}
+                  <dl className={cn(FIELD_GRID, "mt-5")}>
+                    <ReadOnlyFacts user={user} />
+                  </dl>
+
+                  <div className="mt-5 flex flex-wrap justify-end gap-3 border-t border-border pt-5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        form.reset();
+                        setIsEditing(false);
+                      }}
+                      disabled={isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" loading={isPending}>
+                      Save changes
+                    </Button>
                   </div>
+                </form>
+              </Form>
+            ) : (
+              <dl className={FIELD_GRID}>
+                <Fact label="First name">{user.first_name || <Empty />}</Fact>
+                <Fact label="Last name">{user.last_name || <Empty />}</Fact>
+                <Fact label="Mobile number">
+                  {user.mobile_number || <Empty />}
+                </Fact>
+                <ReadOnlyFacts user={user} />
+              </dl>
+            )}
+          </div>
+        </Card>
+      </div>
 
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                      Member Since
-                    </p>
-                    <p className="font-medium text-base truncate h-9 flex items-center">
-                      {user.created_at ? formatDate(user.created_at) : "-"}
-                    </p>
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                      Last Updated
-                    </p>
-                    <p className="font-medium text-base truncate h-9 flex items-center">
-                      {user.updated_at ? formatDate(user.updated_at) : "-"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-6 mt-6 border-t">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      form.reset();
-                      setIsEditing(false);
-                    }}
-                    disabled={isPending}
-                  >
-                    <X className="w-4 h-4 mr-2" /> Cancel
-                  </Button>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                    Save Changes
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  First Name
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.first_name || "-"}
-                </p>
-              </div>
-              
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  Last Name
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.last_name || "-"}
-                </p>
-              </div>
-              
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  Mobile Number
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.mobile_number || "-"}
-                </p>
-              </div>
-              
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  Email Address
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.email}
-                </p>
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  Member Since
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.created_at ? formatDate(user.created_at) : "-"}
-                </p>
-              </div>
-              
-              <div className="min-w-0">
-                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                  Last Updated
-                </p>
-                <p className="font-medium text-base truncate h-9 flex items-center">
-                  {user.updated_at ? formatDate(user.updated_at) : "-"}
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      
       {/* Cropper Dialog */}
       <Dialog open={cropDialogOpen} onOpenChange={setCropDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Crop Profile Picture</DialogTitle>
+            <DialogTitle>Crop profile picture</DialogTitle>
             <DialogDescription>
-              Adjust the image to fit the avatar perfectly.
+              Drag to reposition, then pick how close in you want it.
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="relative w-full h-[300px] bg-muted/50 rounded-lg overflow-hidden border">
+
+          <div className="relative h-[300px] w-full overflow-hidden rounded-lg border border-border bg-muted/50">
             {imageToCrop && (
               <Cropper
                 image={imageToCrop}
@@ -455,31 +395,33 @@ export default function ViewProfile() {
               />
             )}
           </div>
-          
-          <div className="space-y-4 my-2">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium">Zoom</span>
-              <Slider
-                value={[zoom]}
-                min={1}
-                max={3}
-                step={0.1}
-                onValueChange={(val) => setZoom(val[0])}
-                className="flex-1"
-              />
-            </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">Zoom</span>
+            <Slider
+              value={[zoom]}
+              min={1}
+              max={3}
+              step={0.1}
+              onValueChange={(val) => setZoom(val[0])}
+              className="flex-1"
+              aria-label="Zoom"
+            />
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setCropDialogOpen(false);
-              setImageToCrop(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCropDialogOpen(false);
+                setImageToCrop(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button onClick={handleCropConfirm} disabled={isUploading} className="gap-2">
-              {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crop className="w-4 h-4" />}
-              Save & Upload
+            <Button onClick={handleCropConfirm} loading={isUploading}>
+              <Crop />
+              Save &amp; upload
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -487,3 +429,33 @@ export default function ViewProfile() {
     </Page>
   );
 }
+
+/** Email and the two timestamps: the same three cells in both modes. */
+function ReadOnlyFacts({
+  user,
+}: {
+  user: { email: string; created_at?: string; updated_at?: string };
+}) {
+  return (
+    <>
+      <Fact label="Email address">{user.email}</Fact>
+      <Fact label="Member since">
+        {user.created_at ? formatDate(user.created_at) : <Empty />}
+      </Fact>
+      <Fact label="Last updated">
+        {user.updated_at ? formatDate(user.updated_at) : <Empty />}
+      </Fact>
+    </>
+  );
+}
+
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 truncate text-sm">{children}</dd>
+    </div>
+  );
+}
+
+const Empty = () => <span className="text-muted-foreground">—</span>;

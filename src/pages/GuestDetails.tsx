@@ -1,37 +1,36 @@
-import { formatSide, getSideBadgeStyles } from "@/lib/eventSide";
-import Page, { PageHeader } from "@/components/Page";
-import ToolBar from "@/components/ToolBar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import GuestInviteCard from "@/components/GuestInviteCard";
+import { GroupLabel, SideBadge } from "@/components/guests/GuestFields";
+import Notice from "@/components/Notice";
+import Page, { PageHeader } from "@/components/Page";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGuest, useGetWhatsAppInvites } from "@/hooks/use-guest";
-import { cn } from "@/lib/utils";
-import {
-  ArrowLeft,
-  Calendar,
-  Mail,
-  MapPin,
-  Phone,
-  User,
-  Users,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const getGroupBadgeStyles = (group: string) => {
-  const groupColors: Record<string, string> = {
-    FAMILY: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-950/30 dark:text-fuchsia-300 dark:border-fuchsia-900/50",
-    FRIEND: "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-900/50",
-    RELATIVE: "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/30 dark:text-teal-300 dark:border-teal-900/50",
-    EMPLOYEE: "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-900/50",
-    COLLEAGUE: "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/30 dark:text-cyan-300 dark:border-cyan-900/50",
-    VIP: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900/50",
-    OTHER: "bg-stone-50 text-stone-700 border-stone-200 dark:bg-stone-950/30 dark:text-stone-300 dark:border-stone-900/50",
-  };
-  return groupColors[group.toUpperCase()] || groupColors.OTHER;
-};
+// Sized against the content width, not the viewport: collapsing the sidebar
+// changes how much room this page gets without the viewport moving at all.
+const SHELL = "@container/guest space-y-5";
+const INVITE_GRID =
+  "grid gap-5 @min-[46rem]/guest:grid-cols-2 @min-[72rem]/guest:grid-cols-3";
+
+const initialsOf = (name: string) =>
+  name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase() || "?";
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
 export default function GuestDetails() {
   const { id } = useParams();
@@ -39,52 +38,35 @@ export default function GuestDetails() {
   const { data: guest, isLoading, isPending, isError } = useGetGuest(id);
 
   // Hooks above must run on every render, so this check comes after them
-  if (!id)
+  if (!id) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
-        Guest Id is required to view guest details...
-      </div>
+      <Page>
+        <PageHeader title="Guest" />
+        <Notice
+          title="No guest to show."
+          body="This page needs a guest to open. Pick one from the guest list."
+          action={
+            <Button asChild>
+              <Link to="/guests">All guests</Link>
+            </Button>
+          }
+        />
+      </Page>
     );
+  }
 
   if (isLoading || isPending) {
     return (
       <Page>
-        <PageHeader title="Guest Details" />
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
-          <ToolBar>
-            <Skeleton className="h-9 w-32 rounded-md" />
-          </ToolBar>
-        </div>
-        
-        {/* Guest Overview Skeleton */}
-        <Card className="shadow-sm mb-5 overflow-hidden py-0 gap-0">
-          <CardHeader className="p-5">
-            <Skeleton className="h-6 w-40" />
-          </CardHeader>
-          <CardContent className="space-y-6 p-6 pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:justify-between gap-6">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="min-w-0 space-y-2">
-                  <Skeleton className="h-3 w-20" />
-                  <Skeleton className="h-5 w-32" />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Responses Skeleton */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
-          {[...Array(2)].map((_, i) => (
-            <Card key={i} className="shadow-sm">
-              <CardHeader className="p-5">
-                <Skeleton className="h-6 w-48" />
-              </CardHeader>
-              <CardContent className="p-6">
-                <Skeleton className="h-24 w-full" />
-              </CardContent>
-            </Card>
-          ))}
+        <PageHeader title="Guest" />
+        <div className={SHELL}>
+          <Skeleton className="h-8 w-28 rounded-md" />
+          <Skeleton className="h-36 w-full rounded-xl" />
+          <div className={INVITE_GRID}>
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-64 rounded-xl" />
+            ))}
+          </div>
         </div>
       </Page>
     );
@@ -92,186 +74,187 @@ export default function GuestDetails() {
 
   if (isError) {
     return (
-      <div className="p-8 text-center text-destructive">
-        Failed to load guest details. Please try again.
-      </div>
+      <Page>
+        <PageHeader title="Guest" />
+        <Notice
+          title="We couldn't load this guest."
+          body="Something went wrong on the way to the server. Refresh the page to try again."
+          action={
+            <Button asChild variant="outline">
+              <Link to="/guests">Back to guests</Link>
+            </Button>
+          }
+        />
+      </Page>
     );
   }
+
+  const {
+    name,
+    email,
+    mobile_number,
+    side,
+    group,
+    created_at,
+    accomodation_required,
+    accomodation_address,
+    note,
+    guestEventInvite: invites,
+  } = guest.data;
 
   // Guest-facing links (RSVP + WhatsApp) are built by the backend
   const shareLinks = new Map(
     whatsAppInvites?.data.map((w) => [w.id, w] as const) ?? [],
   );
+  const replied = invites.filter((invite) => invite.responded_at).length;
 
   return (
     <Page>
-      <PageHeader title="Guest Details" />
+      <PageHeader title="Guest" />
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-5">
-        <ToolBar>
-          <Button variant="outline" size="sm" asChild className="gap-2">
-            <Link to="/guests">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Guests
-            </Link>
-          </Button>
-        </ToolBar>
-      </div>
+      <div className={SHELL}>
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="-ml-2 text-muted-foreground"
+        >
+          <Link to="/guests">
+            <ArrowLeft />
+            All guests
+          </Link>
+        </Button>
 
-      {/* Guest Overview */}
-      <Card className="shadow-sm mb-5 overflow-hidden py-0 gap-0">
-        <CardHeader className="bg-linear-to-r from-orange-500 to-pink-600 p-5 text-white">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <User className="h-5 w-5 opacity-90" />
-            Guest Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 p-6 pt-6">
-          {/* Section 1: Basic Details */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:justify-between gap-6">
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Guest Name
-              </p>
-              <p className="font-medium text-base truncate">
-                {guest.data.name}
-              </p>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Email Address
-              </p>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-zinc-400 shrink-0" />
-                <p className="text-sm truncate">{guest.data.email}</p>
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Mobile Number
-              </p>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-zinc-400 shrink-0" />
-                <p className="text-sm truncate">{guest.data.mobile_number}</p>
-              </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Wedding Side
-              </p>
-              <Badge
-                className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-                  getSideBadgeStyles(guest.data.side)
-                )}
+        {/* One panel for who this is: the name reads first, the facts sit
+            beside it. The old header said "Guest Overview" across a slab of
+            gradient — the app bar already says which page this is. */}
+        <Card className="p-5">
+          <div className="grid gap-6 @min-[52rem]/guest:grid-cols-[auto_1fr] @min-[52rem]/guest:gap-8">
+            <div className="flex items-center gap-4 @min-[52rem]/guest:border-r @min-[52rem]/guest:border-border @min-[52rem]/guest:pr-8">
+              <span
+                aria-hidden
+                className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border bg-muted font-display text-base font-medium tracking-[-0.02em]"
               >
-                {formatSide(guest.data.side)}
-              </Badge>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Guest Group
-              </p>
-              <Badge
-                className={cn(
-                  "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border shrink-0 mt-0.5",
-                  getGroupBadgeStyles(guest.data.group)
-                )}
-              >
-                {guest.data.group}
-              </Badge>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Added On
-              </p>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-zinc-400 shrink-0" />
-                <p className="text-sm truncate">
-                  {new Date(guest.data.created_at).toLocaleDateString()}
-                </p>
+                {initialsOf(name)}
+              </span>
+              <div className="min-w-0">
+                <h2
+                  className="truncate font-display text-2xl leading-none font-medium tracking-[-0.03em]"
+                  title={name}
+                >
+                  {name}
+                </h2>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <SideBadge side={side} />
+                  <GroupLabel group={group} />
+                </div>
               </div>
             </div>
+
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-5 @min-[34rem]/guest:grid-cols-4">
+              <Fact label="Email">
+                {email ? (
+                  <a
+                    href={`mailto:${email}`}
+                    className="block truncate hover:underline"
+                    title={email}
+                  >
+                    {email}
+                  </a>
+                ) : (
+                  <Empty />
+                )}
+              </Fact>
+              <Fact label="Mobile">
+                {mobile_number ? (
+                  <a
+                    href={`tel:${mobile_number}`}
+                    className="block truncate hover:underline"
+                  >
+                    {mobile_number}
+                  </a>
+                ) : (
+                  <Empty />
+                )}
+              </Fact>
+              <Fact label="Added">{formatDate(created_at)}</Fact>
+              <Fact label="Accommodation">
+                {accomodation_required ? "Requested" : "Not required"}
+              </Fact>
+            </dl>
           </div>
 
-          <Separator />
-
-          {/* Section 2: Accommodation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:flex xl:gap-24 gap-6">
-            <div className="min-w-0">
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                Accommodation
-              </p>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-zinc-400 shrink-0" />
-                <p className="text-sm font-medium">
-                  {guest.data.accomodation_required
-                    ? "Requested"
-                    : "Not Required"}
-                </p>
-              </div>
-            </div>
-            {guest.data.accomodation_required &&
-              guest.data.accomodation_address && (
+          {/* The two free-text fields, given room to wrap instead of a cell */}
+          {(note || (accomodation_required && accomodation_address)) && (
+            <div className="mt-5 grid gap-5 border-t border-border pt-5 @min-[46rem]/guest:grid-cols-2">
+              {accomodation_required && accomodation_address && (
                 <div className="min-w-0">
-                  <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
-                    Accommodation Address
+                  <p className="text-xs text-muted-foreground">
+                    Where they're staying
                   </p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                    {guest.data.accomodation_address}
+                  <p className="mt-0.5 text-sm break-words">
+                    {accomodation_address}
                   </p>
                 </div>
               )}
-          </div>
-
-          {/* Section 3: Notes (If any) */}
-          {guest.data.note && (
-            <>
-              <Separator />
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-zinc-400" />
-                  <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">
-                    Notes & Details
+              {note && (
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">Notes</p>
+                  <p className="mt-0.5 text-sm leading-relaxed break-words whitespace-pre-wrap">
+                    {note}
                   </p>
                 </div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed bg-zinc-50/50 dark:bg-zinc-900/20 p-3 rounded-md border border-zinc-100 dark:border-zinc-800">
-                  {guest.data.note}
-                </p>
-              </div>
-            </>
+              )}
+            </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Events Section (Full Width Below) */}
-      <div className="mt-5">
-        <Card className="shadow-sm overflow-hidden py-0 gap-0">
-          <CardHeader className="bg-linear-to-r from-indigo-500 to-purple-600 p-5 text-white">
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Calendar className="h-5 w-5 opacity-90" />
-              Event Invitations & RSVPs
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            {guest.data.guestEventInvite.length === 0 ? (
-              <p className="text-sm text-zinc-500 italic">
-                No events assigned to this guest.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {guest.data.guestEventInvite.map((invite) => (
-                  <GuestInviteCard
-                    key={invite.id}
-                    invite={invite}
-                    links={shareLinks.get(invite.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </CardContent>
         </Card>
+
+        <section className="space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h2 className="text-base font-semibold tracking-[-0.02em]">
+              Invitations
+            </h2>
+            {invites.length > 0 && (
+              <p className="text-sm text-muted-foreground tabular-nums">
+                {replied} of {invites.length} replied
+              </p>
+            )}
+          </div>
+
+          {invites.length === 0 ? (
+            <Notice
+              title="Not invited to anything yet."
+              body="Add this guest to an event and they'll get their own RSVP link for it."
+              action={
+                <Button asChild>
+                  <Link to="/events">Go to events</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <div className={INVITE_GRID}>
+              {invites.map((invite) => (
+                <GuestInviteCard
+                  key={invite.id}
+                  invite={invite}
+                  links={shareLinks.get(invite.id)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </Page>
   );
 }
+
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm">{children}</dd>
+    </div>
+  );
+}
+
+const Empty = () => <span className="text-muted-foreground">—</span>;
