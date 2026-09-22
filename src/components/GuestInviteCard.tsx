@@ -10,18 +10,11 @@ import { DIETARY_OPTIONS } from "@/constants";
 import { useMarkInviteSent } from "@/hooks/use-guest";
 import { useSubmitGuestRsvp } from "@/hooks/use-rsvp";
 import { copyRsvpLink } from "@/lib/rsvp-link";
+import { rsvpStatus } from "@/lib/rsvpStatus";
 import { cn } from "@/lib/utils";
 import type { GuestEventInvite, WhatsAppInvite } from "@/models/guest.model";
 import type { RsvpStatus } from "@/models/rsvp.model";
 import { CalendarDays, Link2, MapPin, Send } from "lucide-react";
-
-// One colour per reply, used for the card's edge and the dot in the status dropdown
-const STATUS_STYLES: Record<string, { label: string; dot: string; edge: string }> = {
-  ATTENDING: { label: "Attending", dot: "bg-emerald-500", edge: "border-l-emerald-500" },
-  MAYBE: { label: "Maybe", dot: "bg-amber-500", edge: "border-l-amber-500" },
-  DECLINED: { label: "Declined", dot: "bg-rose-500", edge: "border-l-rose-500" },
-  PENDING: { label: "Awaiting reply", dot: "bg-muted-foreground/40", edge: "border-l-border" },
-};
 
 const REPLY_OPTIONS: RsvpStatus[] = ["ATTENDING", "MAYBE", "DECLINED"];
 
@@ -44,7 +37,8 @@ export default function GuestInviteCard({ invite, links }: GuestInviteCardProps)
   const submitRsvp = useSubmitGuestRsvp();
 
   const { event } = invite;
-  const status = STATUS_STYLES[invite.status] ?? STATUS_STYLES.PENDING;
+  // Same four colours the guest list and the dashboard use
+  const status = rsvpStatus(invite.status);
   const place = [event.venue, event.city].filter(Boolean).join(", ");
   const dietary =
     DIETARY_OPTIONS.find((option) => option.value === invite.dietary)?.label ??
@@ -114,9 +108,9 @@ export default function GuestInviteCard({ invite, links }: GuestInviteCardProps)
               {REPLY_OPTIONS.map((value) => (
                 <SelectItem key={value} value={value} className="text-xs">
                   <span
-                    className={cn("size-2 rounded-full", STATUS_STYLES[value].dot)}
+                    className={cn("size-2 rounded-full", rsvpStatus(value).dot)}
                   />
-                  {STATUS_STYLES[value].label}
+                  {rsvpStatus(value).label}
                 </SelectItem>
               ))}
             </SelectContent>
