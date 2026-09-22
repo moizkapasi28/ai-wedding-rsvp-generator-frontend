@@ -1,6 +1,9 @@
 import { ThemeProvider } from "@/components/ThemeProvider";
+import ErrorPage from "@/pages/ErrorPage";
+import Maintenance from "@/pages/Maintenance";
+import NotFound from "@/pages/NotFound";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, type FC } from "react";
+import { useEffect, useMemo, type FC, type ReactNode } from "react";
 import {
   createBrowserRouter,
   Outlet,
@@ -12,10 +15,11 @@ import Loader from "./components/ui/loader";
 import { useAuth } from "./hooks/use-auth";
 import { tokenStore } from "./store/token";
 
-const RootLayout = () => {
+// `children` is only passed by errorElement, which renders instead of the Outlet
+const RootLayout = ({ children }: { children?: ReactNode }) => {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <Outlet />
+      {children ?? <Outlet />}
     </ThemeProvider>
   );
 };
@@ -27,7 +31,16 @@ const Setup = () => {
       createBrowserRouter([
         {
           element: <RootLayout />,
+          errorElement: (
+            <RootLayout>
+              <ErrorPage />
+            </RootLayout>
+          ),
           children: [
+            {
+              path: "/maintenance",
+              element: <Maintenance />,
+            },
             {
               path: "/signin",
 
@@ -197,6 +210,10 @@ const Setup = () => {
                   ]
                 }
               ],
+            },
+            {
+              path: "*",
+              element: <NotFound />,
             },
           ],
         },
