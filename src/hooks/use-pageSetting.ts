@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { USER_PROFILE_QUERY_KEY } from "@/hooks/use-auth";
 
 export const PAGE_SETTING_QUERY_KEY = ["page-setting"] as const;
 
@@ -86,6 +87,7 @@ export const useGenerateViewUrl = () => {
 };
 
 export const useGenerateImage = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: {
       rawImageKey: string;
@@ -108,6 +110,9 @@ export const useGenerateImage = () => {
       payload.attireId,
       payload.customStyleNote
     ),
+    // Charged on success, refunded on failure: either way the balance moved
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: [...USER_PROFILE_QUERY_KEY] }),
     onError: (error) => {
       toast.error(
         error.message || "Failed to generate image. Please try again.",

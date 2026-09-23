@@ -33,6 +33,12 @@ import {
   Paintbrush,
 } from "lucide-react";
 
+// Mirrors AI_CREDIT_COST in the backend's credits.service.ts
+export const AI_CREDIT_COST = {
+  INVITE_CARD: 10,
+  HEADER_IMAGE: 5,
+} as const;
+
 export const APP_SIDEBAR = {
   // Grouped so the nav says out loud what RequireWedding enforces: All
   // weddings is global, everything below it is scoped to the active wedding.

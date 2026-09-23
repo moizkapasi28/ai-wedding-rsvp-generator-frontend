@@ -7,6 +7,7 @@ export interface User {
   last_name: string;
   mobile_number: string;
   profile_picture: string | null;
+  ai_credits: number;
   created_at: string;
   updated_at: string;
   is_email_verified: boolean;

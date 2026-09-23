@@ -1,7 +1,10 @@
 import { Logo } from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
 import WeddingSwitcher from "@/components/WeddingSwitcher";
-import { APP_SIDEBAR } from "@/constants";
+import { AI_CREDIT_COST, APP_SIDEBAR } from "@/constants";
+import { useAiCredits } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -20,6 +23,10 @@ import {
 
 export default function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
+  const credits = useAiCredits();
+  // Too few left for an invite card, the most expensive generation
+  const lowOnCredits =
+    credits !== undefined && credits < AI_CREDIT_COST.INVITE_CARD;
   const location = useLocation();
 
   // /weddings is the only route that isn't a prefix of a deeper page, so it
@@ -92,6 +99,25 @@ export default function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          {credits !== undefined && (
+            <SidebarMenuItem>
+              {/* A readout, not a link: tells people how much AI generation
+                  they have left before they run out mid-design. */}
+              <SidebarMenuButton
+                tooltip={`${credits} AI credits left`}
+                className={cn(
+                  "cursor-default hover:bg-transparent active:bg-transparent",
+                  lowOnCredits && "text-destructive hover:text-destructive",
+                )}
+              >
+                <Sparkles />
+                <span className="truncate">AI credits</span>
+                <span className="ml-auto font-medium tabular-nums">
+                  {credits}
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <UserMenu />
           </SidebarMenuItem>

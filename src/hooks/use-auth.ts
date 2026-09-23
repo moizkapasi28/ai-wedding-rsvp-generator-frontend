@@ -177,9 +177,15 @@ export const useLogout = () => {
   });
 };
 
+export const USER_PROFILE_QUERY_KEY = ["userProfile"] as const;
+
 export const useUserProfile = () => {
+  const [user] = useAtom(userAtom);
   return useQuery({
-    queryKey: ["userProfile"],
+    // Keyed by user: logout keeps the query cache, so a second login in the
+    // same tab would otherwise read the previous account's profile.
+    queryKey: [...USER_PROFILE_QUERY_KEY, user?.id],
+    enabled: !!user,
     queryFn: async () => {
       const response = await authService.getUserInfo();
       return response.data;
@@ -197,7 +203,7 @@ export const useUpdateProfile = () => {
       authService.updateProfile(data),
     onSuccess: (response) => {
       setUser(response.data);
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      queryClient.invalidateQueries({ queryKey: [...USER_PROFILE_QUERY_KEY] });
       toast.success("Profile updated");
     },
     onError: (error) => {
@@ -207,3 +213,6 @@ export const useUpdateProfile = () => {
     },
   });
 };
+
+// Server balance, not the persisted userAtom: that copy goes stale after every generation
+export const useAiCredits = () => useUserProfile().data?.ai_credits;

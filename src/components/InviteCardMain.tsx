@@ -12,6 +12,8 @@ import {
   useGetInviteCardsByWeddingInfinite,
   useUpdateInviteCard,
 } from "@/hooks/use-inviteCard";
+import { AI_CREDIT_COST } from "@/constants";
+import { USER_PROFILE_QUERY_KEY, useAiCredits } from "@/hooks/use-auth";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
@@ -268,6 +270,10 @@ export default function InviteCardMain() {
 
   const generationStatus = statusResponse?.data;
 
+  const credits = useAiCredits();
+  const notEnoughCredits =
+    credits !== undefined && credits < AI_CREDIT_COST.INVITE_CARD;
+
   // The card configuration sent to both the save and the generate endpoints
   const buildCardPayload = (formData: AiInviteFormValues) => {
     const hasPhoto = !!formData.characterKey;
@@ -341,6 +347,7 @@ export default function InviteCardMain() {
       // The worker does the generating; follow it through the status endpoint
       setPollingCardId(res.data.inviteCardId);
       invalidateInviteCards(queryClient);
+      queryClient.invalidateQueries({ queryKey: [...USER_PROFILE_QUERY_KEY] });
       toast.success("Generating your invitation — you can leave this page.");
     },
     onError: (error: Error & { status?: number }) => {
@@ -349,6 +356,11 @@ export default function InviteCardMain() {
       // 409 means a run is already in flight for this card, so follow that one instead
       if (error?.status === 409 && selectedCard?.id) {
         setPollingCardId(selectedCard.id);
+        return;
+      }
+
+      if (error?.status === 402) {
+        toast.error(error.message);
         return;
       }
 
@@ -400,6 +412,9 @@ export default function InviteCardMain() {
     // Refresh the card either way: it still holds the in-flight status this page reads to
     // decide whether a run is going, and on success the new image key feeds the preview.
     invalidateInviteCards(queryClient);
+    // A failed run was refunded
+    if (generationStatus.status === "FAILED")
+      queryClient.invalidateQueries({ queryKey: [...USER_PROFILE_QUERY_KEY] });
 
     if (generationStatus.status === "COMPLETED") setGenerationError(null);
     if (generationStatus.status === "FAILED")
@@ -724,6 +739,7 @@ export default function InviteCardMain() {
                     loading={isGenerating}
                     disabled={
                       !selectedEventId ||
+                      notEnoughCredits ||
                       isUploadingReference ||
                       isUploadingCharacter ||
                       isUploadingCard
@@ -735,7 +751,18 @@ export default function InviteCardMain() {
                       : activeTab === "describe"
                         ? "Generate invitation"
                         : "Generate from example"}
+                    {!isGenerating && (
+                      <span className="opacity-70">
+                        · {AI_CREDIT_COST.INVITE_CARD} credits
+                      </span>
+                    )}
                   </Button>
+                  {notEnoughCredits && (
+                    <p className="text-center text-xs text-destructive">
+                      Not enough AI credits: you have {credits} left and this
+                      needs {AI_CREDIT_COST.INVITE_CARD}.
+                    </p>
+                  )}
                 </>
               )}
             </div>

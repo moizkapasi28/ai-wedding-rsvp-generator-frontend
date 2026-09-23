@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OPTIONS } from "@/constants";
+import { AI_CREDIT_COST, ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OPTIONS } from "@/constants";
+import { useAiCredits } from "@/hooks/use-auth";
 import {
   useGenerateImage,
   useGenerateUploadUrl,
@@ -94,6 +95,9 @@ export default function PageSettingsIllustration({
 
   const generateUploadUrlMutation = useGenerateUploadUrl();
   const generateImageMutation = useGenerateImage();
+  const credits = useAiCredits();
+  const notEnoughCredits =
+    credits !== undefined && credits < AI_CREDIT_COST.HEADER_IMAGE;
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -571,7 +575,7 @@ export default function PageSettingsIllustration({
                   <div className="pt-2 space-y-3">
                     <Button
                       onClick={handleGenerateImage}
-                      disabled={isGenerating || isUploading}
+                      disabled={isGenerating || isUploading || notEnoughCredits}
                       className="w-full bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-md h-11"
                     >
                       {isGenerating || isUploading ? (
@@ -583,9 +587,18 @@ export default function PageSettingsIllustration({
                         <>
                           <Sparkles className="mr-2 h-5 w-5" />
                           Generate Illustration
+                          <span className="ml-1 opacity-70">
+                            · {AI_CREDIT_COST.HEADER_IMAGE} credits
+                          </span>
                         </>
                       )}
                     </Button>
+                    {notEnoughCredits && (
+                      <p className="text-center text-xs text-destructive">
+                        Not enough AI credits: you have {credits} left and this
+                        needs {AI_CREDIT_COST.HEADER_IMAGE}.
+                      </p>
+                    )}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
