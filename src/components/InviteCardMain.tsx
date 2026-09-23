@@ -164,7 +164,9 @@ export default function InviteCardMain() {
     appliedRequestRef.current = true;
 
     const wanted = events.find((event) => event.id === requestedEventId);
-    setSelectedEventId(wanted?.id ?? selectedEventId ?? events[0].id);
+    // `||`, not `??`: on a cold load selectedEventId is "", which ?? kept,
+    // leaving the bar with nothing selected until the user clicked an event.
+    setSelectedEventId(wanted?.id || selectedEventId || events[0].id);
   }, [events, selectedEventId, requestedEventId]);
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
