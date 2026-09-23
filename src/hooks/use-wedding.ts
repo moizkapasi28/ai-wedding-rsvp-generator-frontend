@@ -79,6 +79,19 @@ export const useGetWeddingsInfinite = (
   });
 };
 
+/**
+ * One wedding by id. Keyed under WEDDING_QUERY_KEY so the create/update/delete
+ * mutations' invalidations reach it too — otherwise an edited wedding would
+ * keep serving its old title and date from cache.
+ */
+export const useGetWedding = (id: string | null) => {
+  return useQuery({
+    queryKey: [...WEDDING_QUERY_KEY, "byId", id],
+    queryFn: () => weddingService.getWedding(id as string),
+    enabled: !!id,
+  });
+};
+
 export const useGetWeddingsWithStats = (
   page: number,
   limit: number = 10,

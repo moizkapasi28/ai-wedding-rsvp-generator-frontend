@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { HeaderProvider } from "@/contexts/HeaderContext";
-import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
+import { useGetWedding, useGetWeddingsInfinite } from "@/hooks/use-wedding";
 import { activeWeddingAtom, activeWeddingIdAtom } from "@/store/store";
 import { useAtom } from "jotai";
 import { useEffect, useMemo } from "react";
@@ -19,7 +19,7 @@ const initialSidebarOpen = () => {
 };
 
 export default function AppLayout() {
-  const { data, isLoading, hasNextPage } = useGetWeddingsInfinite(20);
+  const { data, isLoading } = useGetWeddingsInfinite(20);
   const weddings = useMemo(
     () => data?.pages.flatMap((page) => page.data?.weddings || []) || [],
     [data],
@@ -27,39 +27,48 @@ export default function AppLayout() {
   const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
   const [activeWedding, setActiveWedding] = useAtom(activeWeddingAtom);
 
+  // The selected wedding is fetched by id rather than looked up in the list
+  // above, which only holds the first page: a wedding picked through the
+  // switcher's search can sit beyond it, and this also keeps the stored copy
+  // current after a rename.
+  const { data: selected, error: selectedError } =
+    useGetWedding(activeWeddingId);
+  // Only a 404 means it's really gone; a network blip must not throw the user
+  // onto a different wedding.
+  const selectionGone =
+    (selectedError as { status?: number } | null)?.status === 404;
+
   // The id is the selection; the stored wedding is a copy of it that the
   // header, the dashboard countdown and the switcher read. Both are written
   // here, so a fresh login that auto-picks the first wedding fills in the copy
   // too — it used to be written only when someone clicked the switcher, which
   // left the dashboard showing "No date set yet" until they did.
   useEffect(() => {
-    if (weddings.length === 0) return;
+    if (!activeWeddingId || selectionGone) {
+      if (weddings.length > 0) {
+        setActiveWeddingId(weddings[0].id);
+        setActiveWedding(weddings[0]);
+      }
+      return;
+    }
 
-    const active = weddings.find((w) => w.id === activeWeddingId);
+    const current = selected?.data;
+    if (!current) return;
 
-    // Only the first page of weddings is loaded here, so one picked through
-    // the switcher's own search can be missing from this list without having
-    // been deleted. Falling back to the first wedding bounced that choice
-    // straight back; while there are pages we haven't seen, a selection we
-    // can't find is left alone.
-    if (activeWeddingId && !active && hasNextPage) return;
-
-    const next = active ?? weddings[0];
-
-    if (next.id !== activeWeddingId) setActiveWeddingId(next.id);
     // updated_at so an edited wedding refreshes the copy rather than keeping
     // the title and date it had when it was picked
     if (
-      activeWedding?.id !== next.id ||
-      activeWedding.updated_at !== next.updated_at
+      activeWedding?.id !== current.id ||
+      activeWedding.updated_at !== current.updated_at
     ) {
-      setActiveWedding(next);
+      setActiveWedding(current);
     }
   }, [
     weddings,
-    hasNextPage,
     activeWeddingId,
     activeWedding,
+    selected,
+    selectionGone,
     setActiveWeddingId,
     setActiveWedding,
   ]);

@@ -56,6 +56,8 @@ export type WeddingListResponse = GenericResponse<{
 
 export type CreateOrUpdateWeddingResponse = GenericResponse<Wedding>;
 
+export type WeddingResponse = GenericResponse<Wedding>;
+
 export type DeletWeddingResponse = GenericResponse<Record<string, never>>;
 
 export type WeddingDashboardResponse = GenericResponse<WeddingDashboard>;
