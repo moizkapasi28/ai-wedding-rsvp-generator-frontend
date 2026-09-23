@@ -9,7 +9,7 @@ export default function AllWeddings() {
   return (
     <WeddingProvider>
       <Page>
-        <PageHeader title="All Weddings" />
+        <PageHeader title="Weddings" />
 
         {/* The action sits above the filters on a phone, where a full-width
             primary button is easier to hit than one squeezed onto a row. */}

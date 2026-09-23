@@ -126,7 +126,7 @@ const Setup = () => {
               },
             },
             {
-              // Pathless app shell: only All Weddings lives under /weddings,
+              // Pathless app shell: only Weddings lives under /weddings,
               // every other page sits at the root (/guests, /events, ...)
               lazy: async () => {
                 const AppShell = await import("@/layout/AppLayout");
@@ -154,7 +154,8 @@ const Setup = () => {
                 },
                 {
                   lazy: async () => {
-                    const RequireWedding = await import("@/layout/RequireWedding");
+                    const RequireWedding =
+                      await import("@/layout/RequireWedding");
                     return { Component: RequireWedding.default };
                   },
                   children: [
@@ -176,7 +177,8 @@ const Setup = () => {
                       path: "guests/:id",
                       index: false,
                       lazy: async () => ({
-                        Component: (await import("@/pages/GuestDetails")).default,
+                        Component: (await import("@/pages/GuestDetails"))
+                          .default,
                       }),
                     },
                     {
@@ -190,7 +192,8 @@ const Setup = () => {
                       path: "page-settings",
                       index: false,
                       lazy: async () => ({
-                        Component: (await import("@/pages/PageSettings")).default,
+                        Component: (await import("@/pages/PageSettings"))
+                          .default,
                       }),
                     },
                     {
@@ -204,11 +207,12 @@ const Setup = () => {
                       path: "guest-preview",
                       index: false,
                       lazy: async () => ({
-                        Component: (await import("@/pages/GuestPreview")).default,
+                        Component: (await import("@/pages/GuestPreview"))
+                          .default,
                       }),
                     },
-                  ]
-                }
+                  ],
+                },
               ],
             },
             {

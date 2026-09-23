@@ -38,9 +38,7 @@ export const APP_SIDEBAR = {
   // weddings is global, everything below it is scoped to the active wedding.
   nav: [
     {
-      items: [
-        { title: "All weddings", path: "/weddings", Icon: LayoutListIcon },
-      ],
+      items: [{ title: "Weddings", path: "/weddings", Icon: LayoutListIcon }],
     },
     {
       label: "This wedding",
@@ -129,7 +127,10 @@ export const NEGATIVE_SPACE_OPTIONS = [
   { value: "bottom_heavy", label: "Bottom Heavy (Empty top half)" },
   { value: "asymmetric_left", label: "Asymmetric Left (Empty right side)" },
   { value: "bordered_frame", label: "Bordered Frame (Open space inside)" },
-  { value: "floating_cloud", label: "Floating Cloud (Soft fade to blank center)" },
+  {
+    value: "floating_cloud",
+    label: "Floating Cloud (Soft fade to blank center)",
+  },
 ];
 
 export const MONOGRAM_STYLE_OPTIONS = [
@@ -199,20 +200,24 @@ export const ILLUSTRATION_STYLE_OPTIONS = [
   { id: "fairytale_romance", name: "Fairytale Romance", icon: Sparkles },
   { id: "retro_cinema_poster", name: "Retro Cinema Poster", icon: Video },
   { id: "fun_caricature", name: "Fun Caricature", icon: Pencil },
-  { id: "classic_oil_painting", name: "Classic Oil Painting", icon: Paintbrush },
+  {
+    id: "classic_oil_painting",
+    name: "Classic Oil Painting",
+    icon: Paintbrush,
+  },
 ];
 
 export const TYPOGRAPHY_PAIRING_OPTIONS = [
-  { value: 'editorial', label: 'Luxury Editorial (Serifs)' },
-  { value: 'modern', label: 'Modern Contrast (Serif + Sans)' },
-  { value: 'romantic', label: 'Romantic Script (Script + Serif)' },
-  { value: 'minimal', label: 'Ultra Clean (All Sans-Serif)' },
+  { value: "editorial", label: "Luxury Editorial (Serifs)" },
+  { value: "modern", label: "Modern Contrast (Serif + Sans)" },
+  { value: "romantic", label: "Romantic Script (Script + Serif)" },
+  { value: "minimal", label: "Ultra Clean (All Sans-Serif)" },
 ];
 
 export const TEXT_ALIGNMENT_OPTIONS = [
-  { value: 'strict', label: 'Strict Center-Aligned (Classic)' },
-  { value: 'cascading', label: 'Cascading Center' },
-  { value: 'geometric', label: 'Geometric Centered' },
+  { value: "strict", label: "Strict Center-Aligned (Classic)" },
+  { value: "cascading", label: "Cascading Center" },
+  { value: "geometric", label: "Geometric Centered" },
 ];
 
 // Values mirror the backend Dietary enum (including its NON_VEGETARAIN spelling)

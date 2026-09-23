@@ -1,6 +1,6 @@
 /**
  * Each wedding gets a stable identity colour derived from its id, so the same
- * wedding looks the same in the sidebar switcher and on the All Weddings card.
+ * wedding looks the same in the sidebar switcher and on the Weddings card.
  * Lives here rather than in a component so both can import it (a component
  * file may only export components — react-refresh/only-export-components).
  */

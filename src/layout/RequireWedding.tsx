@@ -28,11 +28,14 @@ export default function RequireWedding() {
           <DialogHeader>
             <DialogTitle>Create a Wedding First</DialogTitle>
             <DialogDescription>
-              You need to create a wedding before you can access this section. Please create a wedding from the All Weddings page.
+              You need to create a wedding before you can access this section.
+              Please create a wedding from the Weddings page.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => navigate("/weddings")}>Go to Weddings</Button>
+            <Button onClick={() => navigate("/weddings")}>
+              Go to Weddings
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

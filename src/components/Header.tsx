@@ -8,7 +8,7 @@ export default function Header() {
   const { title } = useHeader();
   const activeWedding = useAtomValue(activeWeddingAtom);
 
-  const showWeddingTitle = title !== "All Weddings" && activeWedding;
+  const showWeddingTitle = title !== "Weddings" && activeWedding;
 
   return (
     // One bar at every width. SidebarTrigger opens the drawer on a phone and
