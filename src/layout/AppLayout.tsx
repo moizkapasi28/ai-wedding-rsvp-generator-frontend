@@ -4,7 +4,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { HeaderProvider } from "@/contexts/HeaderContext";
 import { useGetWeddingsInfinite } from "@/hooks/use-wedding";
-import { activeWeddingIdAtom } from "@/store/store";
+import { activeWeddingAtom, activeWeddingIdAtom } from "@/store/store";
 import { useAtom } from "jotai";
 import { useEffect, useMemo } from "react";
 import Loader from "@/components/ui/loader";
@@ -25,17 +25,34 @@ export default function AppLayout() {
     [data],
   );
   const [activeWeddingId, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
+  const [activeWedding, setActiveWedding] = useAtom(activeWeddingAtom);
 
+  // The id is the selection; the stored wedding is a copy of it that the
+  // header, the dashboard countdown and the switcher read. Both are written
+  // here, so a fresh login that auto-picks the first wedding fills in the copy
+  // too — it used to be written only when someone clicked the switcher, which
+  // left the dashboard showing "No date set yet" until they did.
   useEffect(() => {
-    if (weddings.length > 0 && !activeWeddingId) {
-      setActiveWeddingId(weddings[0].id);
-    } else if (weddings.length > 0 && activeWeddingId) {
-      const exists = weddings.some((w) => w.id === activeWeddingId);
-      if (!exists) {
-        setActiveWeddingId(weddings[0].id);
-      }
+    if (weddings.length === 0) return;
+
+    const active = weddings.find((w) => w.id === activeWeddingId) ?? weddings[0];
+
+    if (active.id !== activeWeddingId) setActiveWeddingId(active.id);
+    // updated_at so an edited wedding refreshes the copy rather than keeping
+    // the title and date it had when it was picked
+    if (
+      activeWedding?.id !== active.id ||
+      activeWedding.updated_at !== active.updated_at
+    ) {
+      setActiveWedding(active);
     }
-  }, [weddings, activeWeddingId, setActiveWeddingId]);
+  }, [
+    weddings,
+    activeWeddingId,
+    activeWedding,
+    setActiveWeddingId,
+    setActiveWedding,
+  ]);
 
   if (isLoading || (weddings.length > 0 && !activeWeddingId)) {
     return <Loader />;
