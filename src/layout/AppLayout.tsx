@@ -19,7 +19,7 @@ const initialSidebarOpen = () => {
 };
 
 export default function AppLayout() {
-  const { data, isLoading } = useGetWeddingsInfinite(20);
+  const { data, isLoading, hasNextPage } = useGetWeddingsInfinite(20);
   const weddings = useMemo(
     () => data?.pages.flatMap((page) => page.data?.weddings || []) || [],
     [data],
@@ -35,19 +35,29 @@ export default function AppLayout() {
   useEffect(() => {
     if (weddings.length === 0) return;
 
-    const active = weddings.find((w) => w.id === activeWeddingId) ?? weddings[0];
+    const active = weddings.find((w) => w.id === activeWeddingId);
 
-    if (active.id !== activeWeddingId) setActiveWeddingId(active.id);
+    // Only the first page of weddings is loaded here, so one picked through
+    // the switcher's own search can be missing from this list without having
+    // been deleted. Falling back to the first wedding bounced that choice
+    // straight back; while there are pages we haven't seen, a selection we
+    // can't find is left alone.
+    if (activeWeddingId && !active && hasNextPage) return;
+
+    const next = active ?? weddings[0];
+
+    if (next.id !== activeWeddingId) setActiveWeddingId(next.id);
     // updated_at so an edited wedding refreshes the copy rather than keeping
     // the title and date it had when it was picked
     if (
-      activeWedding?.id !== active.id ||
-      activeWedding.updated_at !== active.updated_at
+      activeWedding?.id !== next.id ||
+      activeWedding.updated_at !== next.updated_at
     ) {
-      setActiveWedding(active);
+      setActiveWedding(next);
     }
   }, [
     weddings,
+    hasNextPage,
     activeWeddingId,
     activeWedding,
     setActiveWeddingId,
