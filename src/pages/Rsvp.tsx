@@ -1,4 +1,5 @@
 import EventLocationCard from "@/components/EventLocationCard";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import RsvpForm from "@/components/RsvpForm";
 import Loader from "@/components/ui/loader";
@@ -98,6 +99,26 @@ export default function Rsvp() {
         {guest.accomodation_required && guest.accomodation_address && (
           <StayCard address={guest.accomodation_address} />
         )}
+
+        {/* Quiet on purpose: the page is the couple's, this is only a credit.
+            New tab so a curious guest doesn't lose their half-filled RSVP. */}
+        <footer className="flex flex-col items-center gap-2 pt-6 text-center text-xs text-muted-foreground">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener"
+            className="group flex flex-col items-center gap-2 transition-colors hover:text-foreground"
+          >
+            <span>This invitation was made with</span>
+            <Logo
+              markClassName="h-5 text-primary"
+              wordmarkClassName="text-base text-foreground"
+            />
+            <span className="underline-offset-4 group-hover:underline">
+              Planning a wedding? Create your own invitations and RSVPs free →
+            </span>
+          </a>
+        </footer>
       </div>
     </main>
   );
