@@ -44,7 +44,7 @@ export const guestFormBaseSchema = z.object({
       (value) => value.replace(/\D/g, "").replace(/^0+/, "").length >= 8,
       "Enter a valid mobile number (at least 8 digits)",
     ),
-  email: z.string().min(1, "Email is required").max(50),
+  email: z.email().max(50).optional(),
   side: SideSchema.describe("Side is required (BRIDE or GROOM)"),
   accomodation_required: z.boolean(),
   accomodation_address: z.string().optional(),

@@ -4,7 +4,7 @@ import type { GenericResponse } from "./generic";
 export interface Guest {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   mobile_number: string;
   side: Side;
   group: GuestGroup;

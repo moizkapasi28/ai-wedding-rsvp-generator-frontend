@@ -268,7 +268,7 @@ export function GuestActionDialogue({
                   name="email"
                   render={({ field }) => (
                     <FormItem className="space-y-1.5 sm:col-span-2">
-                      <FormLabel required>Email</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input
                           type="email"

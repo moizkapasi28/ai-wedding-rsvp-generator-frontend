@@ -25,7 +25,7 @@ export const columns: ColumnDef<Guest>[] = [
     cell: ({ row }) => (
       <span
         className="block max-w-40 truncate text-muted-foreground"
-        title={row.original.email}
+        title={row.original.email ?? undefined}
       >
         {row.original.email}
       </span>
