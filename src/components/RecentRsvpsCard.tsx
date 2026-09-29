@@ -39,6 +39,7 @@ type Props = {
 
 export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
   const isLive = liveStatus === "live";
+  const visibleRows = Math.min(rsvps.length, 5);
 
   return (
     <Card className="h-full">
@@ -68,9 +69,12 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
           </p>
         ) : (
           // Absolutely positioned so the list fills whatever height the row gives the card (set by the
-          // progress card beside it) without stretching the row itself. Rows are h-14 with 0.25rem gaps,
-          // so the min height guarantees five when stacked alone; older replies scroll
-          <div className="relative min-h-[18.5rem] flex-1">
+          // progress card beside it) without stretching the row itself. The min height is up to five
+          // rows (h-14 with 0.25rem gaps), so a short list never pads the row; older replies scroll
+          <div
+            className="relative flex-1"
+            style={{ minHeight: `${visibleRows * 3.5 + (visibleRows - 1) * 0.25}rem` }}
+          >
           <ScrollFade className="absolute inset-0 space-y-1">
           {rsvps.map((rsvp) => {
             const status = rsvpStatus(rsvp.status);

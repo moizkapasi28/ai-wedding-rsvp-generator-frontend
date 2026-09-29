@@ -35,7 +35,9 @@ export default function RsvpProgressCard({ events }: { events: Event[] }) {
         </CardAction>
       </CardHeader>
 
-      <CardContent>
+      {/* gap-5 spaces the list from the legend; mt-auto on the legend keeps it at the foot
+          when the Recent RSVPs card beside this one makes the row taller than a few events need */}
+      <CardContent className="flex flex-1 flex-col gap-5">
         {events.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             No events yet. Add a ceremony to start tracking RSVPs.
@@ -50,7 +52,7 @@ export default function RsvpProgressCard({ events }: { events: Event[] }) {
             </ScrollFade>
 
             {/* Without this the four colours in the bar mean nothing */}
-            <p className="mt-5 flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+            <p className="mt-auto flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
               {LEGEND.map((item) => (
                 <span key={item.label} className="flex items-center gap-1.5">
                   <span
