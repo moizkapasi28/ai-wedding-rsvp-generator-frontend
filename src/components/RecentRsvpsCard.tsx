@@ -61,14 +61,17 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
         </CardAction>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex flex-1 flex-col">
         {rsvps.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             No replies yet. They'll appear here the moment a guest responds.
           </p>
         ) : (
-          // Rows are h-14 with 0.25rem gaps, so this height shows exactly five; older replies scroll
-          <ScrollFade className="max-h-[18.5rem] space-y-1">
+          // Absolutely positioned so the list fills whatever height the row gives the card (set by the
+          // progress card beside it) without stretching the row itself. Rows are h-14 with 0.25rem gaps,
+          // so the min height guarantees five when stacked alone; older replies scroll
+          <div className="relative min-h-[18.5rem] flex-1">
+          <ScrollFade className="absolute inset-0 space-y-1">
           {rsvps.map((rsvp) => {
             const status = rsvpStatus(rsvp.status);
             const isNew = now - new Date(rsvp.respondedAt).getTime() < 60_000;
@@ -94,6 +97,7 @@ export default function RecentRsvpsCard({ rsvps, now, liveStatus }: Props) {
             );
           })}
           </ScrollFade>
+          </div>
         )}
       </CardContent>
     </Card>
