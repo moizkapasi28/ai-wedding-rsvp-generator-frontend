@@ -1,49 +1,49 @@
-// The real options from src/constants/index.ts, shown the way the card form
-// asks for them.
-const specification = [
-  { field: "Design", value: "Vintage Royal" },
-  { field: "Paper", value: "Heavy Linen" },
-  { field: "Foil", value: "Gold Foil" },
-  { field: "Edging", value: "Torn / Deckled" },
-  { field: "Monogram", value: "Calligraphic Crest" },
-];
+import DesignConfigForm from "@/components/DesignConfigForm";
+import { Form } from "@/components/ui/form";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import type { AiInviteFormValues } from "@/validations/inviteCard.validation";
+import { useForm } from "react-hook-form";
 
 const details = [
-  "Design, paper, foil, edging and monogram picked from presets",
+  "Design, texture, typography, foil, monogram and border picked from presets",
   "Or generate from an example you like, or upload your finished card as it is",
   "A matching header image for the page your guests open",
   "Wording, layout and colours arranged in the page builder",
 ];
 
 export default function InvitationsSection() {
+  // The Invite Card page's real design form, filled with one set of choices
+  const form = useForm<AiInviteFormValues>({
+    defaultValues: {
+      activeTab: "describe",
+      photoType: "couple",
+      designPreset: "vintage_royal",
+      textureEmulation: "heavy_linen",
+      typographyPairing: "romantic",
+      metallicAccents: "gold_foil",
+      negativeSpace: "bordered_frame",
+      monogramStyle: "calligraphic_crest",
+      textAlignment: "strict",
+      edgeStyling: "torn_deckled",
+    },
+  });
+
   return (
     <section id="invitations" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
       <div className="mx-auto grid w-full max-w-[1440px] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
-        <div className="lg:col-span-5">
-          <div className="max-w-sm lg:max-w-md rounded-xl border border-border bg-card p-7 shadow-2xl shadow-black/40 sm:p-9">
-            <p className="text-base font-medium">Invitation card</p>
-            <dl className="mt-7">
-              {specification.map((row) => (
-                <div
-                  key={row.field}
-                  className="flex items-baseline justify-between gap-6 border-t border-border py-3"
-                >
-                  <dt className="text-sm text-muted-foreground">{row.field}</dt>
-                  <dd className="text-right text-sm font-medium">{row.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-6 flex items-center gap-2.5 border-t border-border pt-5 text-sm">
-              <span
-                aria-hidden
-                className="size-2 shrink-0 rounded-full bg-primary"
-              />
-              Card generated for the Reception
-            </p>
+        <div className="lg:col-span-6">
+          {/* inert: a picture of the form, not a form. The app layout supplies
+              the TooltipProvider its info icons need; the landing page doesn't. */}
+          <div inert className="rounded-xl shadow-2xl shadow-black/40">
+            <TooltipProvider>
+              <Form {...form}>
+                <DesignConfigForm />
+              </Form>
+            </TooltipProvider>
           </div>
         </div>
 
-        <div className="lg:col-span-6 lg:col-start-7">
+        <div className="lg:col-span-5 lg:col-start-8">
           <h2 className="text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem]">
             Pick the paper, the foil and the frame.
           </h2>

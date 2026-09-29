@@ -1,10 +1,5 @@
-import { MapPin } from "lucide-react";
-
-const answers = [
-  { label: "Guests in your party", value: "2" },
-  { label: "Meal", value: "Vegetarian" },
-  { label: "Song request", value: "Kajra Re" },
-];
+import RsvpPhonePreview from "@/components/RsvpPreviewCard";
+import { sampleRsvpEvent } from "@/components/landing/sampleData";
 
 const details = [
   "Attending, maybe, or can't make it — and they can change their answer until the deadline",
@@ -21,48 +16,16 @@ export default function GuestExperienceSection() {
     >
       <div className="mx-auto grid w-full max-w-[1440px] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
         <div className="lg:col-span-5">
-          <div className="max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl shadow-black/40 sm:p-8 lg:max-w-md">
-            <h3 className="text-xl font-medium">Sangeet</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Friday 13 February, 7:00 pm
-            </p>
-            <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-              Jagmandir Island Palace, Udaipur
-            </p>
-
-            <p className="mt-7 border-t border-border pt-6 text-sm">
-              Will you be there?
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
-                Attending
-              </span>
-              <span className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground">
-                Maybe
-              </span>
-              <span className="rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground">
-                Can't make it
-              </span>
-            </div>
-
-            <dl className="mt-7">
-              {answers.map((answer) => (
-                <div
-                  key={answer.label}
-                  className="flex items-baseline justify-between gap-4 border-t border-border py-3"
-                >
-                  <dt className="text-sm text-muted-foreground">
-                    {answer.label}
-                  </dt>
-                  <dd className="text-sm font-medium">{answer.value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <p className="mt-5 text-xs text-muted-foreground">
-              Replies close 1 February
-            </p>
+          {/* The real RSVP card with every optional question switched on;
+              inert because it's a picture here, not a form */}
+          <div inert className="max-w-sm shadow-2xl shadow-black/40 lg:max-w-md">
+            <RsvpPhonePreview
+              event={sampleRsvpEvent}
+              dietaryPreference
+              plusOnesEnabled
+              songRequest
+              messageToCouple
+            />
           </div>
         </div>
 

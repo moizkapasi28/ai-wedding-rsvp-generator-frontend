@@ -1,11 +1,11 @@
+import RecentRsvpsCard from "@/components/RecentRsvpsCard";
+import RsvpPhonePreview from "@/components/RsvpPreviewCard";
+import {
+  SAMPLE_NOW,
+  sampleRecentRsvps,
+  sampleRsvpEvent,
+} from "@/components/landing/sampleData";
 import { Link } from "react-router-dom";
-
-const ceremonies = [
-  { name: "Mehendi", when: "12 Feb, 11:00" },
-  { name: "Haldi", when: "13 Feb, 09:30" },
-  { name: "Sangeet", when: "13 Feb, 19:00" },
-  { name: "Reception", when: "14 Feb, 19:30" },
-];
 
 export default function HeroSection() {
   return (
@@ -42,62 +42,21 @@ export default function HeroSection() {
           </p>
         </div>
 
-        {/* The invitation and the reply it received: the one animated moment. */}
-        <div className="lg:col-span-5 lg:col-start-8">
+        {/* What a guest opens and the reply it lands as on the couple's
+            dashboard: both are the app's own components with sample data, so
+            this is exactly what the product shows. inert: a picture, not a form. */}
+        <div inert className="lg:col-span-5 lg:col-start-8">
           <div className="mx-auto max-w-sm lg:mr-0 lg:max-w-md">
-            <div className="-rotate-[1.25deg]">
-              <article className="settle relative rounded-xl border border-border bg-card px-7 py-10 shadow-2xl shadow-black/40 sm:px-9 sm:py-12">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-3 rounded-lg border border-border"
-                />
-
-                <div className="relative text-center">
-                  <p className="text-xs tracking-wide text-muted-foreground">
-                    together with their families
-                  </p>
-                  <p className="mt-6 font-display text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
-                    Ananya
-                  </p>
-                  <p className="my-2.5 text-sm text-muted-foreground">and</p>
-                  <p className="font-display text-4xl font-medium leading-none tracking-[-0.03em] sm:text-[2.75rem]">
-                    Rohan
-                  </p>
-                  <p className="mt-6 text-[0.8rem] text-muted-foreground">
-                    Saturday, 14 February 2026 in Udaipur
-                  </p>
-                </div>
-
-                <dl className="relative mt-9 border-t border-border">
-                  {ceremonies.map((ceremony) => (
-                    <div
-                      key={ceremony.name}
-                      className="flex items-baseline justify-between border-b border-border py-2.5"
-                    >
-                      <dt className="text-base font-medium">{ceremony.name}</dt>
-                      <dd className="text-xs text-muted-foreground">
-                        {ceremony.when}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </article>
+            <div className="settle shadow-2xl shadow-black/40">
+              <RsvpPhonePreview event={sampleRsvpEvent} />
             </div>
 
-            <div className="settle-reply relative z-10 -mt-7 ml-6 rotate-[1.75deg] rounded-lg border border-border bg-muted p-4 shadow-xl shadow-black/50">
-              <div className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className="mt-1.5 size-2 shrink-0 rounded-full bg-primary"
-                />
-                <div>
-                  <p className="text-sm">Meera Iyer replied</p>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    Coming to the Mehendi, Sangeet and Reception. Two guests,
-                    one vegetarian.
-                  </p>
-                </div>
-              </div>
+            <div className="settle-reply relative z-10 -mt-3 ml-10 rounded-xl shadow-xl shadow-black/50 sm:ml-20">
+              <RecentRsvpsCard
+                rsvps={sampleRecentRsvps.slice(0, 2)}
+                now={SAMPLE_NOW}
+                liveStatus="live"
+              />
             </div>
           </div>
         </div>

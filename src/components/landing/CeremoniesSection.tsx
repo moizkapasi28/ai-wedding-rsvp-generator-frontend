@@ -1,15 +1,12 @@
-const ceremonies = [
-  { name: "Mehendi", when: "12 February", attending: 78, invited: 120 },
-  { name: "Haldi", when: "13 February", attending: 96, invited: 140 },
-  { name: "Sangeet", when: "13 February", attending: 210, invited: 260 },
-  { name: "Reception", when: "14 February", attending: 288, invited: 340 },
-];
+import EventCard from "@/components/EventCard";
+import EventProvider from "@/components/EventProvider";
+import { sampleEvents } from "@/components/landing/sampleData";
 
 export default function CeremoniesSection() {
   return (
     <section id="ceremonies" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-      <div className="mx-auto grid w-full max-w-[1440px] gap-14 lg:grid-cols-12 lg:gap-x-16">
-        <div className="lg:col-span-4">
+      <div className="mx-auto w-full max-w-[1440px]">
+        <div className="max-w-2xl">
           <h2 className="text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem]">
             One wedding, four guest lists.
           </h2>
@@ -21,37 +18,22 @@ export default function CeremoniesSection() {
           </p>
         </div>
 
-        <div className="lg:col-span-7 lg:col-start-6">
-          <ul>
-            {ceremonies.map((ceremony) => (
-              <li
-                key={ceremony.name}
-                className="border-t border-border py-5 last:border-b"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                  <h3 className="text-xl font-medium tracking-tight">{ceremony.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {ceremony.when}
-                  </p>
-                </div>
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="h-[3px] flex-1 bg-muted">
-                    <div
-                      className="h-full bg-primary"
-                      style={{
-                        width: `${Math.round(
-                          (ceremony.attending / ceremony.invited) * 100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                  <p className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                    {ceremony.attending} of {ceremony.invited} attending
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {/* Full width, like the Events page itself, so the cards get the
+            room they do in the app. */}
+        <div className="mt-14 lg:mt-20">
+          {/* The Events page's own cards, two across (its wider three- and
+              four-column steps would leave the fourth card alone on a row). EventCard reads
+              the dialog state from EventProvider, so it gets one; inert means
+              its menu and buttons never open anything here. */}
+          <EventProvider>
+            <div inert className="@container/events">
+              <div className="grid gap-5 @min-[46rem]/events:grid-cols-2">
+                {sampleEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            </div>
+          </EventProvider>
         </div>
       </div>
     </section>
