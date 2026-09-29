@@ -30,7 +30,7 @@ export default function InvitationsSection() {
 
   return (
     <section id="invitations" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-      <div className="mx-auto grid w-full max-w-[1440px] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
+      <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
         <div className="lg:col-span-6">
           {/* inert: a picture of the form, not a form. The app layout supplies
               the TooltipProvider its info icons need; the landing page doesn't. */}

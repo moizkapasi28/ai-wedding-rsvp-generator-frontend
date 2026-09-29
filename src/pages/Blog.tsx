@@ -16,7 +16,7 @@ export default function Blog() {
 
       <main className="flex-1">
         <section className="px-6 pb-16 pt-32 md:px-10 md:pb-20 md:pt-40 lg:px-16">
-          <div className="mx-auto w-full max-w-[1440px]">
+          <div className="mx-auto w-full max-w-[90rem]">
             <h1 className="max-w-[20ch] text-[2.6rem] font-medium leading-[1.05] tracking-[-0.035em] sm:text-6xl">
               Notes on getting a wedding counted.
             </h1>
@@ -28,7 +28,7 @@ export default function Blog() {
         </section>
 
         <section className="border-t border-border px-6 py-16 md:px-10 md:py-20 lg:px-16">
-          <div className="mx-auto w-full max-w-[1440px]">
+          <div className="mx-auto w-full max-w-[90rem]">
             <Link
               to={`/blog/${lead.slug}`}
               className="group grid gap-8 lg:grid-cols-12 lg:gap-x-16"
@@ -50,7 +50,7 @@ export default function Blog() {
         </section>
 
         <section className="border-t border-border px-6 py-16 md:px-10 md:py-20 lg:px-16">
-          <div className="mx-auto w-full max-w-[1440px]">
+          <div className="mx-auto w-full max-w-[90rem]">
             <ul>
               {rest.map((post) => (
                 <li key={post.slug}>
@@ -80,7 +80,7 @@ export default function Blog() {
         </section>
 
         <section className="border-t border-border bg-card px-6 py-20 md:px-10 md:py-24 lg:px-16">
-          <div className="mx-auto w-full max-w-[1440px]">
+          <div className="mx-auto w-full max-w-[90rem]">
             <h2 className="max-w-[20ch] text-3xl font-medium leading-[1.1] tracking-[-0.035em] sm:text-[2.75rem]">
               Every one of these is a problem WeddlyAI solves.
             </h2>

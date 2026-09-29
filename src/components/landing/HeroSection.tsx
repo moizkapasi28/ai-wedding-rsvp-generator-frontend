@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 export default function HeroSection() {
   return (
     <section className="px-6 pb-20 pt-32 md:px-10 md:pb-28 md:pt-40 lg:px-16">
-      <div className="mx-auto grid w-full max-w-[1440px] items-center gap-16 lg:grid-cols-12 lg:gap-x-16">
+      <div className="mx-auto grid w-full max-w-[90rem] items-center gap-16 lg:grid-cols-12 lg:gap-x-16">
         <div className="lg:col-span-6">
           <h1 className="text-balance text-[2.6rem] font-medium leading-[1.05] tracking-[-0.035em] sm:text-6xl lg:text-[4rem]">
             Send the invitation. Know exactly who is coming.

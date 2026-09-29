@@ -14,7 +14,7 @@ export default function GuestExperienceSection() {
       id="guest-experience"
       className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32"
     >
-      <div className="mx-auto grid w-full max-w-[1440px] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
+      <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-12 lg:gap-x-16">
         <div className="lg:col-span-5">
           {/* The real RSVP card with every optional question switched on;
               inert because it's a picture here, not a form */}

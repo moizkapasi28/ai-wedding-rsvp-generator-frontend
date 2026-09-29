@@ -63,7 +63,7 @@ export default function BlogPost() {
       <main className="flex-1">
         {!post ? (
           <section className="px-6 pb-24 pt-40 md:px-10 lg:px-16">
-            <div className="mx-auto w-full max-w-[1440px]">
+            <div className="mx-auto w-full max-w-[90rem]">
               <h1 className="text-3xl font-medium tracking-[-0.03em] sm:text-5xl">
                 We don't have that one.
               </h1>
@@ -82,7 +82,7 @@ export default function BlogPost() {
         ) : (
           <>
             <article className="px-6 pb-16 pt-32 md:px-10 md:pb-20 md:pt-40 lg:px-16">
-              <div className="mx-auto grid w-full max-w-[1440px] gap-10 lg:grid-cols-12 lg:gap-x-16">
+              <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-12 lg:gap-x-16">
                 <div className="lg:col-span-3">
                   <Link
                     to="/blog"
@@ -116,7 +116,7 @@ export default function BlogPost() {
             </article>
 
             <section className="border-t border-border bg-card px-6 py-20 md:px-10 md:py-24 lg:px-16">
-              <div className="mx-auto grid w-full max-w-[1440px] gap-10 lg:grid-cols-12 lg:gap-x-16">
+              <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-12 lg:gap-x-16">
                 <h2 className="max-w-[18ch] text-3xl font-medium leading-[1.1] tracking-[-0.035em] sm:text-[2.5rem] lg:col-span-5">
                   This is the part WeddlyAI does for you.
                 </h2>
@@ -137,7 +137,7 @@ export default function BlogPost() {
             </section>
 
             <section className="border-t border-border px-6 py-16 md:px-10 md:py-20 lg:px-16">
-              <div className="mx-auto grid w-full max-w-[1440px] gap-10 lg:grid-cols-12 lg:gap-x-16">
+              <div className="mx-auto grid w-full max-w-[90rem] gap-10 lg:grid-cols-12 lg:gap-x-16">
                 <h2 className="text-xl font-medium tracking-tight lg:col-span-3">
                   Keep reading
                 </h2>

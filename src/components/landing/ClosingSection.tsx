@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function ClosingSection() {
   return (
     <section className="border-y border-border bg-card px-6 py-24 md:px-10 md:py-32 lg:px-16">
-      <div className="mx-auto w-full max-w-[1440px]">
+      <div className="mx-auto w-full max-w-[90rem]">
         <h2 className="max-w-[20ch] text-4xl font-medium leading-[1.05] tracking-[-0.035em] sm:text-6xl">
           Set the date, and let us handle the replies.
         </h2>

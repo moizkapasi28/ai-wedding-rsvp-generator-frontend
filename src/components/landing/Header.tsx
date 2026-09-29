@@ -31,7 +31,7 @@ export default function Header() {
           : "border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between py-4 md:py-5">
+      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between py-4 md:py-5">
         <Link to="/">
           <Logo markClassName="h-9" />
         </Link>

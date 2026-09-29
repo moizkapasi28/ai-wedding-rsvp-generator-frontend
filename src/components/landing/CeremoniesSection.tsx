@@ -5,7 +5,7 @@ import { sampleEvents } from "@/components/landing/sampleData";
 export default function CeremoniesSection() {
   return (
     <section id="ceremonies" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-      <div className="mx-auto w-full max-w-[1440px]">
+      <div className="mx-auto w-full max-w-[90rem]">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem]">
             One wedding, four guest lists.

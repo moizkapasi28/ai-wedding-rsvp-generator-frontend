@@ -31,7 +31,7 @@ function initials(name: string) {
 export default function ReviewsSection() {
   return (
     <section id="reviews" className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32">
-      <div className="mx-auto grid w-full max-w-[1440px] gap-12 lg:grid-cols-12 lg:gap-x-16">
+      <div className="mx-auto grid w-full max-w-[90rem] gap-12 lg:grid-cols-12 lg:gap-x-16">
         <h2 className="max-w-[18ch] text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem] lg:col-span-3">
           What couples and planners say.
         </h2>

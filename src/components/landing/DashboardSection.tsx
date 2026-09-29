@@ -24,7 +24,7 @@ export default function DashboardSection() {
       id="dashboard"
       className="border-t border-border px-6 py-20 md:px-10 md:py-28 lg:px-16 lg:py-32"
     >
-      <div className="mx-auto w-full max-w-[1440px]">
+      <div className="mx-auto w-full max-w-[90rem]">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-x-16">
           <div className="lg:col-span-5">
             <h2 className="text-3xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-[2.75rem]">

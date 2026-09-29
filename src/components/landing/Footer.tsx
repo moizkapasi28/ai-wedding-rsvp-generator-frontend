@@ -43,7 +43,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border px-6 pb-10 pt-16 md:px-10 md:pt-20 lg:px-16">
-      <div className="mx-auto w-full max-w-[1440px]">
+      <div className="mx-auto w-full max-w-[90rem]">
         <div className="grid gap-x-16 gap-y-12 sm:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <Link to="/">
