@@ -154,14 +154,17 @@ export default function EventCard({ event }: { event: Event }) {
           {event.stats.completion}%
         </span>
       </div>
-      <div className="mt-2">
+      {/* mb-5 is the minimum gap; mt-auto below only adds to it when the grid
+          row stretches the card. */}
+      <div className="mt-2 mb-5">
         <MultiProgressBar {...event.stats.progressBar} />
       </div>
 
-      <div className="mt-auto flex flex-col gap-2 border-t border-border pt-4 @min-[20rem]/event:flex-row">
+      {/* Grid, not flex-col + flex-1: a 0% flex-basis in a column overrides the
+          Button's height and squashed the stacked buttons to their text. */}
+      <div className="mt-auto grid gap-2 border-t border-border pt-4 @min-[20rem]/event:grid-cols-2">
         <Button
           variant="outline"
-          className="flex-1"
           onClick={() => navigate(`/guests?event=${event.id}`)}
         >
           <UsersIcon />
@@ -169,7 +172,6 @@ export default function EventCard({ event }: { event: Event }) {
         </Button>
         <Button
           variant="outline"
-          className="flex-1"
           onClick={() => navigate(`/page-settings?event=${event.id}`)}
         >
           <SettingsIcon />

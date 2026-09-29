@@ -14,10 +14,11 @@ const PAGE_SIZE = 6;
 
 // Tuned to the width a card actually gets rather than round viewport numbers,
 // and written as container queries so collapsing the sidebar re-lays them out.
-// A card below ~22rem loses its side-by-side footer buttons, so one column runs
-// until there's room for two real ones.
+// A card under ~24.6rem drops to its stacked phone layout (3-col stats, stacked
+// buttons), so one column runs until two cards both keep the full layout. The
+// landing page's CeremoniesSection uses the same 52rem step so they match.
 const GRID =
-  "grid gap-5 @min-[46rem]/events:grid-cols-2 @min-[80rem]/events:grid-cols-3 @min-[110rem]/events:grid-cols-4";
+  "grid gap-5 @min-[52rem]/events:grid-cols-2 @min-[80rem]/events:grid-cols-3 @min-[110rem]/events:grid-cols-4";
 
 export default function EventList() {
   const [page, setPage] = useState(1);

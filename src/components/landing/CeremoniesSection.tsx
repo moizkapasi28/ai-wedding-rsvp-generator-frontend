@@ -27,7 +27,7 @@ export default function CeremoniesSection() {
               its menu and buttons never open anything here. */}
           <EventProvider>
             <div inert className="@container/events">
-              <div className="grid gap-5 @min-[46rem]/events:grid-cols-2">
+              <div className="grid gap-5 @min-[52rem]/events:grid-cols-2">
                 {sampleEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
