@@ -1,6 +1,6 @@
 import { rsvpService } from "@/api/rsvp.service";
 import {
-  GUEST_QUERY_KEY,
+  invalidateGuestData,
   REMINDERS_QUERY_KEY,
   WHATSAPP_INVITES_QUERY_KEY,
 } from "@/hooks/use-guest";
@@ -48,11 +48,10 @@ export const useSubmitGuestRsvp = () => {
     mutationFn: ({ inviteId, reply }: { inviteId: string; reply: RsvpReply }) =>
       rsvpService.submitGuestRsvp(inviteId, reply),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateGuestData(queryClient);
       queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
       // A guest who has replied no longer needs reminders
       queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: ["wedding-dashboard"] });
       toast.success(response.message || "RSVP updated");
     },
     onError: (error) => {

@@ -5,11 +5,31 @@ import type {
   ReminderKind,
 } from "@/models/guest.model";
 import type { GuestFormValues } from "@/validations/guest.validation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { EVENT_QUERY_KEY } from "./use-event";
+import { PAGE_SETTING_QUERY_KEY } from "./use-pageSetting";
 
 export const GUEST_QUERY_KEY = ["guests"] as const;
 export const REMINDERS_QUERY_KEY = ["reminders"] as const;
+
+// Guest counts/RSVP stats also show on page settings, event cards and the dashboard
+export const invalidateGuestData = (queryClient: QueryClient) =>
+  Promise.all(
+    [
+      GUEST_QUERY_KEY,
+      PAGE_SETTING_QUERY_KEY,
+      EVENT_QUERY_KEY,
+      ["wedding-dashboard"],
+    ].map((queryKey) =>
+      queryClient.invalidateQueries({ queryKey: [...queryKey] }),
+    ),
+  );
 
 export const useGetGuests = (
   weddingId: string | null,
@@ -53,7 +73,7 @@ export const useCreateGuest = () => {
   return useMutation({
     mutationFn: async (data: GuestFormValues) => guestService.addGuest(data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateGuestData(queryClient);
 
       toast.success(response.message || "New Guest Created Successfully");
     },
@@ -80,7 +100,7 @@ export const useUpdateGuest = () => {
     mutationFn: async (data: GuestFormValues & { id: string }) =>
       guestService.updateGuest(data, data.id),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateGuestData(queryClient);
 
       toast.success(response.message || "Guest Updated Successfully");
     },
@@ -98,7 +118,7 @@ export const useDeleteGuest = () => {
   return useMutation({
     mutationFn: async (id: string) => guestService.deleteGuest(id),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateGuestData(queryClient);
 
       toast.success(response.message || "Guest Deleted Successfully");
     },
@@ -288,7 +308,7 @@ export const useUploadGuestList = () => {
     },
     // Rows may have been partially imported even on failure/timeout
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateGuestData(queryClient);
     },
   });
 };

@@ -44,7 +44,8 @@ export const guestFormBaseSchema = z.object({
       (value) => value.replace(/\D/g, "").replace(/^0+/, "").length >= 8,
       "Enter a valid mobile number (at least 8 digits)",
     ),
-  email: z.email().max(50).optional(),
+  // The form sends "" for a blank field; the backend stores that as null
+  email: z.email().max(50).or(z.literal("")).optional(),
   side: SideSchema.describe("Side is required (BRIDE or GROOM)"),
   accomodation_required: z.boolean(),
   accomodation_address: z.string().optional(),

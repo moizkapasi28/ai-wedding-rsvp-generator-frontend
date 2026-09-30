@@ -350,7 +350,11 @@ export default function ViewProfile() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" loading={isPending}>
+                    <Button
+                      type="submit"
+                      loading={isPending}
+                      disabled={!form.formState.isDirty}
+                    >
                       Save changes
                     </Button>
                   </div>

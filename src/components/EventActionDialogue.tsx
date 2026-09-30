@@ -361,7 +361,11 @@ export function EventActionDialogue({
               >
                 Cancel
               </Button>
-              <Button type="submit" loading={isPending}>
+              <Button
+                type="submit"
+                loading={isPending}
+                disabled={isEdit && !form.formState.isDirty}
+              >
                 {isEdit ? "Save changes" : "Add event"}
               </Button>
             </DialogFooter>

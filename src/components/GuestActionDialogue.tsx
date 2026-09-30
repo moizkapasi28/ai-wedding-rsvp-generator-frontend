@@ -420,7 +420,11 @@ export function GuestActionDialogue({
               >
                 Cancel
               </Button>
-              <Button type="submit" loading={isPending}>
+              <Button
+                type="submit"
+                loading={isPending}
+                disabled={isEdit && !form.formState.isDirty}
+              >
                 {isEdit ? "Save changes" : "Add guest"}
               </Button>
             </DialogFooter>
