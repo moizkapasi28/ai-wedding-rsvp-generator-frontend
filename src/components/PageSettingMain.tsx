@@ -156,7 +156,11 @@ export default function PageSettingMain() {
       <div className={SHELL}>
         <div className="mb-5 flex flex-wrap items-center gap-2">
           {[24, 32, 28].map((w, i) => (
-            <Skeleton key={i} className="h-8 rounded-lg" style={{ width: w * 4 }} />
+            <Skeleton
+              key={i}
+              className="h-8 rounded-lg"
+              style={{ width: w * 4 }}
+            />
           ))}
           <Skeleton className="ml-auto h-8 w-32 rounded-lg" />
         </div>
@@ -165,7 +169,7 @@ export default function PageSettingMain() {
             <Skeleton className="h-64 w-full rounded-xl" />
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
-          <Skeleton className="h-[30rem] w-full rounded-xl" />
+          <Skeleton className="h-120 w-full rounded-xl" />
         </div>
       </div>
     );
