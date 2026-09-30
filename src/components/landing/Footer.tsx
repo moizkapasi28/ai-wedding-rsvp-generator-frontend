@@ -22,7 +22,6 @@ const columns = [
     links: [
       { label: "How it works", href: "/#programme" },
       { label: "Being built now", href: "/#upcoming" },
-      { label: "What people say", href: "/#reviews" },
       { label: "Pricing", href: "/#pricing" },
       { label: "Questions", href: "/#faq" },
     ],

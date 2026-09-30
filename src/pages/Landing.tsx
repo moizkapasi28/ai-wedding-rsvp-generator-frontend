@@ -12,7 +12,6 @@ import HeroSection from "@/components/landing/HeroSection";
 import InvitationsSection from "@/components/landing/InvitationsSection";
 import PricingSection from "@/components/landing/PricingSection";
 import ProgrammeSection from "@/components/landing/ProgrammeSection";
-import ReviewsSection from "@/components/landing/ReviewsSection";
 import SpecsSection from "@/components/landing/SpecsSection";
 import UpcomingSection from "@/components/landing/UpcomingSection";
 
@@ -33,7 +32,6 @@ export default function Landing() {
         <ProgrammeSection />
         <SpecsSection />
         <UpcomingSection />
-        <ReviewsSection />
         <PricingSection />
         <FaqSection />
         <BlogTeaserSection />
