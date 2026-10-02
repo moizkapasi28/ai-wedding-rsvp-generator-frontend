@@ -94,9 +94,9 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Call `queryClient.clear()` on logout (also for the `unauthorized` event path in [`router.tsx:234-242`](../src/router.tsx#L234)).
 
 **Acceptance criteria**
-- [ ] With the backend logout returning an error, clicking Sign out still lands on `/signin` with no session in storage.
-- [ ] The chosen theme survives sign-out.
-- [ ] Signing in as user B after user A in the same tab shows no data from A (check the Guests page before the first fetch completes).
+- [x] With the backend logout returning an error, clicking Sign out still lands on `/signin` with no session in storage.
+- [x] The chosen theme survives sign-out.
+- [x] Signing in as user B after user A in the same tab shows no data from A (check the Guests page before the first fetch completes).
 
 **Notes/risks**
 - None.

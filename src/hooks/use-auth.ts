@@ -5,6 +5,7 @@ import {
   userAtom,
   refreshTokenAtom,
   activeWeddingIdAtom,
+  activeWeddingAtom,
 } from "@/store/store";
 import { tokenStore } from "@/store/token";
 import type {
@@ -17,15 +18,18 @@ import type {
 } from "@/validations/auth.validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom, useStore } from "jotai";
+import { RESET } from "jotai/utils";
 import type { UseFormReturn } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export const useAuth = () => {
+  const queryClient = useQueryClient();
   const [user, setUser] = useAtom(userAtom);
   const [isLoggedIn, setIsLoggedIn] = useAtom(isLoggedInAtom);
   const [refreshToken, setRefreshToken] = useAtom(refreshTokenAtom);
   const [, setActiveWeddingId] = useAtom(activeWeddingIdAtom);
+  const [, setActiveWedding] = useAtom(activeWeddingAtom);
 
   const login = (userData: User, refreshToken: string | null = null) => {
     setUser(userData);
@@ -36,11 +40,15 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    localStorage.clear();
-    setUser(null);
-    setActiveWeddingId(null);
-    setIsLoggedIn(false);
+    // RESET removes each session key from localStorage and leaves the rest (the theme) alone
+    setUser(RESET);
+    setIsLoggedIn(RESET);
+    setRefreshToken(RESET);
+    setActiveWeddingId(RESET);
+    setActiveWedding(RESET);
     tokenStore.clearAccessToken();
+    // The next account to sign in on this tab must not be shown this one's cached data
+    queryClient.clear();
   };
 
   return { user, isLoggedIn, login, logout, refreshToken };
@@ -166,13 +174,12 @@ export const useLogout = () => {
       }
       return authService.logout(rToken);
     },
-    onSuccess: () => {
+    // Settled, not success: an expired session or an unreachable API must not leave the
+    // user stuck signed in on this device
+    onSettled: () => {
       logout();
-      // No success toast: the sign-in screen is the confirmation
+      // No toast either way: the sign-in screen is the confirmation
       navigate("/signin");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Something went wrong. Please try again.");
     },
   });
 };
@@ -182,8 +189,8 @@ export const USER_PROFILE_QUERY_KEY = ["userProfile"] as const;
 export const useUserProfile = () => {
   const [user] = useAtom(userAtom);
   return useQuery({
-    // Keyed by user: logout keeps the query cache, so a second login in the
-    // same tab would otherwise read the previous account's profile.
+    // Keyed by user on top of logout clearing the cache, so a second login in the
+    // same tab can never read the previous account's profile.
     queryKey: [...USER_PROFILE_QUERY_KEY, user?.id],
     enabled: !!user,
     queryFn: async () => {
