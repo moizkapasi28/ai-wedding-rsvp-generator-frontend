@@ -93,7 +93,8 @@ class ApiService {
           } catch {
              window.dispatchEvent(new Event("unauthorized"));
           }
-        } else if (response.status === 401) {
+        } else if (response.status === 401 && !url.includes("auth/signin")) {
+          // A wrong password on sign-in is a 401 too, but there is no session to end
           window.dispatchEvent(new Event("unauthorized"));
         }
 
