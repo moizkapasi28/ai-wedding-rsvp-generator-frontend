@@ -74,8 +74,9 @@ function Button({
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
-      disabled={props.disabled || loading}
       {...props}
+      // After the spread, so an explicit disabled={false} can't re-enable a loading button
+      disabled={props.disabled || loading}
     >
       {loading && <Loader2 className="animate-spin" />}
       {props.children}
