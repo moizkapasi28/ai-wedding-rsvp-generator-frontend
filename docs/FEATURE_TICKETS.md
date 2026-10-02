@@ -71,10 +71,10 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Optional: use `tokenStore.getExpiresAt()` to refresh proactively shortly before expiry.
 
 **Acceptance criteria**
-- [ ] With the backend at `JWT_ACCESS_EXPIRATION_MINUTES=1`, stay idle 70 s, then navigate: data loads, no sign-out, exactly one `POST /auth/access-token` in the network tab.
-- [ ] After that refresh, `localStorage.refreshToken` holds the new token, and a second expiry cycle also succeeds.
-- [ ] Three queries that 401 together trigger one refresh request.
-- [ ] If the refresh itself fails, the user lands on `/signin` once (one `unauthorized` event).
+- [x] With the backend at `JWT_ACCESS_EXPIRATION_MINUTES=1`, stay idle 70 s, then navigate: data loads, no sign-out, exactly one `POST /auth/access-token` in the network tab.
+- [x] After that refresh, `localStorage.refreshToken` holds the new token, and a second expiry cycle also succeeds.
+- [x] Three queries that 401 together trigger one refresh request.
+- [x] If the refresh itself fails, the user lands on `/signin` once (one `unauthorized` event).
 - [ ] The dashboard live indicator returns to "live" after an expiry.
 
 **Notes/risks**

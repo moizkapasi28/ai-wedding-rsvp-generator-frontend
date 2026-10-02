@@ -1,9 +1,56 @@
+import type { GenerateNewTokenResponse } from "@/models/user.model";
+import { refreshTokenAtom } from "@/store/store";
 import { tokenStore } from "@/store/token";
+import { getDefaultStore } from "jotai";
 
 type RequestBody = undefined | Record<string, unknown> | FormData;
 
 // Errors thrown by request() carry the HTTP status and the API's error type
 type ApiRequestError = Error & { type?: string; status?: number };
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+// Exchanges the refresh token for a new pair and stores both. Single-flight: the backend
+// rotates the refresh token on every use, so requests that 401 together must share one
+// refresh — a second one would send a token the first already invalidated. A refused
+// refresh ends the session, announced once however many requests were waiting on it.
+const refreshAccessToken = (baseUrl: string): Promise<boolean> => {
+  refreshInFlight ??= (async () => {
+    try {
+      const store = getDefaultStore();
+      const refreshToken = store.get(refreshTokenAtom);
+
+      const response = refreshToken
+        ? await fetch(`${baseUrl}/auth/access-token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+          })
+        : null;
+
+      if (!response?.ok) {
+        // A 429 or 5xx is temporary; anything else means the refresh token is no good
+        if (!response || (response.status < 500 && response.status !== 429)) {
+          window.dispatchEvent(new Event("unauthorized"));
+        }
+        return false;
+      }
+
+      const { data }: GenerateNewTokenResponse = await response.json();
+      tokenStore.setAccessToken(data.access);
+      // Through the atom, not localStorage directly, so React state and other tabs follow
+      store.set(refreshTokenAtom, data.refresh.token);
+      return true;
+    } catch {
+      // Network failure, not a refusal: keep the session so the next request can try again
+      return false;
+    }
+  })().finally(() => {
+    refreshInFlight = null;
+  });
+
+  return refreshInFlight;
+};
 
 class ApiService {
   private baseUrl: string;
@@ -43,61 +90,33 @@ class ApiService {
 
     try {
       options.headers = mainHeader;
-      const response = await fetch(url, options);
+      let response = await fetch(url, options);
+
+      if (
+        response.status === 401 &&
+        !url.includes("auth/access-token") &&
+        !url.includes("auth/signin")
+      ) {
+        // Expired access token. Another request (or tab) may already have replaced it while
+        // this one was in flight; refreshing again would invalidate the token they now hold.
+        const current = tokenStore.getAccessToken();
+        const renewed =
+          (!!current && current !== token) ||
+          (await refreshAccessToken(this.baseUrl));
+
+        if (renewed) {
+          mainHeader.set("Authorization", `Bearer ${tokenStore.getAccessToken()}`);
+          response = await fetch(url, options);
+          if (response.status === 401) {
+            window.dispatchEvent(new Event("unauthorized"));
+          }
+        }
+      } else if (response.status === 401 && !url.includes("auth/signin")) {
+        // A wrong password on sign-in is a 401 too, but there is no session to end
+        window.dispatchEvent(new Event("unauthorized"));
+      }
 
       if (!response.ok) {
-        if (response.status === 401 && !url.includes("auth/access-token") && !url.includes("auth/signin")) {
-          // Attempt to refresh the access token
-          const rTokenStr = localStorage.getItem("refreshToken");
-          let rToken = null;
-          if (rTokenStr) {
-            try { rToken = JSON.parse(rTokenStr); } catch { rToken = rTokenStr; }
-          }
-          const bodyPayload = rToken && !import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION ? { refreshToken: rToken } : undefined;
-          
-          try {
-            const refreshResp = await fetch(`${this.baseUrl}/auth/access-token`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: bodyPayload ? JSON.stringify(bodyPayload) : undefined
-            });
-
-            if (refreshResp.ok) {
-               const refreshData = await refreshResp.json();
-               if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION && refreshData.data?.tokens?.access) {
-                 tokenStore.setAccessToken(refreshData.data.tokens.access);
-                 mainHeader.set("Authorization", `Bearer ${refreshData.data.tokens.access.token}`);
-                 options.headers = mainHeader;
-               }
-               // Retry original request
-               const retryResponse = await fetch(url, options);
-               if (!retryResponse.ok) {
-                 if (retryResponse.status === 401) {
-                   window.dispatchEvent(new Event("unauthorized"));
-                 }
-                 const errorData = await retryResponse.json().catch(() => ({}));
-                 const err = new Error(errorData.message || errorData.error || `HTTP error! status: ${retryResponse.status}`) as ApiRequestError;
-                 err.type = errorData.type;
-                 err.status = retryResponse.status;
-                 throw err;
-               }
-               
-               if (retryResponse.status === 204 || retryResponse.headers.get("content-length") === "0") {
-                 return undefined as T;
-               }
-               const text = await retryResponse.text();
-               return text ? (JSON.parse(text) as T) : (undefined as T);
-            } else {
-               window.dispatchEvent(new Event("unauthorized"));
-            }
-          } catch {
-             window.dispatchEvent(new Event("unauthorized"));
-          }
-        } else if (response.status === 401 && !url.includes("auth/signin")) {
-          // A wrong password on sign-in is a 401 too, but there is no session to end
-          window.dispatchEvent(new Event("unauthorized"));
-        }
-
         const errorData = await response.json().catch(() => ({}));
         const err = new Error(
           errorData.message ||
