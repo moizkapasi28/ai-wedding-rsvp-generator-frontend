@@ -246,9 +246,9 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Allow `retry` for non-4xx errors.
 
 **Acceptance criteria**
-- [ ] A random UUID token shows the invalid-link message.
-- [ ] With the API stopped, the page shows the temporary-error message and Try again recovers once the API is back.
-- [ ] A 429 shows the temporary-error message.
+- [x] A random UUID token shows the invalid-link message.
+- [x] With the API stopped, the page shows the temporary-error message and Try again recovers once the API is back.
+- [x] A 429 shows the temporary-error message.
 
 **Notes/risks**
 - Keep the page free of app chrome; it is the couple's page.

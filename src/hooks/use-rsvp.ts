@@ -10,12 +10,27 @@ import toast from "react-hot-toast";
 
 export const RSVP_QUERY_KEY = ["rsvp"] as const;
 
+// api.service attaches the HTTP status to the errors it throws; a network failure has none
+const statusOf = (error: unknown) =>
+  (error as { status?: number } | null)?.status;
+
+// The API answers 404 for an unknown or removed invite and 400 for a malformed token.
+// Anything else (rate limit, server error, no connection) says nothing about the link.
+export const isInvalidRsvpLink = (error: unknown) => {
+  const status = statusOf(error);
+  return status === 404 || status === 400;
+};
+
 export const useGetRsvp = (token: string) => {
   return useQuery({
     queryKey: [...RSVP_QUERY_KEY, token],
     queryFn: () => rsvpService.getRsvp(token),
-    // A bad link won't get better on retry
-    retry: false,
+    // A bad link (or any 4xx, e.g. a rate limit) won't get better on an instant retry;
+    // a dropped connection or a server error might
+    retry: (failureCount, error) => {
+      const status = statusOf(error);
+      return failureCount < 2 && (status === undefined || status >= 500);
+    },
   });
 };
 

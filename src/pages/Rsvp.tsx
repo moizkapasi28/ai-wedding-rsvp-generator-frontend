@@ -4,18 +4,49 @@ import { Button } from "@/components/ui/button";
 import RsvpForm from "@/components/RsvpForm";
 import Loader from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
-import { useGetRsvp, useSubmitRsvp } from "@/hooks/use-rsvp";
+import {
+  isInvalidRsvpLink,
+  useGetRsvp,
+  useSubmitRsvp,
+} from "@/hooks/use-rsvp";
 import { MapPin } from "lucide-react";
 import { Navigate, useParams } from "react-router-dom";
 
 export default function Rsvp() {
   const { slug, token = "" } = useParams();
-  const { data, isLoading, isError } = useGetRsvp(token);
+  const { data, isPending, isError, error, isFetching, refetch } =
+    useGetRsvp(token);
   const submitRsvp = useSubmitRsvp(token);
 
-  if (isLoading) return <Loader />;
+  // isPending, not isLoading: a retry waits while the tab is in the background or the phone
+  // is offline, and that pause must not fall through to "this link isn't valid"
+  if (isPending) return <Loader />;
 
   const rsvp = data?.data;
+
+  // Only tell a guest their invitation is broken when the API said so. A rate limit, a
+  // server error or a weak connection gets a way to try again instead.
+  if (isError && !isInvalidRsvpLink(error)) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
+        <h1 className="mb-2 font-display text-2xl font-medium tracking-[-0.02em]">
+          We couldn't load your invitation right now
+        </h1>
+        <p className="text-muted-foreground">
+          There's nothing wrong with your link. Please check your connection
+          and try again in a moment.
+        </p>
+        <Button
+          variant="outline"
+          className="mt-5 rounded-none"
+          loading={isFetching}
+          onClick={() => refetch()}
+        >
+          Try again
+        </Button>
+      </main>
+    );
+  }
 
   if (isError || !rsvp) {
     return (
