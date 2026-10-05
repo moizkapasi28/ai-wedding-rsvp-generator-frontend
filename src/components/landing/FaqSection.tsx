@@ -4,7 +4,7 @@ const faqs = [
   {
     question: "Do my guests need an account?",
     answer:
-      "No. Each guest gets a link of their own. They open it, pick the ceremonies they are coming to, and that is the whole thing.",
+      "No. Each guest gets a link of their own for every ceremony they are invited to. They open it, answer, and that is the whole thing.",
   },
   {
     question: "Can I invite someone to one ceremony but not another?",
@@ -14,7 +14,7 @@ const faqs = [
   {
     question: "How do I get my guest list in?",
     answer:
-      "Upload an Excel or CSV file with names, phone numbers and any notes. You can also add and edit guests one at a time afterwards.",
+      "Download our Excel template, fill in names, phone numbers and any notes, and upload it. You can also add and edit guests one at a time afterwards.",
   },
   {
     question: "How are the invitations sent?",
@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "What does the AI actually generate?",
     answer:
-      "The invitation card itself and the header image on your RSVP page. You either pick from design presets — paper, foil, edging, monogram — or upload a card you like and let it work from that.",
+      "The invitation card itself and the header image on your RSVP page. You either pick from design presets — paper, foil, edging, monogram — or upload a card you like and let it work from that. Each one uses AI credits: an account starts with 100, a card uses 10 and a header image 5.",
   },
   {
     question: "When do QR attendance and the photo gallery arrive?",

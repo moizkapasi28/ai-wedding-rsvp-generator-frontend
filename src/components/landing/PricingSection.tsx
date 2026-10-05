@@ -1,20 +1,22 @@
 import { Link } from "react-router-dom";
 
-// ponytail: there is no billing in this codebase, so these prices are
-// placeholders. Set the real numbers (and wire up checkout) before launch.
-// Every listed feature below does exist today.
+// ponytail: there is no billing in this codebase. Free describes what every
+// account really gets today (AI credits mirror AI_CREDIT_COST and the backend's
+// starting balance of 100). Wedding and Planner are not on sale: their prices are
+// placeholders, nothing enforces a plan limit yet, and they are labelled coming
+// soon. Set the real numbers, wire up checkout and drop the labels before launch.
 const plans = [
   {
     name: "Free",
     price: "₹0",
-    period: "one wedding",
-    summary: "Enough to run a small wedding end to end.",
+    period: "available now",
+    summary: "Everything WeddlyAI does today.",
     features: [
-      "One wedding with all its ceremonies",
-      "Up to 50 guests",
-      "Excel and CSV import",
-      "WhatsApp RSVP links",
+      "Your wedding with all its ceremonies",
+      "Excel import from our template",
+      "WhatsApp RSVP links, deadline and reminders",
       "Live RSVP dashboard",
+      "100 AI credits: a card uses 10, a header image 5",
     ],
     cta: "Start free",
     featured: false,
@@ -22,14 +24,12 @@ const plans = [
   {
     name: "Wedding",
     price: "₹1,499",
-    period: "per wedding",
-    summary: "One wedding, no limits on the guest list.",
+    period: "per wedding · coming soon",
+    summary: "Planned for one wedding with a long guest list.",
     features: [
+      "Everything in Free",
       "Unlimited guests and ceremonies",
-      "Unlimited AI invitation cards",
-      "AI header image and page builder",
-      "RSVP deadline and reminders",
-      "Dietary notes and plus-ones",
+      "More AI credits for cards and header images",
     ],
     cta: "Start free",
     featured: true,
@@ -37,12 +37,11 @@ const plans = [
   {
     name: "Planner",
     price: "₹3,999",
-    period: "per month",
-    summary: "For planners running several weddings at once.",
+    period: "per month · coming soon",
+    summary: "Planned for planners running several weddings at once.",
     features: [
       "Everything in Wedding",
       "Unlimited weddings side by side",
-      "Switch between weddings in one account",
       "Priority email support",
     ],
     cta: "Start free",
@@ -58,8 +57,9 @@ export default function PricingSection() {
           Pay for the wedding, not a subscription.
         </h2>
         <p className="mt-6 max-w-[48ch] leading-relaxed text-muted-foreground">
-          Start free and only pay once the guest list outgrows it. Planners
-          running back-to-back seasons can pay monthly instead.
+          Every account is free today and starts with 100 AI credits for
+          cards and header images. The paid plans are not on sale yet, and
+          nothing is charged until they are.
         </p>
 
         <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

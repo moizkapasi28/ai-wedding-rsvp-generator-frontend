@@ -16,7 +16,7 @@ const features = [
   {
     icon: LayoutTemplate,
     title: "RSVP page builder",
-    body: "Set the header image, wording, layout and colours of the page your guests open.",
+    body: "Generate the header image, choose which questions each ceremony asks, and set its RSVP deadline.",
   },
   {
     icon: CalendarDays,
@@ -25,8 +25,8 @@ const features = [
   },
   {
     icon: FileSpreadsheet,
-    title: "Excel and CSV import",
-    body: "Upload your list once. Hundreds of guests, their phone numbers and dietary notes in one go.",
+    title: "Excel import",
+    body: "Fill in our template and upload it once. Hundreds of guests, their phone numbers and dietary notes in one go.",
   },
   {
     icon: MessageCircle,

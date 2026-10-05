@@ -439,8 +439,8 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Reword to "Excel import (from our template)", describe AI credits honestly, and either drop the plan limits or mark prices/limits as coming soon until BE-025/billing exists. Update the ponytail comment to match.
 
 **Acceptance criteria**
-- [ ] Every claim on the landing and pricing sections maps to shipped behaviour (walk through each bullet once).
-- [ ] No page mentions CSV unless CSV import exists.
+- [x] Every claim on the landing and pricing sections maps to shipped behaviour (walk through each bullet once).
+- [x] No page mentions CSV unless CSV import exists.
 
 **Notes/risks**
 - Product/marketing call on wording; keep the layout untouched.

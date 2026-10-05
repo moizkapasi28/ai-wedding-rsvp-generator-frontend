@@ -8,7 +8,7 @@ const details = [
   "Design, texture, typography, foil, monogram and border picked from presets",
   "Or generate from an example you like, or upload your finished card as it is",
   "A matching header image for the page your guests open",
-  "Wording, layout and colours arranged in the page builder",
+  "The questions each ceremony's RSVP page asks, chosen in its page settings",
 ];
 
 export default function InvitationsSection() {

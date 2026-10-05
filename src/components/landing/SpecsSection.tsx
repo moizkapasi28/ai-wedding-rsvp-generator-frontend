@@ -37,6 +37,10 @@ const groups = [
         "Attire styling",
         "Lehenga and sherwani, saree and bandhgala, gown and tuxedo, hanbok, agbada and more",
       ],
+      [
+        "AI credits",
+        "Every account starts with 100; a generated card uses 10 and a header image 5",
+      ],
     ],
   },
   {
@@ -44,7 +48,7 @@ const groups = [
     items: [
       [
         "Bulk import",
-        "Excel or CSV, processed in the background so a large file doesn't block you",
+        "Our Excel template, processed in the background so a large file doesn't block you",
       ],
       ["Per-guest record", "Name, email, mobile, side, group, notes"],
       ["Side", "Bride's side, groom's side, or both"],

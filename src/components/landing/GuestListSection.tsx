@@ -6,7 +6,7 @@ import { sampleGuests } from "@/components/landing/sampleData";
 import { RSVP_LEGEND } from "@/lib/rsvpStatus";
 
 const details = [
-  "Hundreds of guests imported from Excel or CSV in one upload",
+  "Hundreds of guests imported from our Excel template in one upload",
   "Bride's side or groom's side; family, relatives, friends, colleagues or VIPs",
   "Party size, meal preference, song requests and notes, kept per ceremony",
   "Who needs a room, and the address they are staying at",
