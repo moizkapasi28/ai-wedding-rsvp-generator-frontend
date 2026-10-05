@@ -5,8 +5,13 @@ import { getDefaultStore } from "jotai";
 
 type RequestBody = undefined | Record<string, unknown> | FormData;
 
-// Errors thrown by request() carry the HTTP status and the API's error type
-type ApiRequestError = Error & { type?: string; status?: number };
+// Errors thrown by request() carry the HTTP status and the API's error type; a 429 also
+// carries the seconds the rate limiter asked the client to wait (its Retry-After header)
+export type ApiRequestError = Error & {
+  type?: string;
+  status?: number;
+  retryAfter?: number;
+};
 
 let refreshInFlight: Promise<boolean> | null = null;
 
@@ -125,6 +130,11 @@ class ApiService {
         ) as ApiRequestError;
         err.type = errorData.type;
         err.status = response.status;
+        if (response.status === 429) {
+          // Readable cross-origin only because the API lists it in Access-Control-Expose-Headers
+          err.retryAfter =
+            Number(response.headers.get("Retry-After")) || undefined;
+        }
         throw err;
       }
 

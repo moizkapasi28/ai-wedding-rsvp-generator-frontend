@@ -316,8 +316,8 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - On a 429 from the status query, wait for `Retry-After`/`RateLimit-Reset` (the limiter sends standard headers) instead of retrying immediately.
 
 **Acceptance criteria**
-- [ ] A 4-minute generation makes fewer than 35 status requests.
-- [ ] A simulated 429 pauses polling and then resumes; the card status still updates to COMPLETED.
+- [x] A 4-minute generation makes fewer than 35 status requests.
+- [x] A simulated 429 pauses polling and then resumes; the card status still updates to COMPLETED.
 
 **Notes/risks**
 - BE-028 raises the limit; this ticket keeps the client polite regardless.
