@@ -152,7 +152,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 **Acceptance criteria**
 - [ ] Importing a 300-row template shows increasing percentages.
 - [ ] A job that keeps progressing past 5 minutes is not reported as "taking too long".
-- [ ] With the worker stopped, the "Is the backend worker running?" error still appears after ~30 s.
+- [x] With the worker stopped, the "Is the backend worker running?" error still appears after ~30 s.
 
 **Notes/risks**
 - Remove the ponytail comment if the timeout becomes progress-based.

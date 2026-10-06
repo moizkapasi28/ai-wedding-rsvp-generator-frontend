@@ -186,8 +186,14 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // The backend only queues the work (202 + jobId) and a separate worker runs it,
 // so poll the job until it actually finishes.
-const pollJob = async <T>(jobId: string, label: string) => {
+const pollJob = async <T>(
+  jobId: string,
+  label: string,
+  onProgress?: (percent: number) => void,
+) => {
   const startedAt = Date.now();
+  let lastProgress = 0;
+  let lastMovedAt = startedAt;
 
   for (;;) {
     await sleep(1500);
@@ -197,14 +203,19 @@ const pollJob = async <T>(jobId: string, label: string) => {
       throw new Error(job.failedReason || `${label} failed`);
     }
 
-    // ponytail: fixed timeouts; make them configurable if huge jobs legitimately run longer
-    const waited = Date.now() - startedAt;
-    if (job.state === "waiting" && waited > 30_000) {
+    if (job.progress > lastProgress) {
+      lastProgress = job.progress;
+      lastMovedAt = Date.now();
+      onProgress?.(job.progress);
+    }
+
+    if (job.state === "waiting" && Date.now() - startedAt > 30_000) {
       throw new Error(
         `${label} is queued but nothing is processing it. Is the backend worker running?`,
       );
     }
-    if (waited > 5 * 60_000) {
+    // Counted from the last progress, so a big job that keeps moving is slow, not stuck
+    if (Date.now() - lastMovedAt > 5 * 60_000) {
       throw new Error(`${label} is taking too long. Refresh the page in a bit.`);
     }
   }
@@ -273,22 +284,30 @@ export const useMarkReminderSent = () => {
   });
 };
 
+const IMPORT_TOAST_ID = "guest-import";
+
 export const useUploadGuestList = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ id, file }: { id: string; file: File }) => {
+      // One toast for the whole import: it shows the worker's progress and the
+      // result below replaces it (same id)
+      toast.loading("Importing guests…", { id: IMPORT_TOAST_ID });
       const { data } = await guestService.uploadGuestList(id, file);
-      return pollJob<GuestImportResult>(data.jobId, "Guest import");
+      return pollJob<GuestImportResult>(data.jobId, "Guest import", (percent) =>
+        toast.loading(`Importing guests… ${percent}%`, { id: IMPORT_TOAST_ID }),
+      );
     },
     onSuccess: (result) => {
       if (!result || result.totalProcessed === 0) {
-        toast.error("No guests found in the file");
+        toast.error("No guests found in the file", { id: IMPORT_TOAST_ID });
         return;
       }
       if (result.failed === 0) {
         toast.success(
           `Imported ${result.successful} guest${result.successful === 1 ? "" : "s"}`,
+          { id: IMPORT_TOAST_ID },
         );
         return;
       }
@@ -298,12 +317,13 @@ export const useUploadGuestList = () => {
         .join("\n");
       toast.error(
         `Imported ${result.successful}, failed ${result.failed}.\n${details}`,
-        { duration: 8000 },
+        { id: IMPORT_TOAST_ID, duration: 8000 },
       );
     },
     onError: (error) => {
       toast.error(
         error.message || "Failed to upload guest list! Please try again later",
+        { id: IMPORT_TOAST_ID },
       );
     },
     // Rows may have been partially imported even on failure/timeout
