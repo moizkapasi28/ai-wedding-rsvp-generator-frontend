@@ -31,8 +31,9 @@ export function WeddingDeleteDialogue({
       onOpenChange(false);
       return;
     }
-    deleteWedding.mutateAsync(currentRow.id);
-    onOpenChange(false);
+    // Close only once the delete has gone through; on failure the hook's toast explains
+    // and the dialog stays open to try again
+    deleteWedding.mutate(currentRow.id, { onSuccess: () => onOpenChange(false) });
   };
 
   return (
@@ -59,6 +60,7 @@ export function WeddingDeleteDialogue({
             id="wedding-delete-cancel-btn"
             type="button"
             variant="outline"
+            disabled={deleteWedding.isPending}
             onClick={() => onOpenChange(false)}
           >
             Cancel
@@ -67,6 +69,7 @@ export function WeddingDeleteDialogue({
             id="wedding-delete-confirm-btn"
             type="button"
             variant="destructive"
+            loading={deleteWedding.isPending}
             onClick={handleConfirm}
           >
             Delete Wedding

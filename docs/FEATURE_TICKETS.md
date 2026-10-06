@@ -210,8 +210,8 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Remove the dead `onConfirm` prop and the `console.log`.
 
 **Acceptance criteria**
-- [ ] With the API returning 500, the delete dialog stays open, shows the error toast and logs no unhandled rejection.
-- [ ] Deleting an event updates the dashboard counts and the invite-card event bar without a reload.
+- [x] With the API returning 500, the delete dialog stays open, shows the error toast and logs no unhandled rejection.
+- [x] Deleting an event updates the dashboard counts and the invite-card event bar without a reload.
 
 **Notes/risks**
 - Recent commit `e181833` fixed the same "counts not refreshed" class for guests; follow its pattern.

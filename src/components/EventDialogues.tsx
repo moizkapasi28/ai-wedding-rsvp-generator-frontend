@@ -26,10 +26,6 @@ export default function EventDialogues() {
             currentRow={currentRow}
             open={open === "delete"}
             onOpenChange={(isOpen) => setOpen(isOpen ? "delete" : null)}
-            onConfirm={() => {
-              console.log("Event delete confirmed");
-              setOpen(null);
-            }}
           />
         </>
       )}

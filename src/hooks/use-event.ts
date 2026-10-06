@@ -6,12 +6,21 @@ import {
   useQuery,
   useInfiniteQuery,
   useQueryClient,
+  type QueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { PAGE_SETTING_QUERY_KEY } from "./use-pageSetting";
-import { GUEST_QUERY_KEY } from "./use-guest";
+import { invalidateGuestData } from "./use-guest";
+import { invalidateInviteCards } from "./use-inviteCard";
 
 export const EVENT_QUERY_KEY = ["events"] as const;
+
+// An event shows up well beyond the Events page: guest filters and counts, page settings and
+// the dashboard's per-ceremony cards (all in invalidateGuestData), and the invite card event bar
+const invalidateEventData = (queryClient: QueryClient) =>
+  Promise.all([
+    invalidateGuestData(queryClient),
+    invalidateInviteCards(queryClient),
+  ]);
 
 export const useGetEventsWithStats = (
   weddingId: string | null,
@@ -78,9 +87,7 @@ export const useCreateEvent = () => {
   return useMutation({
     mutationFn: async (data: EventFormValues) => eventService.createEvent(data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+      invalidateEventData(queryClient);
       toast.success(response.message || "New Event Created Successfully");
     },
     onError: (error) => {
@@ -99,10 +106,8 @@ export const useUpdatEvent = () => {
       eventService.updateEvent(data, data.id),
 
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
-      toast.success(response.message || "New Wedding Updated Successfully");
+      invalidateEventData(queryClient);
+      toast.success(response.message || "Event updated");
     },
     onError: (error) => {
       toast.error(
@@ -118,10 +123,8 @@ export const useDeleteEvent = () => {
   return useMutation({
     mutationFn: async (id: string) => eventService.deleteEvent(id),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [...EVENT_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...PAGE_SETTING_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
-      toast.success(response.message || "Wedding Deleted Successfully");
+      invalidateEventData(queryClient);
+      toast.success(response.message || "Event deleted");
     },
     onError: (error) => {
       toast.error(

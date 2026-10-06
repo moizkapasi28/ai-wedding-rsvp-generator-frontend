@@ -31,8 +31,9 @@ export function GuestDeleteDialogue({
       onOpenChange(false);
       return;
     }
-    deleteEvent.mutateAsync(currentRow.id);
-    onOpenChange(false);
+    // Close only once the delete has gone through; on failure the hook's toast explains
+    // and the dialog stays open to try again
+    deleteEvent.mutate(currentRow.id, { onSuccess: () => onOpenChange(false) });
   };
 
   return (
@@ -59,6 +60,7 @@ export function GuestDeleteDialogue({
             id="guest-delete-cancel-btn"
             type="button"
             variant="outline"
+            disabled={deleteEvent.isPending}
             onClick={() => onOpenChange(false)}
           >
             Cancel
@@ -67,6 +69,7 @@ export function GuestDeleteDialogue({
             id="guest-delete-confirm-btn"
             type="button"
             variant="destructive"
+            loading={deleteEvent.isPending}
             onClick={handleConfirm}
           >
             Delete guest
