@@ -1,6 +1,11 @@
 import { pageSettingService } from "@/api/pageSetting.service";
-import { generalService } from "@/api/general.service";
 import {
+  generalService,
+  type GenerateViewUrlResponse,
+} from "@/api/general.service";
+import { viewUrlFreshMs } from "@/lib/viewUrl";
+import {
+  queryOptions,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -76,16 +81,6 @@ export const useGenerateUploadUrl = () => {
   });
 };
 
-export const useGenerateViewUrl = () => {
-  return useMutation({
-    mutationFn: async (objectKey: string) =>
-      generalService.generateViewUrl(objectKey),
-    onError: (error) => {
-      console.error("Failed to generate view URL:", error);
-    },
-  });
-};
-
 export const useGenerateImage = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -121,15 +116,26 @@ export const useGenerateImage = () => {
   });
 };
 
-// Cached signed view URL for an object key. Keyed by the key itself, so switching
-// events never shows a stale/out-of-order image the way a mutation in an effect can.
-export const useGetViewUrl = (objectKey: string | null | undefined) => {
-  return useQuery({
+const viewUrlFreshFor = (query: {
+  state: { data?: GenerateViewUrlResponse; dataUpdatedAt: number };
+}) => viewUrlFreshMs(query.state.data?.data?.expires_at, query.state.dataUpdatedAt);
+
+// Separate from the hook so the refresh rules can be driven without rendering a component
+export const viewUrlQueryOptions = (objectKey: string | null | undefined) =>
+  queryOptions({
     queryKey: ["view-url", objectKey],
     queryFn: () => generalService.generateViewUrl(objectKey as string),
     enabled: !!objectKey,
-    // ponytail: assumes signed URLs live longer than 5 min; tie to real expiry if shorter
-    staleTime: 5 * 60 * 1000,
+    // Signed URLs expire. The cached one is reused only until shortly before the API says it
+    // stops working, and an image that stays on screen gets a new one on the same schedule,
+    // so a later re-render never points at a dead link.
+    staleTime: viewUrlFreshFor,
+    refetchInterval: (query) =>
+      query.state.data ? viewUrlFreshFor(query) : false,
     select: (res) => res.data?.url ?? null,
   });
-};
+
+// Cached signed view URL for an object key. Keyed by the key itself, so switching
+// events never shows a stale/out-of-order image the way a mutation in an effect can.
+export const useGetViewUrl = (objectKey: string | null | undefined) =>
+  useQuery(viewUrlQueryOptions(objectKey));

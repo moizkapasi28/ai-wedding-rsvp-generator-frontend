@@ -12,6 +12,8 @@ export interface GenerateViewUrlResponse {
   message?: string;
   data: {
     url: string;
+    // ISO time the signed URL stops working
+    expires_at?: string;
   };
 }
 
