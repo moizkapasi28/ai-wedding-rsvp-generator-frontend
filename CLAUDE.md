@@ -13,7 +13,7 @@ npx eslint <files>  # lint only touched files
 
 There is no test runner. `src/lib/sse.ts` is written import-free so it can be checked with `node --test`.
 
-Env vars are validated at build/dev time by `@julr/vite-plugin-validate-env` against the zod schema in `env.ts` (`VITE_APP_URL` — trailing slash stripped; `VITE_COOKIE_BASED_AUTHENTICATION`; optional `VITE_GOOGLE_MAPS_API_KEY`). Adding a `VITE_*` var means adding it to `env.ts` and `.env.example`; `node check-env.cjs` checks `.env` against both. Production frontend: https://ai-wedding-rsvp-generator.pages.dev.
+Env vars are validated at build/dev time by `@julr/vite-plugin-validate-env` against the zod schema in `env.ts` (`VITE_APP_URL` — trailing slash stripped; optional `VITE_GOOGLE_MAPS_API_KEY`). Adding a `VITE_*` var means adding it to `env.ts` and `.env.example`; `node check-env.cjs` checks `.env` against both. Production frontend: https://ai-wedding-rsvp-generator.pages.dev.
 
 ## Backend
 

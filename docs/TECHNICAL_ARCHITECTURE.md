@@ -418,7 +418,6 @@ Display: `useGetViewUrl(key)` caches per key for 5 min (`ponytail:` assumes URLs
 | Item | Detail | File |
 |---|---|---|
 | `VITE_APP_URL` | required URL; trailing slash removed; must include `/api` | [env.ts](../env.ts), [.env.example](../.env.example) |
-| `VITE_COOKIE_BASED_AUTHENTICATION` | `"true"` → boolean; when true the frontend does not store or send the refresh token and does not store the access token at login | [env.ts](../env.ts), [use-auth.ts](../src/hooks/use-auth.ts), [api.service.ts](../src/api/api.service.ts) |
 | `VITE_GOOGLE_MAPS_API_KEY` | optional; Places autocomplete in address fields | [AddressAutocomplete.tsx](../src/components/custom/AddressAutocomplete.tsx) |
 | Validation | `ValidateEnv()` plugin in dev and build, schema from `env.ts` (`validator: "standard"`) | [vite.config.ts](../vite.config.ts) |
 | Consistency check | `node check-env.cjs`: exits 1 if a `.env` var is missing from `.env.example` or `env.ts` | [check-env.cjs](../check-env.cjs) |
@@ -453,7 +452,7 @@ Found while reading; nothing here was changed.
 | # | Observation | Evidence |
 |---|---|---|
 | O1 | The 401 refresh path reads `refreshData.data?.tokens?.access`, but `auth/access-token` returns `data: { access, refresh }` (the bootstrap in `router.tsx` destructures it that way, and the backend `generateAuthTokensService` returns `{ access, refresh }`). The new access token is therefore never stored, the retry reuses the expired header, and a mid-session expiry most likely ends in `unauthorized` → logout. The rotated refresh token is also not persisted, while the backend deletes the user's previous tokens on refresh. | [api.service.ts](../src/api/api.service.ts), [router.tsx](../src/router.tsx), [user.model.ts](../src/models/user.model.ts) (`GenerateNewTokenResponse = GenericResponse<Tokens>`), backend `src/services/token.service.ts`, `src/services/auth.service.ts` |
-| O2 | Cookie mode (`VITE_COOKIE_BASED_AUTHENTICATION=true`) looks incomplete: no `credentials: "include"` on any `fetch`, and login does not store an access token in that mode. | [api.service.ts](../src/api/api.service.ts), [use-auth.ts](../src/hooks/use-auth.ts) |
+| O2 | Resolved (FE-003): the unused cookie-auth flag and its branches were removed; tokens are always sent in the request body. | [use-auth.ts](../src/hooks/use-auth.ts) |
 | O3 | `logout()` calls `localStorage.clear()`, which also removes the theme preference (`vite-ui-theme`). The query cache is not cleared on logout (acknowledged in a comment on `useUserProfile`). | [use-auth.ts](../src/hooks/use-auth.ts) |
 | O4 | Event mutations do not invalidate `["invite-card"]` (Invite Card lists events through that key), `["wedding-dashboard"]`, or the weddings list (`totalEvents`). Guest mutations do not invalidate the weddings list (`totalGuests`) or `["whatsapp-invites"]`. | [use-event.ts](../src/hooks/use-event.ts), [use-guest.ts](../src/hooks/use-guest.ts) |
 | O5 | `useGetEventsWithStats` omits `stats` from its query key. | [use-event.ts](../src/hooks/use-event.ts) |

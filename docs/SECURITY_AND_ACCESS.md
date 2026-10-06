@@ -26,7 +26,7 @@ The SPA has no role concept, and neither does the API: every signed-in user is a
 | `user`, `isLoggedIn`, `activeWeddingId`, `activeWedding` | `localStorage` | until logout | [store.ts](../src/store/store.ts) |
 | Theme | `localStorage["vite-ui-theme"]` | - | [ThemeProvider.tsx:30](../src/components/ThemeProvider.tsx#L30) |
 
-The API returns tokens in JSON bodies and sets no cookies (backend doc §2.2). `VITE_COOKIE_BASED_AUTHENTICATION=true` therefore **does not work**. In that mode, login stores neither token ([use-auth.ts:56-62](../src/hooks/use-auth.ts#L56-L62)), and the backend still requires `refreshToken` in the body. Keep it `false` unless the backend gains httpOnly-cookie support.
+The API returns tokens in JSON bodies and sets no cookies (backend doc §2.2), so the frontend always keeps the access token in memory and the refresh token in localStorage. The old cookie-auth flag never worked and was removed (FE-003); httpOnly-cookie refresh tokens would be a new cross-repo change.
 
 ### 2.2 Lifecycle
 
@@ -106,7 +106,6 @@ Everything prefixed `VITE_` is compiled into the public JS bundle. Only put valu
 | Variable | Exposure | Guidance |
 |---|---|---|
 | `VITE_APP_URL` | public | API base; no secret. |
-| `VITE_COOKIE_BASED_AUTHENTICATION` | public | Keep `false` (§2.1). |
 | `VITE_GOOGLE_MAPS_API_KEY` | **public**, used by Places autocomplete ([AddressAutocomplete.tsx:25](../src/components/custom/AddressAutocomplete.tsx#L25)) | In Google Cloud Console, restrict it to HTTP referrers `https://ai-wedding-rsvp-generator.pages.dev/*` (plus `http://localhost:5173/*` on a separate dev key), restrict the APIs to Maps JavaScript API and Places API, and set daily quotas and billing alerts. The RSVP map iframe (`maps.google.com/maps?...&output=embed`) does not use the key. |
 
 ## 7. Findings
@@ -117,7 +116,7 @@ Everything prefixed `VITE_` is compiled into the public JS bundle. Only put valu
 | F2 | Low | [EventLocationCard.tsx:40](../src/components/EventLocationCard.tsx#L40) | On the public RSVP page the Maps iframe sends the full URL, including the invite token (the guest's credential), to Google as `Referer`. | Use `referrerPolicy="no-referrer"` (or `strict-origin-when-cross-origin`); the keyless embed does not need it. |
 | F3 | Low | [store.ts:7-10](../src/store/store.ts#L7-L10), [index.html](../index.html) | The 30-day refresh token sits in `localStorage` with no CSP backstop and no framing protection. Today there are no HTML sinks, so this is exposure, not an active XSS. | Add `public/_headers` with a CSP (`script-src 'self'`, Google Maps/Fonts hosts, `connect-src` for the API and S3, `frame-src` Google Maps), `frame-ancestors 'none'`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`. Longer term, move refresh to an httpOnly cookie. |
 | F4 | Info | [AddressAutocomplete.tsx:25](../src/components/custom/AddressAutocomplete.tsx#L25) | The Maps key ships in the bundle by design; its safety depends on Console restrictions this repo can't enforce. | Apply the restrictions in §6 and record them in the deploy notes. |
-| F5 | Info | [use-auth.ts:56-62](../src/hooks/use-auth.ts#L56-L62), [api.service.ts:56](../src/api/api.service.ts#L56) | `VITE_COOKIE_BASED_AUTHENTICATION=true` is a dead mode: the backend never issues cookies, so enabling it breaks sign-in. | Remove the flag, or implement cookie auth on both sides. |
+| F5 | Info | [use-auth.ts](../src/hooks/use-auth.ts) | Resolved (FE-003): the dead cookie-auth flag was removed. | - |
 | F6 | Info | [auth.validation.ts:5-18](../src/validations/auth.validation.ts#L5-L18) | Password rules (8-20 chars, character classes) exist only here. The 20-char cap is unusually low, and the server enforces nothing (backend B4). | Raise the max (bcrypt handles 72 bytes) and mirror one rule on the server. |
 
 ### Done well

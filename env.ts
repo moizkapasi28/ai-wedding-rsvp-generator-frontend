@@ -13,9 +13,6 @@ export const schema = {
       }
       return value;
     }), // You can also add transformations
-  VITE_COOKIE_BASED_AUTHENTICATION: z.preprocess((value) => {
-    return value === "true";
-  }, z.boolean()), // You can also preprocess the value
   // Google Places autocomplete for address fields
   VITE_GOOGLE_MAPS_API_KEY: z.string().optional(),
 };

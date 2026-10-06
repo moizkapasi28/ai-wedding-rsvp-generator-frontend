@@ -61,14 +61,9 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (data: LoginRequest) => authService.login(data),
     onSuccess: (response) => {
-      let refreshToken = null;
-      if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION) {
-        refreshToken = response.data.tokens.refresh?.token ?? "";
-        if (response.data.tokens.access) {
-          tokenStore.setAccessToken(response.data.tokens.access);
-        }
-      }
-      login(response.data.user, refreshToken);
+      const { access, refresh } = response.data.tokens;
+      if (access) tokenStore.setAccessToken(access);
+      login(response.data.user, refresh?.token ?? "");
 
       // No success toast: landing on your weddings already says it worked
       navigate("/weddings");
@@ -167,13 +162,7 @@ export const useLogout = () => {
   const store = useStore();
 
   return useMutation({
-    mutationFn: async () => {
-      let rToken = null;
-      if (!import.meta.env.VITE_COOKIE_BASED_AUTHENTICATION) {
-        rToken = store.get(refreshTokenAtom);
-      }
-      return authService.logout(rToken);
-    },
+    mutationFn: async () => authService.logout(store.get(refreshTokenAtom)),
     // Settled, not success: an expired session or an unreachable API must not leave the
     // user stuck signed in on this device
     onSettled: () => {
