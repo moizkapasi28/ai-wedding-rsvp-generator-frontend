@@ -10,7 +10,6 @@ export const weddingFormSchema = z.object({
   bride_name: z
     .string()
     .min(1, "Bride name is required")
-    .min(3, "Bride name must be at least 3 characters")
     .max(50)
     .describe("Example: Jane Doe"),
   groom_name: z

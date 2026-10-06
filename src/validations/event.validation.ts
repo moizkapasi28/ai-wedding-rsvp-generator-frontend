@@ -46,7 +46,8 @@ export const eventFormSchema = z
     address: z
       .string()
       .min(1, "Address is required")
-      .max(250)
+      // Same limit as the API
+      .max(200, "Address cannot be longer than 200 characters")
       .describe("Example: 123 Main St, New York"),
     city: z
       .string()

@@ -48,7 +48,12 @@ export const guestFormBaseSchema = z.object({
   email: z.email().max(50).or(z.literal("")).optional(),
   side: SideSchema.describe("Side is required (BRIDE or GROOM)"),
   accomodation_required: z.boolean(),
-  accomodation_address: z.string().optional(),
+  // Trimmed and capped like the API, which also rejects a blank address when a room is needed
+  accomodation_address: z
+    .string()
+    .trim()
+    .max(250, "Accommodation address cannot be longer than 250 characters")
+    .optional(),
   group: GuestGroupSchema.describe("Group is required"),
   note: z.string().max(100, "Note cannot exceed 100 characters").optional(),
 });

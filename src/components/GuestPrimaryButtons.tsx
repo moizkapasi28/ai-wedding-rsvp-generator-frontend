@@ -26,10 +26,9 @@ import { useGuest } from "./GuestProvider";
 import { Button } from "./ui/button";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-const EXCEL_TYPES = [
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
-];
+// The import only reads the .xlsx template downloaded from this page
+const XLSX_TYPE =
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 export default function GuestPrimaryButtons() {
   const { setOpen, search, eventFilter, sideFilter, groupFilter, sentFilter } =
@@ -53,12 +52,10 @@ export default function GuestPrimaryButtons() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    if (
-      !EXCEL_TYPES.includes(file.type) &&
-      !file.name.endsWith(".xlsx") &&
-      !file.name.endsWith(".xls")
-    ) {
-      toast.error("That isn't a spreadsheet. Upload an .xlsx or .xls file.");
+    if (file.type !== XLSX_TYPE && !file.name.toLowerCase().endsWith(".xlsx")) {
+      toast.error(
+        "Upload the .xlsx template you downloaded. Use Download import template to get it.",
+      );
       reset();
       return;
     }
@@ -78,7 +75,7 @@ export default function GuestPrimaryButtons() {
     <div className="flex shrink-0 items-center gap-2">
       <input
         type="file"
-        accept=".xlsx, .xls"
+        accept=".xlsx"
         className="hidden"
         ref={fileInputRef}
         onChange={handleFileChange}
