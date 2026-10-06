@@ -8,6 +8,7 @@ import ResponseStatsCard from "@/components/ResponseStatsCard";
 import RsvpProgressCard from "@/components/RsvpProgressCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DIETARY_OPTIONS } from "@/constants";
+import { useNow } from "@/hooks/use-now";
 import { useWeddingLive } from "@/hooks/use-wedding-live";
 import { useGetWeddingDashboard } from "@/hooks/use-wedding";
 import { activeWeddingAtom, activeWeddingIdAtom } from "@/store/store";
@@ -28,6 +29,9 @@ export default function Dashboard() {
   const { data, dataUpdatedAt, isLoading, isError } =
     useGetWeddingDashboard(weddingId);
   const liveStatus = useWeddingLive(weddingId);
+  // Moves "2 minutes ago" along on a quiet page. Never behind the last fetch, or a reply
+  // that just arrived would be timed against a clock up to a minute old.
+  const now = Math.max(useNow(60_000), dataUpdatedAt);
   const dashboard = data?.data;
 
   if (isLoading) {
@@ -76,7 +80,7 @@ export default function Dashboard() {
           </div>
           <RecentRsvpsCard
             rsvps={dashboard.recentRsvps}
-            now={dataUpdatedAt}
+            now={now}
             liveStatus={liveStatus}
           />
         </div>

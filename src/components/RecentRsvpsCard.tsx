@@ -31,8 +31,8 @@ const timeAgo = (iso: string, now: number) => {
 
 type Props = {
   rsvps: LiveRsvp[];
-  // When the data was fetched; keeps render pure (no Date.now) and times consistent across rows.
-  // ponytail: times only move on the next refetch, so "2 minutes ago" can go stale on a quiet page
+  // The page's clock (Dashboard ticks it every minute). Passed in rather than read here so
+  // render stays pure and every row is timed against the same instant.
   now: number;
   liveStatus: LiveStatus;
 };

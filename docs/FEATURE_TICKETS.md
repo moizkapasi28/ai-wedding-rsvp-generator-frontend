@@ -385,7 +385,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - A small `useNow(60_000)` interval in the Dashboard page passed as `now` (keeps the card pure). Remove the ponytail.
 
 **Acceptance criteria**
-- [ ] Leaving the dashboard open for 3 minutes with no RSVPs updates "just now" to "3 minutes ago".
+- [x] Leaving the dashboard open for 3 minutes with no RSVPs updates "just now" to "3 minutes ago".
 
 **Notes/risks**
 - One interval per page, not per row.
