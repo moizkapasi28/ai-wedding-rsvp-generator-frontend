@@ -31,6 +31,7 @@ import toast from "react-hot-toast";
 import { imageUploadProblem } from "@/lib/imageUpload";
 import { cn } from "@/lib/utils";
 import EventBar from "./EventBar";
+import Notice from "./Notice";
 import NoEventsState from "./NoEventsState";
 import DesignConfigForm from "./DesignConfigForm";
 import ReferenceUploadForm from "./ReferenceUploadForm";
@@ -122,8 +123,16 @@ export default function InviteCardMain() {
   const activeWeddingId = useAtomValue(activeWeddingIdAtom);
   const queryClient = useQueryClient();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useGetInviteCardsByWeddingInfinite(activeWeddingId);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    isError,
+    isFetching,
+    refetch,
+  } = useGetInviteCardsByWeddingInfinite(activeWeddingId);
 
   // Each page returns events with their AI invite card, so cards load page-by-page alongside events
   const events = useMemo(
@@ -549,7 +558,9 @@ export default function InviteCardMain() {
     }
   };
 
-  if (isLoading) {
+  // isPending, not isLoading: a retry waits while the tab is in the background, and that
+  // pause must show the skeleton rather than fall through to an empty editor
+  if (isPending) {
     return (
       <div className={SHELL}>
         <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -571,6 +582,26 @@ export default function InviteCardMain() {
           <Skeleton className="h-[30rem] w-full rounded-xl" />
         </div>
       </div>
+    );
+  }
+
+  // Only when nothing has loaded: a failed background refetch keeps the editor on the
+  // cards it already has. Without this the page fell through to an empty editor.
+  if (isError && !data) {
+    return (
+      <Notice
+        title="We couldn't load your invitation cards."
+        body="Something went wrong on the way to the server."
+        action={
+          <Button
+            variant="outline"
+            loading={isFetching}
+            onClick={() => refetch()}
+          >
+            Try again
+          </Button>
+        }
+      />
     );
   }
 

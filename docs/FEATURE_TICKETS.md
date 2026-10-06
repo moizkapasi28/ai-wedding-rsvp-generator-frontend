@@ -299,7 +299,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Add an error branch with a retry, matching the pattern and copy of `PageSettingMain`.
 
 **Acceptance criteria**
-- [ ] With `GET /invite-card/cards/:weddingId` failing, the page shows an error with Try again, and retry recovers.
+- [x] With `GET /invite-card/cards/:weddingId` failing, the page shows an error with Try again, and retry recovers.
 
 **Notes/risks**
 - None.
