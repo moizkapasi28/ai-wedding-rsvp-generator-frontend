@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useAuth, useUpdateProfile } from "@/hooks/use-auth";
 import { useGetViewUrl } from "@/hooks/use-pageSetting";
+import { IMAGE_ACCEPT, imageUploadProblem } from "@/lib/imageUpload";
 import { cn } from "@/lib/utils";
 import { getCroppedImg } from "@/utilities/cropImage";
 import {
@@ -125,12 +126,19 @@ export default function ViewProfile() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    setImageToCrop(objectUrl);
-    setCropDialogOpen(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+
+    const problem = imageUploadProblem(file);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setImageToCrop(objectUrl);
+    setCropDialogOpen(true);
   };
 
   const handleCropConfirm = async () => {
@@ -238,7 +246,7 @@ export default function ViewProfile() {
                 type="file"
                 ref={fileInputRef}
                 className="hidden"
-                accept="image/*"
+                accept={IMAGE_ACCEPT}
                 onChange={handleImageSelect}
               />
               {actualImageUrl && !isUploading && (

@@ -33,6 +33,7 @@ import {
   Trash2,
   Upload
 } from "lucide-react";
+import { IMAGE_ACCEPT, imageUploadProblem } from "@/lib/imageUpload";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageCropper from "./ImageCropper";
@@ -109,12 +110,18 @@ export default function PageSettingsIllustration({
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setUncroppedImage(url);
-      setIsCropperOpen(true);
-      e.target.value = "";
+    if (!file) return;
+    e.target.value = "";
+
+    // This photo goes to the image generator, which costs a credit attempt if it can't read it
+    const problem = imageUploadProblem(file);
+    if (problem) {
+      toast.error(problem);
+      return;
     }
+
+    setUncroppedImage(URL.createObjectURL(file));
+    setIsCropperOpen(true);
   };
 
   const handleCropComplete = async (croppedImage: {
@@ -653,7 +660,7 @@ export default function PageSettingsIllustration({
           type="file"
           ref={fileInputRef}
           className="hidden"
-          accept="image/*"
+          accept={IMAGE_ACCEPT}
           onChange={handleImageUpload}
         />
       </div>

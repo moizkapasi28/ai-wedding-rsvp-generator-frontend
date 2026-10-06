@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import toast from "react-hot-toast";
 
 // Sub-components
+import { imageUploadProblem } from "@/lib/imageUpload";
 import { cn } from "@/lib/utils";
 import EventBar from "./EventBar";
 import NoEventsState from "./NoEventsState";
@@ -46,9 +47,6 @@ import {
   type AiEventInviteCard,
 } from "@/models/inviteCard.model";
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
-
 // The form column and the preview size themselves against the content width,
 // not the viewport, so collapsing the sidebar re-lays them out. Same split as
 // the RSVP page settings, which is the same shape of page.
@@ -57,17 +55,9 @@ const SPLIT = "grid gap-5 @min-[64rem]/invite:grid-cols-3";
 
 // The generator can't read HEIC and skips sources over 20 MB, so stop those before uploading
 const rejectUnsupportedImage = (file: File) => {
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-    toast.error("Upload a JPG, PNG or WebP image.");
-    return true;
-  }
-
-  if (file.size > MAX_UPLOAD_BYTES) {
-    toast.error("Images must be 20 MB or smaller.");
-    return true;
-  }
-
-  return false;
+  const problem = imageUploadProblem(file);
+  if (problem) toast.error(problem);
+  return !!problem;
 };
 
 const EMPTY_FORM_VALUES: AiInviteFormValues = {
