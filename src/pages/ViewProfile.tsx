@@ -1,16 +1,10 @@
 import { generalService } from "@/api/general.service";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
+import ImageCropper from "@/components/ImageCropper";
 import Page, { PageHeader } from "@/components/Page";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,21 +15,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Slider } from "@/components/ui/slider";
 import { useAuth, useUpdateProfile } from "@/hooks/use-auth";
 import { useGetViewUrl } from "@/hooks/use-pageSetting";
 import { IMAGE_ACCEPT, imageUploadProblem } from "@/lib/imageUpload";
 import { cn } from "@/lib/utils";
-import { getCroppedImg } from "@/utilities/cropImage";
 import {
   updateProfileSchema,
   type UpdateProfileRequest,
 } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, Crop, Loader2, Pencil, ShieldAlert, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Camera, Loader2, Pencil, ShieldAlert, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Avtar from "react-avatar";
-import Cropper, { type Area } from "react-easy-crop";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -62,12 +53,8 @@ export default function ViewProfile() {
   const [isUploading, setIsUploading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  // Crop state
-  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  // Object URL of the photo just picked; the cropper is open while this is set
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
   const form = useForm<UpdateProfileRequest>({
     resolver: zodResolver(updateProfileSchema),
@@ -95,14 +82,6 @@ export default function ViewProfile() {
   const { data: pictureViewUrl } = useGetViewUrl(isObjectKey ? picture : null);
   const actualImageUrl =
     previewImage ?? (isObjectKey ? pictureViewUrl : picture) ?? "";
-
-  // Declared before the early return below: hooks must run on every render
-  const onCropComplete = useCallback(
-    (_croppedArea: Area, croppedAreaPixels: Area) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    [],
-  );
 
   if (!user) {
     return (
@@ -136,32 +115,22 @@ export default function ViewProfile() {
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setImageToCrop(objectUrl);
-    setCropDialogOpen(true);
+    setImageToCrop(URL.createObjectURL(file));
   };
 
-  const handleCropConfirm = async () => {
-    if (!imageToCrop || !croppedAreaPixels || !user) return;
-
+  // ImageCropper hands back the cropped JPEG; show it straight away, then upload and save it
+  const handleCropComplete = async (cropped: { url: string; blob: Blob }) => {
     try {
       setIsUploading(true);
-      setCropDialogOpen(false);
+      setPreviewImage(cropped.url);
 
-      const croppedFile = await getCroppedImg(imageToCrop, croppedAreaPixels);
-      if (!croppedFile) throw new Error("Failed to crop image");
-
-      const objectUrl = URL.createObjectURL(croppedFile);
-      setPreviewImage(objectUrl);
-
-      const ext = "jpg";
-      const objectKey = `users/${user.id}/profile_${Date.now()}.${ext}`;
+      const objectKey = `users/${user.id}/profile_${Date.now()}.jpg`;
 
       const {
         data: { url, object_key },
-      } = await generalService.generateUploadUrl(objectKey, croppedFile.type);
+      } = await generalService.generateUploadUrl(objectKey, cropped.blob.type);
 
-      await generalService.uploadFileToS3(url, croppedFile);
+      await generalService.uploadFileToS3(url, cropped.blob);
 
       updateProfile(
         {
@@ -183,8 +152,6 @@ export default function ViewProfile() {
       setPreviewImage(null);
     } finally {
       setIsUploading(false);
-      setImageToCrop(null);
-      setZoom(1);
     }
   };
 
@@ -380,64 +347,31 @@ export default function ViewProfile() {
             )}
           </div>
         </Card>
+
+        <Card className="mt-5 p-5">
+          <h2 className="font-display text-lg leading-none font-medium tracking-[-0.02em]">
+            Change password
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Changing it signs you out on your other devices. You stay signed in
+            here.
+          </p>
+          <ChangePasswordForm className="mt-5 border-t border-border pt-5" />
+        </Card>
       </div>
 
-      {/* Cropper Dialog */}
-      <Dialog open={cropDialogOpen} onOpenChange={setCropDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Crop profile picture</DialogTitle>
-            <DialogDescription>
-              Drag to reposition, then pick how close in you want it.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="relative h-[300px] w-full overflow-hidden rounded-lg border border-border bg-muted/50">
-            {imageToCrop && (
-              <Cropper
-                image={imageToCrop}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                onCropChange={setCrop}
-                onCropComplete={onCropComplete}
-                onZoomChange={setZoom}
-                cropShape="round"
-                showGrid={false}
-              />
-            )}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Zoom</span>
-            <Slider
-              value={[zoom]}
-              min={1}
-              max={3}
-              step={0.1}
-              onValueChange={(val) => setZoom(val[0])}
-              className="flex-1"
-              aria-label="Zoom"
-            />
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCropDialogOpen(false);
-                setImageToCrop(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCropConfirm} loading={isUploading}>
-              <Crop />
-              Save &amp; upload
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* The shared cropper, mounted per photo so its zoom and position start fresh */}
+      {imageToCrop && (
+        <ImageCropper
+          open
+          onOpenChange={(open) => !open && setImageToCrop(null)}
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          title="Crop profile picture"
+          description="Drag to reposition, then pick how close in you want it."
+          confirmLabel="Save & upload"
+        />
+      )}
     </Page>
   );
 }

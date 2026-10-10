@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -15,13 +16,21 @@ interface ImageCropperProps {
   onOpenChange: (open: boolean) => void;
   imageSrc: string;
   onCropComplete: (croppedImage: { url: string; blob: Blob }) => void;
+  // Wording for the page it sits on; the defaults are the RSVP illustration's
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
 }
 
+/** The app's one square, round-masked image cropper. */
 export default function ImageCropper({
   open,
   onOpenChange,
   imageSrc,
   onCropComplete,
+  title = "Crop Thumbnail",
+  description,
+  confirmLabel = "Apply Crop",
 }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -51,7 +60,8 @@ export default function ImageCropper({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Crop Thumbnail</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         <div className="relative h-[400px] w-full bg-black/10 rounded-md overflow-hidden">
           <Cropper
@@ -80,7 +90,7 @@ export default function ImageCropper({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Apply Crop</Button>
+          <Button onClick={handleSave}>{confirmLabel}</Button>
         </div>
       </DialogContent>
     </Dialog>

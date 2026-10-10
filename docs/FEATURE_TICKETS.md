@@ -542,7 +542,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 
 **Acceptance criteria**
 - [ ] Profile photo crop/upload and the invite-card/page-settings croppers behave as before.
-- [ ] Only one `cropImage.ts` exists.
+- [x] Only one `cropImage.ts` exists.
 
 **Notes/risks**
 - `src/utilities/regex.ts` is still used; leave the folder if it keeps that file.
