@@ -561,7 +561,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Correct the three references, add a one-line note on AI credits, and mention `npm test` once FE-024 lands.
 
 **Acceptance criteria**
-- [ ] Every file, hook and route named in CLAUDE.md exists (grep each one).
+- [x] Every file, hook and route named in CLAUDE.md exists (grep each one).
 
 **Notes/risks**
 - Keep it terse; it is loaded into every AI session.
