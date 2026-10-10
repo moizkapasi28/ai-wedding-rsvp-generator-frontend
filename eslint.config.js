@@ -19,6 +19,8 @@ export default defineConfig([
       globals: globals.browser,
     },
     rules: {
+      // Leftover debug logging; console.error stays for failures nothing else reports
+      'no-console': ['warn', { allow: ['error'] }],
       // Providers, shadcn/ui primitives and a few shared helpers deliberately export hooks or
       // constants next to their components; fast refresh just reloads those files in full
       'react-refresh/only-export-components': [

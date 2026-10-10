@@ -495,7 +495,7 @@ These are observations from the code on 2026-10-01. They are listed as open ques
 ### 9.4 Dead code, drift and housekeeping
 - **Q20.** `backend: src/services/faceSwap.service.ts` is unused (face swapping is now part of the Example pipeline via `photo_placement`). Delete it?
 - **Q21.** `GET /api/page-setting/event/:eventId` is marked in code as not used by the client (`backend: src/routes/eventInviteFormat.route.ts`).
-- **Q22.** `frontend: src/components/DashboardCard.tsx` and `DASHBOARD_CARD_MENU` (Edit/Copy/Delete) in `src/constants/index.ts` are not rendered anywhere.
+- **Q22.** Resolved (FE-026): the unrendered dashboard card component and its Edit/Copy/Delete menu constant were deleted.
 - **Q23. Documentation drift.**
   - Frontend CLAUDE.md names `src/routes/index.tsx` (the file no longer exists) and an `ai-invite-card` route (actual mount: `/api/invite-card`).
   - Backend CLAUDE.md names `services/aiInviteCardGeneration.service.ts` (actual: `inviteCardGeneration.service.ts`) and an `authLimiter` (does not exist).

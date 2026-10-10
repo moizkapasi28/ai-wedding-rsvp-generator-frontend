@@ -490,7 +490,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - `"test": "node --test --experimental-strip-types src/lib/*.test.ts"` (Node 22, no new dependency) with tests for `parseSseChunk` (split chunks, CRLF, heartbeat comments), `pageRange` (small totals, gaps at both ends) and one or two of the date/status helpers.
 
 **Acceptance criteria**
-- [ ] `npm test` passes locally and in CI (FE-023).
+- [x] `npm test` passes locally and in CI (FE-023).
 - [x] Breaking `parseSseChunk`'s handling of a message split across two chunks fails a test.
 
 **Notes/risks**
@@ -525,7 +525,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Delete the unused files; replace `console.log` with nothing (the toast already reports); add `no-console: ["warn", { allow: ["error"] }]` to [`eslint.config.js`](../eslint.config.js).
 
 **Acceptance criteria**
-- [ ] `npm run build` and `npm run lint` pass; `grep -rn "console.log" src` is empty.
+- [x] `npm run build` and `npm run lint` pass; `grep -rn "console.log" src` is empty.
 
 **Notes/risks**
 - Leave `console.error` calls until FE-025 replaces them.

@@ -138,7 +138,6 @@ export const useDownloadTemplate = () => {
       toast.success("Template downloaded successfully");
     },
     onError: (error) => {
-      console.log(error);
       toast.error(
         error.message || "Failed to download template! Please try again later",
       );

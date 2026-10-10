@@ -8,15 +8,12 @@
  */
 import {
   CalendarIcon,
-  CopyIcon,
   EyeIcon,
   GaugeIcon,
   LayoutListIcon,
   LogOutIcon,
-  PencilIcon,
   SettingsIcon,
   SparklesIcon,
-  TrashIcon,
   UserIcon,
   Users2Icon,
   Crown,
@@ -88,21 +85,6 @@ export const APP_SIDEBAR = {
     ],
   },
 };
-
-export const DASHBOARD_CARD_MENU = [
-  {
-    label: "Edit",
-    Icon: PencilIcon,
-  },
-  {
-    label: "Copy",
-    Icon: CopyIcon,
-  },
-  {
-    label: "Delete",
-    Icon: TrashIcon,
-  },
-];
 
 export const DESIGN_PRESET_OPTIONS = [
   { value: "classic_elegant", label: "Classic Elegant Wedding" },
