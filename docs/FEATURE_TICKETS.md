@@ -401,7 +401,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Add `--chart-6`/`--chart-7` (light and dark) and the `--color-chart-*` mappings; use `(i % 7) + 1`. Check contrast in both themes.
 
 **Acceptance criteria**
-- [ ] A wedding with all 7 dietary answers shows 7 distinguishable slices and legend entries in light and dark mode.
+- [x] A wedding with all 7 dietary answers shows 7 distinguishable slices and legend entries in light and dark mode.
 
 **Notes/risks**
 - Remove the ponytail comment.

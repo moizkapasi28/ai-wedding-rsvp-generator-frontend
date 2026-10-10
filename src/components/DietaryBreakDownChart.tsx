@@ -10,12 +10,16 @@ import {
 
 export type BreakdownItem = { name: string; label: string; value: number };
 
+// --chart-1 … --chart-7 in index.css
+const CHART_SLOTS = 7;
+
 export function DietaryBreakDownChart({ data }: { data: BreakdownItem[] }) {
-  // ponytail: 5 theme chart colors, repeats past 5 slices — add --chart-6+ if that gets confusing
+  // One theme chart colour per slice, in slot order. Seven slots cover the longest list
+  // this chart gets (the seven dietary options); an eighth slice would reuse slot 1.
   const chartConfig: ChartConfig = Object.fromEntries(
     data.map((item, i) => [
       item.name,
-      { label: item.label, color: `var(--chart-${(i % 5) + 1})` },
+      { label: item.label, color: `var(--chart-${(i % CHART_SLOTS) + 1})` },
     ]),
   );
   const chartData = data.map((item) => ({
@@ -42,9 +46,19 @@ export function DietaryBreakDownChart({ data }: { data: BreakdownItem[] }) {
           outerRadius={80}
           cx="50%"
           cy="45%"
+          // A thin gap in the card's own colour between slices, so two neighbours are
+          // told apart by the break as well as by hue
+          stroke="var(--card)"
+          strokeWidth={2}
         />
         <Legend
-          content={<ChartLegendContent nameKey="name" />}
+          // Seven entries don't fit on one line in a narrow card; wrap rather than clip
+          content={
+            <ChartLegendContent
+              nameKey="name"
+              className="flex-wrap gap-x-4 gap-y-1"
+            />
+          }
           verticalAlign="bottom"
           align="center"
         />
