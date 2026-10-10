@@ -9,6 +9,7 @@ import type {
 import type { GenericResponse } from "@/models/generic";
 import { apiService } from "./api.service";
 import type {
+  ChangePasswordRequest,
   ForgotPasswordRequest,
   LoginRequest,
   ResendVerificationEmailRequest,
@@ -59,6 +60,13 @@ class AuthService {
     return this.api.patch<ForgotPasswordResponse>(
       `${this.controller}/reset-password`,
       body,
+    );
+  }
+
+  async changePassword({ currentPassword, newPassword }: ChangePasswordRequest) {
+    return this.api.patch<GenerateNewTokenResponse>(
+      `${this.controller}/change-password`,
+      { currentPassword, newPassword },
     );
   }
 

@@ -9,6 +9,7 @@ import {
 } from "@/store/store";
 import { tokenStore } from "@/store/token";
 import type {
+  ChangePasswordRequest,
   ForgotPasswordRequest,
   LoginRequest,
   ResendVerificationEmailRequest,
@@ -152,6 +153,26 @@ export const useResetPassword = ({ setIsError }: ResetPasswordProps) => {
       ) {
         setIsError(true);
       }
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  const [, setRefreshToken] = useAtom(refreshTokenAtom);
+
+  return useMutation({
+    mutationFn: async (data: ChangePasswordRequest) =>
+      authService.changePassword(data),
+    onSuccess: (response) => {
+      // The change ended every session, this one included; these are its replacement
+      tokenStore.setAccessToken(response.data.access);
+      setRefreshToken(response.data.refresh.token);
+      toast.success("Password changed. Other devices have been signed out.");
+    },
+    onError: (error) => {
+      toast.error(
+        error.message || "Failed to change password. Please try again.",
+      );
     },
   });
 };

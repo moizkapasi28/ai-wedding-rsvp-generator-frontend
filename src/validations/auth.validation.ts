@@ -107,6 +107,25 @@ export const resetPasswordSchema = z
 
 export type ResetPasswordRequest = z.infer<typeof resetPasswordSchema>;
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { message: "Please enter your current password" }),
+    newPassword: passwordValidation,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword !== data.currentPassword, {
+    message: "New password must be different from your current password",
+    path: ["newPassword"],
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
+
 export const logoutSchema = z.object({
   refreshToken: z
     .string("Refresh token is required")
