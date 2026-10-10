@@ -8,6 +8,8 @@ export interface User {
   mobile_number: string;
   profile_picture: string | null;
   ai_credits: number;
+  // What each AI generation costs; sent with the profile (GET/PATCH auth/me), not with sign-in
+  ai_credit_costs?: { INVITE_CARD: number; HEADER_IMAGE: number };
   created_at: string;
   updated_at: string;
   is_email_verified: boolean;

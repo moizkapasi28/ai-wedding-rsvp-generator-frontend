@@ -11,7 +11,9 @@ import {
   useQueryClient,
   type QueryClient,
 } from "@tanstack/react-query";
+import { createElement } from "react";
 import toast from "react-hot-toast";
+import UndoToast from "@/components/UndoToast";
 import { EVENT_QUERY_KEY } from "./use-event";
 import { PAGE_SETTING_QUERY_KEY } from "./use-pageSetting";
 
@@ -234,16 +236,55 @@ export const useGetWhatsAppInvites = (
   });
 };
 
-export const useMarkInviteSent = () => {
+// Everything that shows whether an invite or a reminder has gone out
+const invalidateInviteSends = (queryClient: QueryClient) =>
+  Promise.all(
+    // Reminders too: the first one is timed from when the invite was sent
+    [WHATSAPP_INVITES_QUERY_KEY, GUEST_QUERY_KEY, REMINDERS_QUERY_KEY].map(
+      (queryKey) => queryClient.invalidateQueries({ queryKey: [...queryKey] }),
+    ),
+  );
+
+// Opening the WhatsApp link is what marks an invite or reminder as sent, and WhatsApp can't
+// tell us whether the host actually pressed Send, so a mis-tap gets a way back. One toast id
+// per kind: sending to the next guest replaces the offer for the previous one.
+const offerUndo = (id: string, message: string, onUndo: () => void) =>
+  toast(
+    (t) =>
+      createElement(UndoToast, {
+        message,
+        onUndo: () => {
+          toast.dismiss(t.id);
+          onUndo();
+        },
+      }),
+    { id, duration: 8000 },
+  );
+
+export const useUnmarkInviteSent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationFn: async (inviteId: string) =>
+      guestService.unmarkInviteSent(inviteId),
+    onSuccess: () => invalidateInviteSends(queryClient),
+    onError: (error) => {
+      toast.error(error.message || "Couldn't mark the invite as not sent");
+    },
+  });
+};
+
+export const useMarkInviteSent = () => {
+  const queryClient = useQueryClient();
+  const unmark = useUnmarkInviteSent();
+
+  return useMutation({
     mutationFn: async (inviteId: string) => guestService.markInviteSent(inviteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...WHATSAPP_INVITES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
-      // The first reminder is timed from when the invite was sent
-      queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
+    onSuccess: (_response, inviteId) => {
+      invalidateInviteSends(queryClient);
+      offerUndo("undo-invite-sent", "Marked as sent", () =>
+        unmark.mutate(inviteId),
+      );
     },
     onError: (error) => {
       toast.error(error.message || "Couldn't mark the invite as sent");
@@ -262,20 +303,33 @@ export const useGetDueReminders = (
   });
 };
 
-export const useMarkReminderSent = () => {
+type ReminderTarget = { inviteId: string; reminder: ReminderKind };
+
+export const useUnmarkReminderSent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      inviteId,
-      reminder,
-    }: {
-      inviteId: string;
-      reminder: ReminderKind;
-    }) => guestService.markReminderSent(inviteId, reminder),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...REMINDERS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [...GUEST_QUERY_KEY] });
+    mutationFn: async ({ inviteId, reminder }: ReminderTarget) =>
+      guestService.unmarkReminderSent(inviteId, reminder),
+    onSuccess: () => invalidateInviteSends(queryClient),
+    onError: (error) => {
+      toast.error(error.message || "Couldn't mark the reminder as not sent");
+    },
+  });
+};
+
+export const useMarkReminderSent = () => {
+  const queryClient = useQueryClient();
+  const unmark = useUnmarkReminderSent();
+
+  return useMutation({
+    mutationFn: async ({ inviteId, reminder }: ReminderTarget) =>
+      guestService.markReminderSent(inviteId, reminder),
+    onSuccess: (_response, target) => {
+      invalidateInviteSends(queryClient);
+      offerUndo("undo-reminder-sent", "Reminder marked as sent", () =>
+        unmark.mutate(target),
+      );
     },
     onError: (error) => {
       toast.error(error.message || "Couldn't mark the reminder as sent");

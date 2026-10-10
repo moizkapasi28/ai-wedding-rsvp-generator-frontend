@@ -1,8 +1,8 @@
 import { Logo } from "@/components/Logo";
 import UserMenu from "@/components/UserMenu";
 import WeddingSwitcher from "@/components/WeddingSwitcher";
-import { AI_CREDIT_COST, APP_SIDEBAR } from "@/constants";
-import { useAiCredits } from "@/hooks/use-auth";
+import { APP_SIDEBAR } from "@/constants";
+import { useAiCreditCosts, useAiCredits } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -24,9 +24,10 @@ import {
 export default function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
   const credits = useAiCredits();
+  const costs = useAiCreditCosts();
   // Too few left for an invite card, the most expensive generation
   const lowOnCredits =
-    credits !== undefined && credits < AI_CREDIT_COST.INVITE_CARD;
+    credits !== undefined && credits < costs.INVITE_CARD;
   const location = useLocation();
 
   // /weddings is the only route that isn't a prefix of a deeper page, so it

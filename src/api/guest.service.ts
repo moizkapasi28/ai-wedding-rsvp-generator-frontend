@@ -141,6 +141,13 @@ class GuestService {
     );
   }
 
+  // Undo for a mis-tap: the invite counts as unsent again
+  async unmarkInviteSent(inviteId: string): Promise<MarkInviteSentResponse> {
+    return this.api.delete<MarkInviteSentResponse>(
+      `${this.controller}/invites/${inviteId}/mark-sent`,
+    );
+  }
+
   async getDueReminders(eventId: string): Promise<DueRemindersResponse> {
     return this.api.get<DueRemindersResponse>(
       `${this.controller}/invites/reminders?eventId=${eventId}`,
@@ -154,6 +161,15 @@ class GuestService {
     return this.api.post<MarkInviteSentResponse>(
       `${this.controller}/invites/${inviteId}/mark-reminded`,
       { reminder },
+    );
+  }
+
+  async unmarkReminderSent(
+    inviteId: string,
+    reminder: ReminderKind,
+  ): Promise<MarkInviteSentResponse> {
+    return this.api.delete<MarkInviteSentResponse>(
+      `${this.controller}/invites/${inviteId}/mark-reminded?reminder=${reminder}`,
     );
   }
 }

@@ -1,4 +1,5 @@
 import { authService } from "@/api/auth.service";
+import { AI_CREDIT_COST } from "@/constants";
 import type { User } from "@/models/user.model";
 import {
   isLoggedInAtom,
@@ -233,3 +234,8 @@ export const useUpdateProfile = () => {
 
 // Server balance, not the persisted userAtom: that copy goes stale after every generation
 export const useAiCredits = () => useUserProfile().data?.ai_credits;
+
+// What each generation costs, from the API alongside the balance, so a price change needs no
+// frontend deploy. The constant only covers the moment before the profile has loaded.
+export const useAiCreditCosts = () =>
+  useUserProfile().data?.ai_credit_costs ?? AI_CREDIT_COST;

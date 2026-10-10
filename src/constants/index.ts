@@ -30,7 +30,8 @@ import {
   Paintbrush,
 } from "lucide-react";
 
-// Mirrors AI_CREDIT_COST in the backend's credits.service.ts
+// Fallback only: the real costs come from the API (useAiCreditCosts). Mirrors AI_CREDIT_COST
+// in the backend's credits.service.ts for the moment before the profile has loaded.
 export const AI_CREDIT_COST = {
   INVITE_CARD: 10,
   HEADER_IMAGE: 5,

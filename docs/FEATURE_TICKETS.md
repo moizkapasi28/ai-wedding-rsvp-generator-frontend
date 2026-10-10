@@ -333,7 +333,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 - Read costs from `/auth/me` (BE-023) through `useUserProfile`; keep the constant as a fallback while loading.
 
 **Acceptance criteria**
-- [ ] Changing the backend cost changes the displayed cost after a profile refetch, with no frontend deploy.
+- [x] Changing the backend cost changes the displayed cost after a profile refetch, with no frontend deploy.
 
 **Notes/risks**
 - None.

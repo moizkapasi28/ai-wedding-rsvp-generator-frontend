@@ -12,8 +12,11 @@ import {
   useGetInviteCardsByWeddingInfinite,
   useUpdateInviteCard,
 } from "@/hooks/use-inviteCard";
-import { AI_CREDIT_COST } from "@/constants";
-import { USER_PROFILE_QUERY_KEY, useAiCredits } from "@/hooks/use-auth";
+import {
+  USER_PROFILE_QUERY_KEY,
+  useAiCreditCosts,
+  useAiCredits,
+} from "@/hooks/use-auth";
 import { activeWeddingIdAtom } from "@/store/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
@@ -270,8 +273,9 @@ export default function InviteCardMain() {
   const generationStatus = statusResponse?.data;
 
   const credits = useAiCredits();
+  const cardCost = useAiCreditCosts().INVITE_CARD;
   const notEnoughCredits =
-    credits !== undefined && credits < AI_CREDIT_COST.INVITE_CARD;
+    credits !== undefined && credits < cardCost;
 
   // The card configuration sent to both the save and the generate endpoints
   const buildCardPayload = (formData: AiInviteFormValues) => {
@@ -774,14 +778,14 @@ export default function InviteCardMain() {
                         : "Generate from example"}
                     {!isGenerating && (
                       <span className="opacity-70">
-                        · {AI_CREDIT_COST.INVITE_CARD} credits
+                        · {cardCost} credits
                       </span>
                     )}
                   </Button>
                   {notEnoughCredits && (
                     <p className="text-center text-xs text-destructive">
                       Not enough AI credits: you have {credits} left and this
-                      needs {AI_CREDIT_COST.INVITE_CARD}.
+                      needs {cardCost}.
                     </p>
                   )}
                 </>

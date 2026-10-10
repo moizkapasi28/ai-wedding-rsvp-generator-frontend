@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AI_CREDIT_COST, ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OPTIONS } from "@/constants";
-import { useAiCredits } from "@/hooks/use-auth";
+import { ATTIRE_STYLE_OPTIONS, ILLUSTRATION_STYLE_OPTIONS, ILLUSTRATION_THEME_OPTIONS } from "@/constants";
+import { useAiCreditCosts, useAiCredits } from "@/hooks/use-auth";
 import {
   useGenerateImage,
   useGenerateUploadUrl,
@@ -97,8 +97,9 @@ export default function PageSettingsIllustration({
   const generateUploadUrlMutation = useGenerateUploadUrl();
   const generateImageMutation = useGenerateImage();
   const credits = useAiCredits();
+  const imageCost = useAiCreditCosts().HEADER_IMAGE;
   const notEnoughCredits =
-    credits !== undefined && credits < AI_CREDIT_COST.HEADER_IMAGE;
+    credits !== undefined && credits < imageCost;
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -595,7 +596,7 @@ export default function PageSettingsIllustration({
                           <Sparkles className="mr-2 h-5 w-5" />
                           Generate Illustration
                           <span className="ml-1 opacity-70">
-                            · {AI_CREDIT_COST.HEADER_IMAGE} credits
+                            · {imageCost} credits
                           </span>
                         </>
                       )}
@@ -603,7 +604,7 @@ export default function PageSettingsIllustration({
                     {notEnoughCredits && (
                       <p className="text-center text-xs text-destructive">
                         Not enough AI credits: you have {credits} left and this
-                        needs {AI_CREDIT_COST.HEADER_IMAGE}.
+                        needs {imageCost}.
                       </p>
                     )}
                     <Dialog>

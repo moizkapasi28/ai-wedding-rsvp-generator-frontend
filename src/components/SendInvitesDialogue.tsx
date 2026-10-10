@@ -16,6 +16,7 @@ import {
   useGetWhatsAppInvites,
   useMarkInviteSent,
   useMarkReminderSent,
+  useUnmarkInviteSent,
 } from "@/hooks/use-guest";
 import { Loader2, Send } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -53,6 +54,7 @@ function GuestRow({
   actionLabel,
   primary,
   onSend,
+  onUndo,
 }: {
   name: string;
   detail: string;
@@ -60,6 +62,8 @@ function GuestRow({
   actionLabel: string;
   primary: boolean;
   onSend: () => void;
+  // Shown on rows already marked sent, to take that back
+  onUndo?: () => void;
 }) {
   return (
     <li className="flex items-center justify-between gap-3 py-2">
@@ -67,23 +71,30 @@ function GuestRow({
         <p className="truncate text-sm font-medium">{name}</p>
         <p className="text-xs text-muted-foreground">{detail}</p>
       </div>
-      {url ? (
-        <Button
-          size="sm"
-          variant={primary ? "default" : "outline"}
-          className="shrink-0 gap-1.5"
-          asChild
-        >
-          <a href={url} target="_blank" rel="noreferrer" onClick={onSend}>
-            <Send className="h-3.5 w-3.5" />
+      <div className="flex shrink-0 items-center gap-1">
+        {onUndo && (
+          <Button size="sm" variant="ghost" onClick={onUndo}>
+            Mark not sent
+          </Button>
+        )}
+        {url ? (
+          <Button
+            size="sm"
+            variant={primary ? "default" : "outline"}
+            className="gap-1.5"
+            asChild
+          >
+            <a href={url} target="_blank" rel="noreferrer" onClick={onSend}>
+              <Send className="h-3.5 w-3.5" />
+              {actionLabel}
+            </a>
+          </Button>
+        ) : (
+          <Button size="sm" variant="outline" disabled>
             {actionLabel}
-          </a>
-        </Button>
-      ) : (
-        <Button size="sm" variant="outline" className="shrink-0" disabled>
-          {actionLabel}
-        </Button>
-      )}
+          </Button>
+        )}
+      </div>
     </li>
   );
 }
@@ -122,6 +133,7 @@ export function SendInvitesDialogue({
   const remindersQuery = useGetDueReminders(eventId, open);
   const markSent = useMarkInviteSent();
   const markReminded = useMarkReminderSent();
+  const unmarkSent = useUnmarkInviteSent();
   const [showSent, setShowSent] = useState(false);
 
   const invites = invitesQuery.data?.data ?? [];
@@ -203,6 +215,11 @@ export function SendInvitesDialogue({
                           actionLabel={invite.invite_sent_at ? "Resend" : "Send"}
                           primary={!invite.invite_sent_at}
                           onSend={() => markSent.mutate(invite.id)}
+                          onUndo={
+                            invite.invite_sent_at
+                              ? () => unmarkSent.mutate(invite.id)
+                              : undefined
+                          }
                         />
                       ))}
                     </GuestList>
