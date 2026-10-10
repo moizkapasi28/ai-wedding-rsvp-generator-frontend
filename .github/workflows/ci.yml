@@ -19,5 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      # node:test over the import-free helpers in src/lib
+      - run: npm test
       # tsc -b (type-check) + vite build
       - run: npm run build

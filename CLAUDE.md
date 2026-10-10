@@ -9,9 +9,10 @@ npm run dev       # Vite dev server
 npm run build     # tsc -b (type-check) + vite build — use this to verify changes
 npm run lint      # eslint over the whole repo — keep it at 0 errors
 npx eslint <files>  # lint only touched files
+npm test          # node:test over src/lib/*.test.ts (no framework, no DOM)
 ```
 
-There is no test runner. `src/lib/sse.ts` is written import-free so it can be checked with `node --test`.
+Tests cover only the import-free helpers in `src/lib` (e.g. `sse.ts`, `pageRange.ts`, `weddingDate.ts`): put logic worth testing in such a file and add a `<name>.test.ts` beside it, importing with the `.ts` extension. Test files are type-checked by `tsconfig.node.json`, not the app config. There are no component tests. CI (`.github/workflows/ci.yml`) runs lint, tests and build.
 
 Env vars are validated at build/dev time by `@julr/vite-plugin-validate-env` against the zod schema in `env.ts` (`VITE_APP_URL` — trailing slash stripped; optional `VITE_GOOGLE_MAPS_API_KEY`). Adding a `VITE_*` var means adding it to `env.ts` and `.env.example`; `node check-env.cjs` checks `.env` against both. Production frontend: https://ai-wedding-rsvp-generator.pages.dev.
 

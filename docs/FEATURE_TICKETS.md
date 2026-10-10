@@ -491,7 +491,7 @@ Totals: 28 tickets. P0: 1 · P1: 5 · P2: 22.
 
 **Acceptance criteria**
 - [ ] `npm test` passes locally and in CI (FE-023).
-- [ ] Breaking `parseSseChunk`'s handling of a message split across two chunks fails a test.
+- [x] Breaking `parseSseChunk`'s handling of a message split across two chunks fails a test.
 
 **Notes/risks**
 - Component tests (Vitest + Testing Library) are a separate decision; do not add them here.
